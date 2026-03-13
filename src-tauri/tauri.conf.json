@@ -41,12 +41,16 @@
     "longDescription": "CMTrace Open is an open-source log viewer inspired by Microsoft's CMTrace.exe. It supports CCM and simple log formats with real-time tailing, filtering, highlighting, error code lookup, and built-in Intune Management Extension diagnostics.",
     "fileAssociations": [
       {
-        "ext": ["log"],
+        "ext": [
+          "log"
+        ],
         "mimeType": "text/plain",
         "description": "Log File"
       },
       {
-        "ext": ["lo_"],
+        "ext": [
+          "lo_"
+        ],
         "mimeType": "text/plain",
         "description": "Old Log File"
       }
@@ -64,7 +68,10 @@
     },
     "linux": {
       "deb": {
-        "depends": ["libwebkit2gtk-4.1-0", "libgtk-3-0"]
+        "depends": [
+          "libwebkit2gtk-4.1-0",
+          "libgtk-3-0"
+        ]
       },
       "appimage": {
         "bundleMediaFramework": false
