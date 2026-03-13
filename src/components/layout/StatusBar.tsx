@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   getActiveSourceLabel,
   getBaseName,
@@ -15,6 +16,20 @@ import {
   useUiStore,
 } from "../../stores/ui-store";
 import { useIntuneStore } from "../../stores/intune-store";
+
+interface SeverityCounts {
+  errors: number;
+  warnings: number;
+  info: number;
+}
+
+function formatSeverityCounts(counts: SeverityCounts): string {
+  const parts: string[] = [];
+  if (counts.errors > 0) parts.push(`${counts.errors} error${counts.errors === 1 ? "" : "s"}`);
+  if (counts.warnings > 0) parts.push(`${counts.warnings} warning${counts.warnings === 1 ? "" : "s"}`);
+  if (counts.info > 0) parts.push(`${counts.info} info`);
+  return parts.join(", ");
+}
 
 export function StatusBar() {
   const entries = useLogStore((s) => s.entries);
@@ -42,6 +57,52 @@ export function StatusBar() {
   const filteredIds = useFilterStore((s) => s.filteredIds);
   const isFiltering = useFilterStore((s) => s.isFiltering);
   const filterError = useFilterStore((s) => s.filterError);
+
+  const { filteredCount, severityCounts } = useMemo(() => {
+    let errors = 0;
+    let warnings = 0;
+    let info = 0;
+    let counter = 0;
+
+    for (const entry of entries) {
+      if (filteredIds && !filteredIds.has(entry.id)) continue;
+      counter++;
+      switch (entry.severity) {
+        case "Error":
+          errors++;
+          break;
+        case "Warning":
+          warnings++;
+          break;
+        case "Info":
+          info++;
+          break;
+      }
+    }
+
+    return {
+      filteredCount: counter,
+      severityCounts: { errors, warnings, info },
+    };
+  }, [entries, filteredIds]);
+
+  const selectedPosition = useMemo(() => {
+    if (selectedId === null) {
+      return null;
+    }
+
+    let counter = 0;
+
+    for (const entry of entries) {
+      if (filteredIds && !filteredIds.has(entry.id)) continue;
+      counter++;
+      if (entry.id === selectedId) {
+        return counter;
+      }
+    }
+
+    return null;
+  }, [entries, filteredIds, selectedId]);
 
   let elapsedText = "";
   if (activeView === "log" && selectedId !== null && entries.length > 0) {
@@ -97,11 +158,20 @@ export function StatusBar() {
       leftParts.push(elapsedText);
     }
 
+    const positionText =
+      selectedPosition !== null
+        ? `Entry ${selectedPosition} of ${filteredCount}`
+        : null;
+
+    const severityText =
+      filteredCount > 0 ? formatSeverityCounts(severityCounts) : null;
+
     const logStatusText =
       entries.length > 0
         ? [
-          `${entries.length} entries`,
+          positionText ?? `${filteredCount} entries`,
           `${totalLines} lines`,
+          severityText,
           `${formatDetected ?? "Unknown"} format`,
           parserDisplay?.provenanceLabel,
           parserDisplay?.qualityLabel,
