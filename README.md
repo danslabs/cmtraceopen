@@ -48,12 +48,7 @@ PowerShell scripts, remediations, ESP, and sync sessions
 
 ### Build
 
-```bash
-git clone https://github.com/adamgell/CMTraceOpen.git
-cd CMTraceOpen
-npm install
-npm run tauri dev
-```
+For a Windows-focused developer setup guide, see [windows_build_from_source.md](windows_build_from_source.md).
 
 ### Install
 
