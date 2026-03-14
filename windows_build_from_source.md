@@ -35,6 +35,21 @@ Install these if you need local Windows installer packaging:
 These commands use the package IDs verified with `winget search` and
 `winget show` on the current machine.
 
+If you want the documented Windows prerequisite setup as a script, run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\Install-CMTraceOpenBuildPrereqs.ps1
+```
+
+Optional flags:
+
+- `-VisualStudioSku Community` installs the full Visual Studio Community SKU instead of Build Tools.
+- `-EnableVbScript` enables the Windows optional feature needed for local MSI packaging.
+- `-InstallRepoDependencies` runs `npm ci` in the repo after the machine prerequisites are installed.
+
+The script is safe to rerun and skips packages that are already installed.
+It installs the Visual Studio C++ workload before `rustup` so Rust does not warn about a missing MSVC toolchain prerequisite during setup.
+
 Run these in an elevated terminal on the new box:
 
 ```bash
