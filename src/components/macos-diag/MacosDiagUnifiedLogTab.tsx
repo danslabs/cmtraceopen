@@ -251,6 +251,36 @@ const useStyles = makeStyles({
     ...shorthands.padding("40px"),
     gap: "8px",
   },
+  loadingBar: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    ...shorthands.padding("8px", "12px"),
+    marginBottom: "12px",
+    backgroundColor: tokens.colorNeutralBackground1,
+    ...shorthands.border("1px", "solid", tokens.colorNeutralStroke1),
+    ...shorthands.borderRadius(tokens.borderRadiusMedium),
+  },
+  loadingBarTrack: {
+    flex: 1,
+    height: "4px",
+    backgroundColor: tokens.colorNeutralBackground3,
+    ...shorthands.borderRadius("2px"),
+    overflow: "hidden",
+  },
+  loadingBarFill: {
+    height: "100%",
+    width: "30%",
+    backgroundColor: tokens.colorBrandBackground,
+    ...shorthands.borderRadius("2px"),
+    animationName: {
+      "0%": { transform: "translateX(-100%)" },
+      "100%": { transform: "translateX(400%)" },
+    },
+    animationDuration: "1.5s",
+    animationIterationCount: "infinite",
+    animationTimingFunction: "ease-in-out",
+  },
   emptyState: {
     ...shorthands.padding("40px"),
     textAlign: "center" as const,
@@ -393,16 +423,29 @@ export function MacosDiagUnifiedLogTab() {
           size="small"
           onClick={runQuery}
           disabled={loading}
+          icon={loading ? <Spinner size="tiny" /> : undefined}
           style={{ alignSelf: "flex-end" }}
         >
-          {loading ? "Running..." : "Run Query"}
+          {loading ? "Querying..." : "Run Query"}
         </Button>
       </div>
 
-      {/* Loading */}
-      {loading && (
+      {/* Loading — show centered spinner only when no prior results exist */}
+      {loading && !unifiedLogResult && (
         <div className={styles.centered}>
           <Spinner size="medium" label="Querying unified log..." />
+        </div>
+      )}
+
+      {/* Loading overlay bar when re-querying with existing results */}
+      {loading && unifiedLogResult && (
+        <div className={styles.loadingBar}>
+          <div className={styles.loadingBarTrack}>
+            <div className={styles.loadingBarFill} />
+          </div>
+          <span style={{ fontSize: "11px", color: tokens.colorNeutralForeground3 }}>
+            Querying unified log...
+          </span>
         </div>
       )}
 
@@ -416,7 +459,7 @@ export function MacosDiagUnifiedLogTab() {
       )}
 
       {/* Results Table */}
-      {!loading && entries.length > 0 && (
+      {entries.length > 0 && (
         <div className={styles.tableWrap}>
           <div className={styles.tableHeader}>
             <div className={styles.tableTitle}>
