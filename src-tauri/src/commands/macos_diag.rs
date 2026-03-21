@@ -48,6 +48,22 @@ pub fn macos_query_unified_log(
     )
 }
 
+#[tauri::command]
+pub fn macos_open_system_settings() -> Result<(), String> {
+    #[cfg(target_os = "macos")]
+    {
+        std::process::Command::new("open")
+            .arg("x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles")
+            .spawn()
+            .map_err(|e| format!("Failed to open System Settings: {}", e))?;
+        Ok(())
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        Err("Opening System Settings is only available on macOS.".to_string())
+    }
+}
+
 // ---------------------------------------------------------------------------
 // Intune log scanning
 // ---------------------------------------------------------------------------

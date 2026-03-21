@@ -219,14 +219,12 @@ export function MacosDiagIntuneLogsTab() {
 
   const { files, scannedDirectories, totalSizeBytes } = intuneLogScan;
 
-  const latestModified =
-    files.length > 0
-      ? Math.max(
-          ...files
-            .map((f) => f.modifiedUnixMs)
-            .filter((ms): ms is number => ms !== null)
-        )
-      : null;
+  const latestModified = (() => {
+    const timestamps = files
+      .map((f) => f.modifiedUnixMs)
+      .filter((ms): ms is number => ms !== null);
+    return timestamps.length > 0 ? Math.max(...timestamps) : null;
+  })();
 
   const dirTotal = 4; // Expected: system, user, company portal, scripts
   const dirFound = scannedDirectories.length;

@@ -314,7 +314,9 @@ export function MacosDiagPackagesTab() {
       ? packages.reduce((latest, pkg) => {
           if (!latest.installTime) return pkg;
           if (!pkg.installTime) return latest;
-          return pkg.installTime > latest.installTime ? pkg : latest;
+          const pkgTime = Number(pkg.installTime) || 0;
+          const latestTime = Number(latest.installTime) || 0;
+          return pkgTime > latestTime ? pkg : latest;
         })
       : null;
 

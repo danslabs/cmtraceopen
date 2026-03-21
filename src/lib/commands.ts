@@ -280,11 +280,16 @@ export async function macosGetPackageFiles(packageId: string): Promise<MacosPack
 export async function macosQueryUnifiedLog(
   presetId: string,
   timeRangeMinutes: number,
-  maxResults: number
+  resultCap: number
 ): Promise<MacosUnifiedLogResult> {
+  const now = new Date();
+  const start = new Date(now.getTime() - timeRangeMinutes * 60 * 1000);
+  const fmt = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}:${String(d.getSeconds()).padStart(2, "0")}`;
+  const timeRange = { start: fmt(start), end: fmt(now) };
   return invokeCommand<MacosUnifiedLogResult>("macos_query_unified_log", {
     presetId,
-    timeRangeMinutes,
-    maxResults,
+    timeRange,
+    resultCap,
   });
 }

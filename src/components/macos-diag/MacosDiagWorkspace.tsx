@@ -89,9 +89,7 @@ export function MacosDiagWorkspace() {
   // Error state -- likely not macOS or backend command not available
   if (environmentPhase === "error") {
     const isNotMacOS =
-      environmentError?.includes("not found") ||
-      environmentError?.includes("not available") ||
-      environmentError?.includes("not expose");
+      environmentError?.includes("only available on macOS");
     return (
       <div className={styles.root}>
         <div className={styles.centered}>
@@ -117,7 +115,7 @@ export function MacosDiagWorkspace() {
   }
 
   // FDA not granted -- show the blocker guide
-  if (environment.fullDiskAccess === "NotGranted") {
+  if (environment.fullDiskAccess === "notGranted") {
     return (
       <div className={styles.root}>
         <MacosDiagFdaGuide onRecheck={runScan} />

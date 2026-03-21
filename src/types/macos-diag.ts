@@ -1,4 +1,4 @@
-export type FdaStatus = "Granted" | "NotGranted" | "Unknown";
+export type FdaStatus = "granted" | "notGranted" | "unknown";
 export type MacosDiagTabId = "intune-logs" | "profiles" | "defender" | "packages" | "unified-log";
 
 export interface MacosDiagEnvironment {

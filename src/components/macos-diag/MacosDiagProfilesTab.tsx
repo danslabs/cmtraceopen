@@ -87,6 +87,11 @@ const useStyles = makeStyles({
     cursor: "pointer",
     transitionProperty: "background",
     transitionDuration: "0.15s",
+    width: "100%",
+    backgroundColor: "transparent",
+    ...shorthands.border("0"),
+    textAlign: "left" as const,
+    fontFamily: "inherit",
     ":hover": {
       backgroundColor: tokens.colorNeutralBackground3,
     },
@@ -450,7 +455,8 @@ export function MacosDiagProfilesTab() {
 
           return (
             <div key={profile.profileIdentifier} className={styles.profileCard}>
-              <div
+              <button
+                type="button"
                 className={styles.profileCardHeader}
                 onClick={() => toggleProfile(profile.profileIdentifier)}
               >
@@ -488,7 +494,7 @@ export function MacosDiagProfilesTab() {
                     &#x25BC;
                   </span>
                 </div>
-              </div>
+              </button>
 
               {isExpanded && (
                 <div className={styles.profileCardBody}>

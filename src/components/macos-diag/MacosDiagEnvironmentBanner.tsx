@@ -107,19 +107,19 @@ export function MacosDiagEnvironmentBanner({ environment, onRefresh }: Props) {
   const dirMissing = dirTotal - dirFound;
 
   const fdaLabel =
-    environment.fullDiskAccess === "Granted"
+    environment.fullDiskAccess === "granted"
       ? "Full Disk Access"
-      : environment.fullDiskAccess === "Unknown"
+      : environment.fullDiskAccess === "unknown"
         ? "FDA Unknown"
         : "FDA Not Granted";
 
   const fdaPill =
-    environment.fullDiskAccess === "Granted"
+    environment.fullDiskAccess === "granted"
       ? styles.pillGranted
       : styles.pillMissing;
 
   const fdaDot =
-    environment.fullDiskAccess === "Granted"
+    environment.fullDiskAccess === "granted"
       ? styles.dotGranted
       : styles.dotMissing;
 

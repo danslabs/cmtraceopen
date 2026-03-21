@@ -229,7 +229,7 @@ const KNOWN_BUNDLE_NAMES: Record<string, string> = {
  */
 export function deriveFriendlyName(profile: MacosMdmProfile): string | null {
   // Only apply to ManagedClient.preferences profiles
-  if (!profile.profileDisplayName.includes("com.apple.ManagedClient.preferences")) {
+  if (!profile.profileIdentifier.includes("com.apple.ManagedClient.preferences")) {
     return null;
   }
 
