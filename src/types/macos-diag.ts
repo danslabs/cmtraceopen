@@ -50,6 +50,9 @@ export interface MacosMdmProfile {
   payloads: MacosMdmPayload[];
   isManaged: boolean;
   verificationState: string | null;
+  description: string | null;
+  source: string | null;
+  removalDisallowed: boolean | null;
 }
 
 export interface MacosMdmPayload {
@@ -57,6 +60,9 @@ export interface MacosMdmPayload {
   payloadDisplayName: string | null;
   payloadType: string;
   payloadUuid: string | null;
+  payloadData: string | null;
+  payloadDescription: string | null;
+  payloadVersion: number | null;
 }
 
 export interface MacosEnrollmentStatus {
