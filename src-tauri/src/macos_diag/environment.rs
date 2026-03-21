@@ -1,7 +1,7 @@
-use super::models::{
-    FdaStatus, MacosDiagDirectoryStatus, MacosDiagEnvironment, MacosDiagToolAvailability,
-    MacosLogFileEntry,
-};
+use super::models::MacosDiagEnvironment;
+#[cfg(target_os = "macos")]
+use super::models::{FdaStatus, MacosDiagDirectoryStatus, MacosDiagToolAvailability};
+use super::models::MacosLogFileEntry;
 use std::path::Path;
 use std::time::UNIX_EPOCH;
 
@@ -98,6 +98,7 @@ pub fn scan_log_directory(dir: &str) -> Vec<MacosLogFileEntry> {
 // Resolve home-relative paths
 // ---------------------------------------------------------------------------
 
+#[cfg(target_os = "macos")]
 fn resolve_home(path: &str) -> String {
     if path.starts_with("~/") {
         if let Ok(home) = std::env::var("HOME") {

@@ -64,6 +64,7 @@ pub fn parse_enrollment_status(output: &str) -> MacosEnrollmentStatus {
     }
 }
 
+#[cfg(any(target_os = "macos", test))]
 /// Extracts the ISO date portion from a system_profiler install date string.
 ///
 /// system_profiler formats dates like:
@@ -80,6 +81,7 @@ fn extract_iso_date(raw: &str) -> String {
     raw.trim().to_string()
 }
 
+#[cfg(any(target_os = "macos", test))]
 /// Parses the plist XML output of
 /// `system_profiler SPConfigurationProfileDataType -xml`
 /// into a list of MDM profiles.

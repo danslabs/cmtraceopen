@@ -1,5 +1,6 @@
-use super::environment::scan_log_directory;
-use super::models::{MacosDefenderHealthStatus, MacosDefenderResult, MacosLogFileEntry};
+use super::models::{MacosDefenderHealthStatus, MacosDefenderResult};
+#[cfg(target_os = "macos")]
+use super::{environment::scan_log_directory, models::MacosLogFileEntry};
 
 // ---------------------------------------------------------------------------
 // Parsing helpers (cross-platform, always compiled, fully testable)
