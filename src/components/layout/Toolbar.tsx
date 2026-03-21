@@ -12,6 +12,7 @@ import {
   Button,
   Divider,
   Input,
+  tokens,
 } from "@fluentui/react-components";
 import { open } from "@tauri-apps/plugin-dialog";
 import { analyzeIntuneLogs, inspectPathKind } from "../../lib/commands";
@@ -28,6 +29,7 @@ import { useFilterStore } from "../../stores/filter-store";
 import { useIntuneStore } from "../../stores/intune-store";
 import { useDsregcmdStore } from "../../stores/dsregcmd-store";
 import { isIntuneWorkspace, type IntuneWorkspaceId, type WorkspaceId, useUiStore } from "../../stores/ui-store";
+import { ThemePicker } from "./ThemePicker";
 import {
   getLogSourcePath,
   getKnownSourceMetadataById,
@@ -205,17 +207,17 @@ function getToolbarControlStyle(options: {
   const { disabled, active = false, tone = "neutral" } = options;
 
   const toneColors: Record<string, string> = {
-    neutral: active ? "#dbeafe" : "#ffffff",
-    busy: "#fef3c7",
-    warning: "#ffedd5",
-    error: "#fecaca",
+    neutral: active ? tokens.colorPaletteBlueBackground2 : tokens.colorNeutralBackground1,
+    busy: tokens.colorPaletteYellowBackground2,
+    warning: tokens.colorPaletteMarigoldBackground2,
+    error: tokens.colorPaletteRedBackground2,
   };
 
   return {
-    border: "1px solid #9ca3af",
+    border: `1px solid ${tokens.colorNeutralStroke1}`,
     borderRadius: "6px",
-    backgroundColor: disabled ? "#e5e7eb" : toneColors[tone],
-    color: disabled ? "#6b7280" : "#111827",
+    backgroundColor: disabled ? tokens.colorNeutralBackgroundDisabled : toneColors[tone],
+    color: disabled ? tokens.colorNeutralForeground3 : tokens.colorNeutralForeground1,
     fontWeight: active ? 600 : 400,
     opacity: disabled ? 0.75 : 1,
     cursor: disabled ? "not-allowed" : "pointer",
@@ -842,8 +844,8 @@ export function Toolbar() {
         justifyContent: "space-between",
         gap: "10px",
         padding: "10px 12px",
-        backgroundColor: "#f8fafc",
-        borderBottom: "1px solid #d8e1ec",
+        backgroundColor: tokens.colorNeutralBackground2,
+        borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
         flexShrink: 0,
       }}
     >
@@ -941,7 +943,7 @@ export function Toolbar() {
             style={{
               fontSize: "12px",
               fontFamily: "'Segoe UI', Tahoma, sans-serif",
-              color: commandState.activeView === "log" ? "#111827" : "#6b7280",
+              color: commandState.activeView === "log" ? tokens.colorNeutralForeground1 : tokens.colorNeutralForeground3,
               whiteSpace: "nowrap",
             }}
           >
@@ -979,6 +981,8 @@ export function Toolbar() {
         >
           Error Lookup
         </Button>
+        <Divider vertical />
+        <ThemePicker />
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap", justifyContent: "flex-end" }}>
@@ -1010,6 +1014,7 @@ export function Toolbar() {
           ["intune", "Intune Diagnostics"],
           ["new-intune", "New Intune Workspace"],
           ["dsregcmd", "Troubleshoot with dsregcmd"],
+          ["macos-diag", "macOS Diagnostics"],
         ] as const).map(([workspaceId, label]) => (
           <Button
             key={workspaceId}
@@ -1022,6 +1027,7 @@ export function Toolbar() {
             {label}
           </Button>
         ))}
+
       </div>
     </div>
   );

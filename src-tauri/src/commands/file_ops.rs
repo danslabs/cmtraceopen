@@ -1367,13 +1367,205 @@ fn windows_known_log_sources() -> Vec<KnownSourceMetadata> {
     ]
 }
 
+#[cfg(target_os = "macos")]
+#[allow(clippy::too_many_arguments)]
+fn macos_known_source(
+    id: &str,
+    label: &str,
+    description: &str,
+    path_kind: KnownSourcePathKind,
+    default_path: &str,
+    file_patterns: &[&str],
+    grouping: KnownSourceGroupingMetadata,
+    default_file_intent: Option<KnownSourceDefaultFileIntent>,
+) -> KnownSourceMetadata {
+    let id_text = id.to_string();
+
+    KnownSourceMetadata {
+        id: id_text.clone(),
+        label: label.to_string(),
+        description: description.to_string(),
+        platform: PlatformKind::Macos,
+        source_kind: LogSourceKind::Known,
+        source: LogSource::Known {
+            source_id: id_text,
+            default_path: default_path.to_string(),
+            path_kind,
+        },
+        file_patterns: file_patterns
+            .iter()
+            .map(|value| (*value).to_string())
+            .collect(),
+        grouping: Some(grouping),
+        default_file_intent,
+    }
+}
+
+#[cfg(target_os = "macos")]
+fn macos_known_log_sources() -> Vec<KnownSourceMetadata> {
+    let home = std::env::var("HOME").unwrap_or_else(|_| "/tmp".to_string());
+
+    vec![
+        // --- macOS Intune: System-level MDM daemon logs ---
+        macos_known_source(
+            "macos-intune-system-logs",
+            "Intune System Logs",
+            "System-level MDM daemon logs for PKG/DMG installs and root script execution.",
+            KnownSourcePathKind::Folder,
+            "/Library/Logs/Microsoft/Intune",
+            &["*.log"],
+            KnownSourceGroupingMetadata {
+                family_id: "macos-intune".to_string(),
+                family_label: "macOS Intune".to_string(),
+                group_id: "intune-logs".to_string(),
+                group_label: "Intune Logs".to_string(),
+                group_order: 10,
+                source_order: 10,
+            },
+            Some(KnownSourceDefaultFileIntent {
+                selection_behavior:
+                    KnownSourceDefaultFileSelectionBehavior::PreferFileNameThenPattern,
+                preferred_file_names: vec![
+                    "IntuneMDMDaemon.log".to_string(),
+                ],
+            }),
+        ),
+        // --- macOS Intune: User-level MDM agent logs ---
+        macos_known_source(
+            "macos-intune-user-logs",
+            "Intune User Agent Logs",
+            "User-level MDM agent logs for user-context scripts and policies.",
+            KnownSourcePathKind::Folder,
+            &format!("{}/Library/Logs/Microsoft/Intune", home),
+            &["*.log"],
+            KnownSourceGroupingMetadata {
+                family_id: "macos-intune".to_string(),
+                family_label: "macOS Intune".to_string(),
+                group_id: "intune-logs".to_string(),
+                group_label: "Intune Logs".to_string(),
+                group_order: 10,
+                source_order: 20,
+            },
+            None,
+        ),
+        // --- macOS Intune: Script execution logs ---
+        macos_known_source(
+            "macos-intune-scripts-logs",
+            "Intune Script Logs",
+            "Shell script execution logs from Intune script deployments.",
+            KnownSourcePathKind::Folder,
+            "/Library/Logs/Microsoft/IntuneScripts",
+            &["*.log"],
+            KnownSourceGroupingMetadata {
+                family_id: "macos-intune".to_string(),
+                family_label: "macOS Intune".to_string(),
+                group_id: "intune-logs".to_string(),
+                group_label: "Intune Logs".to_string(),
+                group_order: 10,
+                source_order: 30,
+            },
+            None,
+        ),
+        // --- Company Portal ---
+        macos_known_source(
+            "macos-company-portal-logs",
+            "Company Portal Logs",
+            "Company Portal app logs for enrollment, device info, and user registration.",
+            KnownSourcePathKind::Folder,
+            &format!("{}/Library/Logs/CompanyPortal", home),
+            &["*.log"],
+            KnownSourceGroupingMetadata {
+                family_id: "macos-intune".to_string(),
+                family_label: "macOS Intune".to_string(),
+                group_id: "intune-portal".to_string(),
+                group_label: "Company Portal".to_string(),
+                group_order: 20,
+                source_order: 10,
+            },
+            Some(KnownSourceDefaultFileIntent {
+                selection_behavior:
+                    KnownSourceDefaultFileSelectionBehavior::PreferFileNameThenPattern,
+                preferred_file_names: vec![
+                    "CompanyPortal.log".to_string(),
+                ],
+            }),
+        ),
+        // --- macOS install.log ---
+        macos_known_source(
+            "macos-install-log",
+            "install.log",
+            "macOS installer log — PKG installs from Intune and Software Update show up here.",
+            KnownSourcePathKind::File,
+            "/var/log/install.log",
+            &["install.log"],
+            KnownSourceGroupingMetadata {
+                family_id: "macos-system".to_string(),
+                family_label: "macOS System".to_string(),
+                group_id: "system-logs".to_string(),
+                group_label: "System Logs".to_string(),
+                group_order: 30,
+                source_order: 10,
+            },
+            None,
+        ),
+        // --- macOS system.log ---
+        macos_known_source(
+            "macos-system-log",
+            "system.log",
+            "macOS system log — MDM profile installs, daemon crashes, and system events.",
+            KnownSourcePathKind::File,
+            "/var/log/system.log",
+            &["system.log"],
+            KnownSourceGroupingMetadata {
+                family_id: "macos-system".to_string(),
+                family_label: "macOS System".to_string(),
+                group_id: "system-logs".to_string(),
+                group_label: "System Logs".to_string(),
+                group_order: 30,
+                source_order: 20,
+            },
+            None,
+        ),
+        // --- Microsoft Defender logs ---
+        macos_known_source(
+            "macos-defender-logs",
+            "Defender Logs",
+            "Microsoft Defender for Endpoint install and error logs.",
+            KnownSourcePathKind::Folder,
+            "/Library/Logs/Microsoft/mdatp",
+            &["*.log"],
+            KnownSourceGroupingMetadata {
+                family_id: "macos-defender".to_string(),
+                family_label: "macOS Defender".to_string(),
+                group_id: "defender-logs".to_string(),
+                group_label: "Defender Logs".to_string(),
+                group_order: 40,
+                source_order: 10,
+            },
+            Some(KnownSourceDefaultFileIntent {
+                selection_behavior:
+                    KnownSourceDefaultFileSelectionBehavior::PreferFileNameThenPattern,
+                preferred_file_names: vec![
+                    "microsoft_defender_core_err.log".to_string(),
+                    "install.log".to_string(),
+                ],
+            }),
+        ),
+    ]
+}
+
 fn build_known_log_sources() -> Vec<KnownSourceMetadata> {
     #[cfg(target_os = "windows")]
     {
         windows_known_log_sources()
     }
 
-    #[cfg(not(target_os = "windows"))]
+    #[cfg(target_os = "macos")]
+    {
+        macos_known_log_sources()
+    }
+
+    #[cfg(not(any(target_os = "windows", target_os = "macos")))]
     {
         Vec::new()
     }

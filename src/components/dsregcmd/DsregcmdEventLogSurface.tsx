@@ -1,5 +1,6 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useMemo, useRef, useCallback } from "react";
+import { tokens } from "@fluentui/react-components";
 import { useDsregcmdStore } from "../../stores/dsregcmd-store";
 import type { EventLogAnalysis, EventLogEntry, EventLogChannel, EventLogSeverity } from "../../types/event-log";
 
@@ -7,12 +8,12 @@ const COLLAPSED_ROW_ESTIMATE = 28;
 const EXPANDED_ROW_ESTIMATE = 200;
 
 const SEVERITY_COLORS: Record<string, string> = {
-  Critical: "#dc2626",
-  Error: "#ea580c",
-  Warning: "#d97706",
-  Information: "#2563eb",
-  Verbose: "#6b7280",
-  Unknown: "#9ca3af",
+  Critical: tokens.colorPaletteRedForeground1,
+  Error: tokens.colorPaletteRedForeground1,
+  Warning: tokens.colorPaletteMarigoldForeground1,
+  Information: tokens.colorBrandForeground1,
+  Verbose: tokens.colorNeutralForeground3,
+  Unknown: tokens.colorNeutralForeground4,
 };
 
 function channelKey(channel: EventLogChannel): string {
@@ -96,7 +97,7 @@ export function DsregcmdEventLogSurface({ eventLogAnalysis }: DsregcmdEventLogSu
 
   if (eventLogAnalysis.entries.length === 0) {
     return (
-      <div style={{ padding: 24, color: "#6b7280", textAlign: "center" }}>
+      <div style={{ padding: 24, color: tokens.colorNeutralForeground3, textAlign: "center" }}>
         No event log entries were collected for dsregcmd-related channels.
         {eventLogAnalysis.liveQuery && (
           <div style={{ marginTop: 8, fontSize: 12 }}>
@@ -117,12 +118,12 @@ export function DsregcmdEventLogSurface({ eventLogAnalysis }: DsregcmdEventLogSu
           alignItems: "center",
           gap: 8,
           padding: "6px 12px",
-          borderBottom: "1px solid #e5e7eb",
-          background: "#f9fafb",
+          borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
+          background: tokens.colorNeutralBackground2,
           flexShrink: 0,
         }}
       >
-        <label style={{ fontSize: 12, color: "#6b7280" }}>Channel:</label>
+        <label style={{ fontSize: 12, color: tokens.colorNeutralForeground3 }}>Channel:</label>
         <select
           value={typeof filterChannel === "string" ? filterChannel : channelKey(filterChannel)}
           onChange={(e) => {
@@ -143,7 +144,7 @@ export function DsregcmdEventLogSurface({ eventLogAnalysis }: DsregcmdEventLogSu
           ))}
         </select>
 
-        <label style={{ fontSize: 12, color: "#6b7280", marginLeft: 8 }}>Severity:</label>
+        <label style={{ fontSize: 12, color: tokens.colorNeutralForeground3, marginLeft: 8 }}>Severity:</label>
         <select
           value={filterSeverity}
           onChange={(e) =>
@@ -159,7 +160,7 @@ export function DsregcmdEventLogSurface({ eventLogAnalysis }: DsregcmdEventLogSu
           <option value="Verbose">Verbose</option>
         </select>
 
-        <span style={{ fontSize: 12, color: "#9ca3af", marginLeft: "auto" }}>
+        <span style={{ fontSize: 12, color: tokens.colorNeutralForeground4, marginLeft: "auto" }}>
           {filteredEntries.length} of {eventLogAnalysis.totalEntryCount} entries
         </span>
       </div>
@@ -170,7 +171,7 @@ export function DsregcmdEventLogSurface({ eventLogAnalysis }: DsregcmdEventLogSu
           display: "flex",
           gap: 6,
           padding: "6px 12px",
-          borderBottom: "1px solid #e5e7eb",
+          borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
           overflowX: "auto",
           flexShrink: 0,
         }}
@@ -194,24 +195,24 @@ export function DsregcmdEventLogSurface({ eventLogAnalysis }: DsregcmdEventLogSu
                 fontSize: 11,
                 padding: "2px 8px",
                 borderRadius: 4,
-                border: isActive ? "1px solid #2563eb" : "1px solid #d1d5db",
-                background: isActive ? "#eff6ff" : "#fff",
-                color: isActive ? "#2563eb" : "#374151",
+                border: isActive ? `1px solid ${tokens.colorBrandStroke1}` : `1px solid ${tokens.colorNeutralStroke2}`,
+                background: isActive ? tokens.colorPaletteBlueBackground2 : tokens.colorNeutralCardBackground,
+                color: isActive ? tokens.colorBrandForeground1 : tokens.colorNeutralForeground2,
                 cursor: "pointer",
                 whiteSpace: "nowrap",
               }}
             >
               {summary.channelDisplay}
-              <span style={{ color: "#6b7280", marginLeft: 4 }}>
+              <span style={{ color: tokens.colorNeutralForeground3, marginLeft: 4 }}>
                 {summary.entryCount}
               </span>
               {summary.errorCount > 0 && (
-                <span style={{ color: "#dc2626", marginLeft: 4 }}>
+                <span style={{ color: tokens.colorPaletteRedForeground1, marginLeft: 4 }}>
                   {summary.errorCount}E
                 </span>
               )}
               {summary.warningCount > 0 && (
-                <span style={{ color: "#d97706", marginLeft: 4 }}>
+                <span style={{ color: tokens.colorPaletteMarigoldForeground1, marginLeft: 4 }}>
                   {summary.warningCount}W
                 </span>
               )}
@@ -276,15 +277,15 @@ interface EventLogRowProps {
 }
 
 function EventLogRow({ entry, isExpanded, onClick }: EventLogRowProps) {
-  const severityColor = SEVERITY_COLORS[entry.severity] ?? "#9ca3af";
+  const severityColor = SEVERITY_COLORS[entry.severity] ?? tokens.colorNeutralForeground4;
 
   return (
     <div
       onClick={() => onClick(entry.id)}
       style={{
-        borderBottom: "1px solid #f3f4f6",
+        borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
         cursor: "pointer",
-        background: isExpanded ? "#f9fafb" : "transparent",
+        background: isExpanded ? tokens.colorNeutralBackground2 : "transparent",
       }}
     >
       {/* Collapsed row */}
@@ -308,7 +309,7 @@ function EventLogRow({ entry, isExpanded, onClick }: EventLogRowProps) {
             flexShrink: 0,
           }}
         />
-        <span style={{ width: 110, flexShrink: 0, color: "#6b7280" }}>
+        <span style={{ width: 110, flexShrink: 0, color: tokens.colorNeutralForeground3 }}>
           {formatTimestamp(entry.timestamp)}
         </span>
         <span
@@ -316,12 +317,12 @@ function EventLogRow({ entry, isExpanded, onClick }: EventLogRowProps) {
             width: 100,
             flexShrink: 0,
             fontWeight: 500,
-            color: "#374151",
+            color: tokens.colorNeutralForeground2,
           }}
         >
           {entry.channelDisplay}
         </span>
-        <span style={{ width: 50, flexShrink: 0, color: "#9ca3af" }}>
+        <span style={{ width: 50, flexShrink: 0, color: tokens.colorNeutralForeground4 }}>
           {entry.eventId}
         </span>
         <span
@@ -330,7 +331,7 @@ function EventLogRow({ entry, isExpanded, onClick }: EventLogRowProps) {
             overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
-            color: "#4b5563",
+            color: tokens.colorNeutralForeground3,
           }}
         >
           {entry.message}
@@ -343,12 +344,12 @@ function EventLogRow({ entry, isExpanded, onClick }: EventLogRowProps) {
           style={{
             padding: "8px 12px 12px 28px",
             fontSize: 12,
-            borderTop: "1px solid #e5e7eb",
+            borderTop: `1px solid ${tokens.colorNeutralStroke2}`,
           }}
         >
           <div
             style={{
-              background: "#f3f4f6",
+              background: tokens.colorNeutralBackground3,
               padding: 8,
               borderRadius: 4,
               fontFamily: "monospace",
@@ -362,29 +363,29 @@ function EventLogRow({ entry, isExpanded, onClick }: EventLogRowProps) {
           >
             {entry.message}
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "120px 1fr", gap: "2px 8px", color: "#6b7280" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "120px 1fr", gap: "2px 8px", color: tokens.colorNeutralForeground3 }}>
             <span>Provider:</span>
-            <span style={{ color: "#374151" }}>{entry.provider}</span>
+            <span style={{ color: tokens.colorNeutralForeground2 }}>{entry.provider}</span>
             <span>Severity:</span>
             <span style={{ color: severityColor }}>{entry.severity}</span>
             <span>Event ID:</span>
-            <span style={{ color: "#374151" }}>{entry.eventId}</span>
+            <span style={{ color: tokens.colorNeutralForeground2 }}>{entry.eventId}</span>
             {entry.computer && (
               <>
                 <span>Computer:</span>
-                <span style={{ color: "#374151" }}>{entry.computer}</span>
+                <span style={{ color: tokens.colorNeutralForeground2 }}>{entry.computer}</span>
               </>
             )}
             {entry.correlationActivityId && (
               <>
                 <span>Activity ID:</span>
-                <span style={{ color: "#374151", fontFamily: "monospace", fontSize: 11 }}>
+                <span style={{ color: tokens.colorNeutralForeground2, fontFamily: "monospace", fontSize: 11 }}>
                   {entry.correlationActivityId}
                 </span>
               </>
             )}
             <span>Source:</span>
-            <span style={{ color: "#374151" }}>{getFileName(entry.sourceFile)}</span>
+            <span style={{ color: tokens.colorNeutralForeground2 }}>{getFileName(entry.sourceFile)}</span>
           </div>
         </div>
       )}

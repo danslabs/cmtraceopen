@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { tokens } from "@fluentui/react-components";
 import {
   DEFAULT_LOG_DETAILS_FONT_SIZE,
   DEFAULT_LOG_LIST_FONT_SIZE,
@@ -8,46 +9,22 @@ import {
   MIN_LOG_LIST_FONT_SIZE,
   LOG_MONOSPACE_FONT_FAMILY,
 } from "../../lib/log-accessibility";
-import {
-  type LogSeverityPaletteMode,
-  getLogSeverityPalette,
-} from "../../lib/constants";
 import { useUiStore } from "../../stores/ui-store";
+import { getThemeById } from "../../lib/themes";
 
 interface AccessibilityDialogProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const paletteOptions: Array<{
-  value: LogSeverityPaletteMode;
-  label: string;
-  description: string;
-}> = [
-  {
-    value: "classic",
-    label: "Classic CMTrace",
-    description: "Preserve CMTrace's original severity colors.",
-  },
-  {
-    value: "accessible",
-    label: "Accessible",
-    description: "Use softer backgrounds and higher-contrast text.",
-  },
-];
 
 export function AccessibilityDialog({ isOpen, onClose }: AccessibilityDialogProps) {
   const logListFontSize = useUiStore((state) => state.logListFontSize);
   const logDetailsFontSize = useUiStore((state) => state.logDetailsFontSize);
-  const logSeverityPaletteMode = useUiStore(
-    (state) => state.logSeverityPaletteMode
-  );
+  const themeId = useUiStore((state) => state.themeId);
   const setLogListFontSize = useUiStore((state) => state.setLogListFontSize);
   const setLogDetailsFontSize = useUiStore(
     (state) => state.setLogDetailsFontSize
-  );
-  const setLogSeverityPaletteMode = useUiStore(
-    (state) => state.setLogSeverityPaletteMode
   );
   const resetLogAccessibilityPreferences = useUiStore(
     (state) => state.resetLogAccessibilityPreferences
@@ -92,7 +69,7 @@ export function AccessibilityDialog({ isOpen, onClose }: AccessibilityDialogProp
     return null;
   }
 
-  const palette = getLogSeverityPalette(logSeverityPaletteMode);
+  const palette = getThemeById(themeId).severityPalette;
 
   return (
     <div
@@ -224,36 +201,8 @@ export function AccessibilityDialog({ isOpen, onClose }: AccessibilityDialogProp
           <div style={{ fontSize: "13px", fontWeight: 700, marginBottom: "8px" }}>
             Severity colors
           </div>
-          <div style={{ display: "grid", gap: "8px" }}>
-            {paletteOptions.map((option) => (
-              <label
-                key={option.value}
-                style={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                  gap: "8px",
-                  fontSize: "12px",
-                  padding: "8px",
-                  border: "1px solid #d1d5db",
-                  borderRadius: "4px",
-                  backgroundColor:
-                    option.value === logSeverityPaletteMode ? "#eff6ff" : "#ffffff",
-                }}
-              >
-                <input
-                  type="radio"
-                  name="log-severity-palette"
-                  checked={logSeverityPaletteMode === option.value}
-                  onChange={() => setLogSeverityPaletteMode(option.value)}
-                />
-                <span>
-                  <strong>{option.label}</strong>
-                  <span style={{ display: "block", color: "#555", marginTop: "2px" }}>
-                    {option.description}
-                  </span>
-                </span>
-              </label>
-            ))}
+          <div style={{ fontSize: "12px", color: tokens.colorNeutralForeground3 }}>
+            Severity colors are now controlled by the active theme. Use the theme picker in the toolbar to switch themes.
           </div>
         </section>
 

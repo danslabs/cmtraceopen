@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef } from "react";
+import { tokens } from "@fluentui/react-components";
 import { invoke } from "@tauri-apps/api/core";
 import { Toolbar } from "./Toolbar";
 import { StatusBar } from "./StatusBar";
@@ -15,6 +16,7 @@ import { FileAssociationPromptDialog } from "../dialogs/FileAssociationPromptDia
 import { IntuneDashboard } from "../intune/IntuneDashboard";
 import { NewIntuneWorkspace } from "../intune/NewIntuneWorkspace";
 import { DsregcmdWorkspace } from "../dsregcmd/DsregcmdWorkspace";
+import { MacosDiagWorkspace } from "../macos-diag/MacosDiagWorkspace";
 import type { FilterClause } from "../dialogs/FilterDialog";
 import type { LogEntry } from "../../types/log";
 import { useUiStore } from "../../stores/ui-store";
@@ -229,6 +231,14 @@ export function AppShell() {
       );
     }
 
+    if (activeView === "macos-diag") {
+      return (
+        <div style={{ flex: 1, overflow: "hidden" }}>
+          <MacosDiagWorkspace />
+        </div>
+      );
+    }
+
     return (
       <div style={{ flex: 1, overflow: "hidden" }}>
         <DsregcmdWorkspace />
@@ -243,7 +253,7 @@ export function AppShell() {
         flexDirection: "column",
         height: "100vh",
         overflow: "hidden",
-        backgroundColor: "#f4f7fb",
+        backgroundColor: tokens.colorNeutralBackground3,
       }}
     >
       <Toolbar />
@@ -253,7 +263,7 @@ export function AppShell() {
           flex: 1,
           display: "flex",
           overflow: "hidden",
-          backgroundColor: "#eef3f8",
+          backgroundColor: tokens.colorNeutralBackground2,
         }}
       >
         <FileSidebar width={FILE_SIDEBAR_RECOMMENDED_WIDTH} activeView={activeView} />
@@ -264,7 +274,7 @@ export function AppShell() {
             display: "flex",
             flexDirection: "column",
             overflow: "hidden",
-            backgroundColor: "#ffffff",
+            backgroundColor: tokens.colorNeutralBackground1,
           }}
         >
           {renderWorkspace()}

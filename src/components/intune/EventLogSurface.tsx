@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useCallback } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
+import { tokens } from "@fluentui/react-components";
 import { formatDisplayDateTime } from "../../lib/date-time-format";
 import type {
   EventLogEntry,
@@ -16,12 +17,12 @@ const COLLAPSED_ROW_ESTIMATE = 28;
 const EXPANDED_ROW_ESTIMATE = 200;
 
 const SEVERITY_COLORS: Record<EventLogSeverity, string> = {
-  Critical: "#dc2626",
-  Error: "#ef4444",
-  Warning: "#f59e0b",
-  Information: "#3b82f6",
-  Verbose: "#9ca3af",
-  Unknown: "#6b7280",
+  Critical: tokens.colorPaletteRedForeground1,
+  Error: tokens.colorPaletteRedForeground1,
+  Warning: tokens.colorPaletteMarigoldForeground1,
+  Information: tokens.colorBrandForeground1,
+  Verbose: tokens.colorNeutralForeground4,
+  Unknown: tokens.colorNeutralForeground3,
 };
 
 function channelKey(ch: EventLogChannel): string {
@@ -102,7 +103,7 @@ export function EventLogSurface({
   if (!eventLogAnalysis || entries.length === 0) {
     if (eventLogAnalysis?.sourceKind === "Live" && liveQuery) {
       return (
-        <div style={{ padding: 24, color: "#424242", fontSize: 13, display: "grid", gap: 12 }}>
+        <div style={{ padding: 24, color: tokens.colorNeutralForeground1, fontSize: 13, display: "grid", gap: 12 }}>
           <div>
             <div style={{ fontWeight: 600, marginBottom: 4 }}>Live Windows Event Log query completed.</div>
             <div>
@@ -111,7 +112,7 @@ export function EventLogSurface({
                 : `${entries.length} entries were returned from ${liveQuery.channelsWithResultsCount} of ${liveQuery.attemptedChannelCount} queried channels.`}
             </div>
             {liveQuery.failedChannelCount > 0 && (
-              <div style={{ marginTop: 4, color: "#8a3b12" }}>
+              <div style={{ marginTop: 4, color: tokens.colorPaletteMarigoldForeground2 }}>
                 {liveQuery.failedChannelCount} channel query{liveQuery.failedChannelCount === 1 ? "" : "ies"} failed.
               </div>
             )}
@@ -122,21 +123,21 @@ export function EventLogSurface({
               <div
                 key={channel.channelPath}
                 style={{
-                  border: "1px solid #e5e7eb",
+                  border: `1px solid ${tokens.colorNeutralStroke2}`,
                   borderRadius: 6,
                   padding: "10px 12px",
-                  background: "#fafafa",
+                  background: tokens.colorNeutralBackground2,
                 }}
               >
                 <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "center" }}>
                   <div style={{ fontWeight: 600 }}>{channel.channelDisplay}</div>
-                  <div style={{ fontSize: 11, color: "#616161" }}>{channel.status}</div>
+                  <div style={{ fontSize: 11, color: tokens.colorNeutralForeground3 }}>{channel.status}</div>
                 </div>
-                <div style={{ marginTop: 4, fontSize: 12, color: "#616161" }}>
+                <div style={{ marginTop: 4, fontSize: 12, color: tokens.colorNeutralForeground3 }}>
                   {channel.entryCount} entr{channel.entryCount === 1 ? "y" : "ies"} collected
                 </div>
                 {channel.errorMessage && (
-                  <div style={{ marginTop: 4, fontSize: 12, color: "#b42318" }}>{channel.errorMessage}</div>
+                  <div style={{ marginTop: 4, fontSize: 12, color: tokens.colorPaletteRedForeground1 }}>{channel.errorMessage}</div>
                 )}
               </div>
             ))}
@@ -146,7 +147,7 @@ export function EventLogSurface({
     }
 
     return (
-      <div style={{ padding: 24, color: "#616161", fontSize: 13 }}>
+      <div style={{ padding: 24, color: tokens.colorNeutralForeground3, fontSize: 13 }}>
         No Windows Event Log evidence is available for this analysis.
       </div>
     );
@@ -168,7 +169,7 @@ export function EventLogSurface({
           display: "flex",
           gap: 8,
           padding: "8px 12px",
-          borderBottom: "1px solid #e0e0e0",
+          borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
           alignItems: "center",
           flexShrink: 0,
         }}
@@ -191,8 +192,8 @@ export function EventLogSurface({
             fontSize: 12,
             padding: "3px 6px",
             borderRadius: 4,
-            border: "1px solid #d1d1d1",
-            background: "#fff",
+            border: `1px solid ${tokens.colorNeutralStroke2}`,
+            background: tokens.colorNeutralCardBackground,
           }}
         >
           <option value="All">All channels ({entries.length})</option>
@@ -212,8 +213,8 @@ export function EventLogSurface({
             fontSize: 12,
             padding: "3px 6px",
             borderRadius: 4,
-            border: "1px solid #d1d1d1",
-            background: "#fff",
+            border: `1px solid ${tokens.colorNeutralStroke2}`,
+            background: tokens.colorNeutralCardBackground,
           }}
         >
           <option value="All">All severities</option>
@@ -224,7 +225,7 @@ export function EventLogSurface({
           ))}
         </select>
 
-        <span style={{ fontSize: 11, color: "#707070", marginLeft: "auto" }}>
+        <span style={{ fontSize: 11, color: tokens.colorNeutralForeground3, marginLeft: "auto" }}>
           {filteredEntries.length} of {entries.length} entries
         </span>
       </div>
@@ -235,7 +236,7 @@ export function EventLogSurface({
           display: "flex",
           gap: 6,
           padding: "6px 12px",
-          borderBottom: "1px solid #e0e0e0",
+          borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
           overflowX: "auto",
           flexShrink: 0,
         }}
@@ -261,32 +262,32 @@ export function EventLogSurface({
               border:
                 filterChannel !== "All" &&
                 channelKey(filterChannel) === channelKey(s.channel)
-                  ? "1px solid #007768"
-                  : "1px solid #d1d1d1",
+                  ? `1px solid ${tokens.colorPaletteTealForeground2}`
+                  : `1px solid ${tokens.colorNeutralStroke2}`,
               borderRadius: 4,
               background:
                 filterChannel !== "All" &&
                 channelKey(filterChannel) === channelKey(s.channel)
-                  ? "#f0faf8"
-                  : "#fafafa",
+                  ? tokens.colorPaletteTealBackground2
+                  : tokens.colorNeutralBackground2,
               cursor: "pointer",
               whiteSpace: "nowrap",
               fontSize: 11,
               minWidth: 90,
             }}
           >
-            <span style={{ fontWeight: 600, color: "#242424" }}>
+            <span style={{ fontWeight: 600, color: tokens.colorNeutralForeground1 }}>
               {s.channelDisplay}
             </span>
-            <span style={{ color: "#616161" }}>
+            <span style={{ color: tokens.colorNeutralForeground3 }}>
               {s.entryCount} entries
               {s.errorCount > 0 && (
-                <span style={{ color: "#ef4444", marginLeft: 4 }}>
+                <span style={{ color: tokens.colorPaletteRedForeground1, marginLeft: 4 }}>
                   {s.errorCount} err
                 </span>
               )}
               {s.warningCount > 0 && (
-                <span style={{ color: "#f59e0b", marginLeft: 4 }}>
+                <span style={{ color: tokens.colorPaletteMarigoldForeground1, marginLeft: 4 }}>
                   {s.warningCount} warn
                 </span>
               )}
@@ -342,8 +343,8 @@ export function EventLogSurface({
                     padding: "4px 12px",
                     cursor: "pointer",
                     height: 28,
-                    borderBottom: isExpanded ? "none" : "1px solid #f0f0f0",
-                    background: isExpanded ? "#f5f5f5" : "transparent",
+                    borderBottom: isExpanded ? "none" : `1px solid ${tokens.colorNeutralStroke2}`,
+                    background: isExpanded ? tokens.colorNeutralBackground3 : "transparent",
                     fontSize: 12,
                   }}
                 >
@@ -363,7 +364,7 @@ export function EventLogSurface({
                     style={{
                       fontFamily: "Consolas, 'Courier New', monospace",
                       fontSize: 11,
-                      color: "#424242",
+                      color: tokens.colorNeutralForeground1,
                       whiteSpace: "nowrap",
                       minWidth: 140,
                     }}
@@ -377,8 +378,8 @@ export function EventLogSurface({
                       fontSize: 10,
                       padding: "1px 4px",
                       borderRadius: 3,
-                      background: "#e6e6e6",
-                      color: "#424242",
+                      background: tokens.colorNeutralBackground3,
+                      color: tokens.colorNeutralForeground1,
                       whiteSpace: "nowrap",
                       fontWeight: 500,
                     }}
@@ -392,8 +393,8 @@ export function EventLogSurface({
                       fontSize: 10,
                       padding: "1px 4px",
                       borderRadius: 3,
-                      background: "#ebebeb",
-                      color: "#616161",
+                      background: tokens.colorNeutralBackground3,
+                      color: tokens.colorNeutralForeground3,
                       whiteSpace: "nowrap",
                     }}
                   >
@@ -407,7 +408,7 @@ export function EventLogSurface({
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                       whiteSpace: "nowrap",
-                      color: "#424242",
+                      color: tokens.colorNeutralForeground1,
                     }}
                   >
                     {entry.message || "(no message)"}
@@ -420,8 +421,8 @@ export function EventLogSurface({
                         fontSize: 10,
                         padding: "1px 4px",
                         borderRadius: 3,
-                        background: "#007768",
-                        color: "#fff",
+                        background: tokens.colorPaletteTealForeground2,
+                        color: tokens.colorNeutralCardBackground,
                         whiteSpace: "nowrap",
                         flexShrink: 0,
                       }}
@@ -436,8 +437,8 @@ export function EventLogSurface({
                   <div
                     style={{
                       padding: "8px 12px 12px 30px",
-                      background: "#f5f5f5",
-                      borderBottom: "1px solid #e0e0e0",
+                      background: tokens.colorNeutralBackground3,
+                      borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
                       fontSize: 12,
                     }}
                   >
@@ -447,8 +448,8 @@ export function EventLogSurface({
                         fontFamily: "Consolas, 'Courier New', monospace",
                         fontSize: 11,
                         padding: "6px 8px",
-                        background: "#fff",
-                        border: "1px solid #e0e0e0",
+                        background: tokens.colorNeutralCardBackground,
+                        border: `1px solid ${tokens.colorNeutralStroke2}`,
                         borderRadius: 4,
                         maxHeight: 100,
                         overflow: "auto",
@@ -466,7 +467,7 @@ export function EventLogSurface({
                         display: "flex",
                         gap: 16,
                         flexWrap: "wrap",
-                        color: "#616161",
+                        color: tokens.colorNeutralForeground3,
                         fontSize: 11,
                         marginBottom: 8,
                       }}
@@ -498,7 +499,7 @@ export function EventLogSurface({
                           style={{
                             fontSize: 11,
                             fontWeight: 600,
-                            color: "#242424",
+                            color: tokens.colorNeutralForeground1,
                             marginBottom: 4,
                           }}
                         >
@@ -551,7 +552,7 @@ function CorrelationLinkRow({
           alignItems: "center",
           gap: 6,
           fontSize: 11,
-          color: "#424242",
+          color: tokens.colorNeutralForeground1,
           padding: "2px 0",
         }}
       >
@@ -560,8 +561,8 @@ function CorrelationLinkRow({
             fontSize: 9,
             padding: "1px 3px",
             borderRadius: 2,
-            background: "#e6e6e6",
-            color: "#616161",
+            background: tokens.colorNeutralBackground3,
+            color: tokens.colorNeutralForeground3,
           }}
         >
           {link.correlationKind}
@@ -580,9 +581,9 @@ function CorrelationLinkRow({
               fontSize: 10,
               padding: "2px 6px",
               borderRadius: 3,
-              border: "1px solid #007768",
+              border: `1px solid ${tokens.colorPaletteTealForeground2}`,
               background: "transparent",
-              color: "#007768",
+              color: tokens.colorPaletteTealForeground2,
               cursor: "pointer",
             }}
           >
@@ -601,7 +602,7 @@ function CorrelationLinkRow({
           alignItems: "center",
           gap: 6,
           fontSize: 11,
-          color: "#424242",
+          color: tokens.colorNeutralForeground1,
           padding: "2px 0",
         }}
       >
@@ -610,8 +611,8 @@ function CorrelationLinkRow({
             fontSize: 9,
             padding: "1px 3px",
             borderRadius: 2,
-            background: "#e6e6e6",
-            color: "#616161",
+            background: tokens.colorNeutralBackground3,
+            color: tokens.colorNeutralForeground3,
           }}
         >
           {link.correlationKind}
@@ -627,9 +628,9 @@ function CorrelationLinkRow({
               fontSize: 10,
               padding: "2px 6px",
               borderRadius: 3,
-              border: "1px solid #007768",
+              border: `1px solid ${tokens.colorPaletteTealForeground2}`,
               background: "transparent",
-              color: "#007768",
+              color: tokens.colorPaletteTealForeground2,
               cursor: "pointer",
             }}
           >

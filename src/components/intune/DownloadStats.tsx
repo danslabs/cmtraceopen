@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { tokens } from "@fluentui/react-components";
 import type { DownloadStat } from "../../types/intune";
 import { formatDisplayDateTime } from "../../lib/date-time-format";
 
@@ -26,14 +27,14 @@ export function DownloadStats({ downloads }: DownloadStatsProps) {
 
   if (downloads.length === 0) {
     return (
-      <div style={{ padding: "20px", color: "#666", textAlign: "center", fontSize: "12px" }}>
+      <div style={{ padding: "20px", color: tokens.colorNeutralForeground3, textAlign: "center", fontSize: "12px" }}>
         No content download events were found in this analysis.
       </div>
     );
   }
 
   return (
-    <div style={{ overflow: "auto", height: "100%", backgroundColor: "#ffffff", display: "flex", flexDirection: "column" }}>
+    <div style={{ overflow: "auto", height: "100%", backgroundColor: tokens.colorNeutralCardBackground, display: "flex", flexDirection: "column" }}>
       <div
         style={{
           display: "flex",
@@ -41,16 +42,16 @@ export function DownloadStats({ downloads }: DownloadStatsProps) {
           alignItems: "center",
           padding: "6px 16px",
           fontSize: "11px",
-          borderBottom: "1px solid #cbd5e1",
-          backgroundColor: "#f1f5f9",
+          borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
+          backgroundColor: tokens.colorNeutralBackground3,
           flexShrink: 0,
         }}
       >
-        <strong style={{ fontSize: "12px", color: "#0f172a" }}>{downloads.length} files</strong>
-        <div style={{ display: "flex", gap: "16px", color: "#475569" }}>
-          <span>Success: <strong style={{ color: "#16a34a" }}>{aggregate.success}</strong></span>
-          <span>Failure: <strong style={{ color: "#dc2626" }}>{aggregate.failed}</strong></span>
-          <span>Transferred: <strong style={{ color: "#0f172a" }}>{formatBytes(aggregate.totalBytes)}</strong></span>
+        <strong style={{ fontSize: "12px", color: tokens.colorNeutralForeground1 }}>{downloads.length} files</strong>
+        <div style={{ display: "flex", gap: "16px", color: tokens.colorNeutralForeground3 }}>
+          <span>Success: <strong style={{ color: tokens.colorPaletteGreenForeground1 }}>{aggregate.success}</strong></span>
+          <span>Failure: <strong style={{ color: tokens.colorPaletteRedForeground1 }}>{aggregate.failed}</strong></span>
+          <span>Transferred: <strong style={{ color: tokens.colorNeutralForeground1 }}>{formatBytes(aggregate.totalBytes)}</strong></span>
         </div>
       </div>
 
@@ -66,8 +67,8 @@ export function DownloadStats({ downloads }: DownloadStatsProps) {
           <thead style={{ position: "sticky", top: 0, zIndex: 1 }}>
             <tr
               style={{
-                backgroundColor: "#f8fafc",
-                borderBottom: "1px solid #cbd5e1",
+                backgroundColor: tokens.colorNeutralBackground2,
+                borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
                 boxShadow: "0 1px 2px rgba(0,0,0,0.02)",
               }}
             >
@@ -85,8 +86,8 @@ export function DownloadStats({ downloads }: DownloadStatsProps) {
               <tr
                 key={`${dl.contentId}-${dl.timestamp ?? i}-${i}`}
                 style={{
-                  borderBottom: "1px solid #f1f5f9",
-                  backgroundColor: i % 2 === 0 ? "#ffffff" : "#fafafa",
+                  borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
+                  backgroundColor: i % 2 === 0 ? tokens.colorNeutralCardBackground : tokens.colorNeutralBackground2,
                 }}
               >
                 <td style={tdStyle}>
@@ -95,19 +96,19 @@ export function DownloadStats({ downloads }: DownloadStatsProps) {
                       width: "8px",
                       height: "8px",
                       borderRadius: "50%",
-                      backgroundColor: dl.success ? "#22c55e" : "#ef4444",
+                      backgroundColor: dl.success ? tokens.colorPaletteGreenForeground1 : tokens.colorPaletteRedForeground1,
                       margin: "0 auto",
                     }}
                     title={dl.success ? "Success" : "Failed"}
                   />
                 </td>
-                <td style={{ ...tdStyle, color: "#1e293b", fontWeight: 500 }} title={dl.contentId}>
+                <td style={{ ...tdStyle, color: tokens.colorNeutralForeground1, fontWeight: 500 }} title={dl.contentId}>
                   {dl.name}
                 </td>
-                <td style={{ ...tdStyle, textAlign: "right", color: "#475569", fontFamily: "'Courier New', monospace" }}>
+                <td style={{ ...tdStyle, textAlign: "right", color: tokens.colorNeutralForeground3, fontFamily: "'Courier New', monospace" }}>
                   {formatBytes(dl.sizeBytes)}
                 </td>
-                <td style={{ ...tdStyle, textAlign: "right", color: "#475569", fontFamily: "'Courier New', monospace" }}>
+                <td style={{ ...tdStyle, textAlign: "right", color: tokens.colorNeutralForeground3, fontFamily: "'Courier New', monospace" }}>
                   {dl.speedBps > 0 ? `${formatBytes(dl.speedBps)}/s` : "—"}
                 </td>
                 <td style={tdStyle}>
@@ -117,7 +118,7 @@ export function DownloadStats({ downloads }: DownloadStatsProps) {
                         style={{
                           flex: 1,
                           height: "6px",
-                          backgroundColor: "#e2e8f0",
+                          backgroundColor: tokens.colorNeutralBackground3,
                           borderRadius: "3px",
                           overflow: "hidden",
                         }}
@@ -126,23 +127,23 @@ export function DownloadStats({ downloads }: DownloadStatsProps) {
                           style={{
                             width: `${Math.min(dl.doPercentage, 100)}%`,
                             height: "100%",
-                            backgroundColor: dl.doPercentage > 50 ? "#10b981" : "#3b82f6",
+                            backgroundColor: dl.doPercentage > 50 ? tokens.colorPaletteGreenForeground1 : tokens.colorBrandForeground1,
                             borderRadius: "3px",
                           }}
                         />
                       </div>
-                      <span style={{ fontSize: "10px", color: "#64748b", width: "32px", textAlign: "right" }}>
+                      <span style={{ fontSize: "10px", color: tokens.colorNeutralForeground3, width: "32px", textAlign: "right" }}>
                         {dl.doPercentage.toFixed(1)}%
                       </span>
                     </div>
                   ) : (
-                    <span style={{ color: "#94a3b8" }}>—</span>
+                    <span style={{ color: tokens.colorNeutralForeground4 }}>—</span>
                   )}
                 </td>
-                <td style={{ ...tdStyle, textAlign: "right", color: "#475569", fontFamily: "'Courier New', monospace" }}>
+                <td style={{ ...tdStyle, textAlign: "right", color: tokens.colorNeutralForeground3, fontFamily: "'Courier New', monospace" }}>
                   {dl.durationSecs > 0 ? `${dl.durationSecs.toFixed(1)}s` : "—"}
                 </td>
-                <td style={{ ...tdStyle, color: "#64748b", fontFamily: "'Courier New', monospace", fontSize: "10px" }}>
+                <td style={{ ...tdStyle, color: tokens.colorNeutralForeground3, fontFamily: "'Courier New', monospace", fontSize: "10px" }}>
                   {(dl.timestamp && formatDisplayDateTime(dl.timestamp)) || "—"}
                 </td>
               </tr>
@@ -158,7 +159,7 @@ const thStyle: React.CSSProperties = {
   padding: "4px 8px",
   textAlign: "left",
   fontWeight: 600,
-  color: "#475569",
+  color: tokens.colorNeutralForeground3,
   whiteSpace: "nowrap",
   textTransform: "uppercase",
   fontSize: "9px",

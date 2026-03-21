@@ -12,12 +12,12 @@ import type { IntuneEvent, IntuneStatus, IntuneEventType } from "../../types/int
 import { useIntuneStore } from "../../stores/intune-store";
 
 const STATUS_COLORS: Record<IntuneStatus, string> = {
-  Success: "#22c55e",
-  Failed: "#ef4444",
-  InProgress: "#3b82f6",
-  Pending: "#9ca3af",
-  Timeout: "#f59e0b",
-  Unknown: "#6b7280",
+  Success: tokens.colorPaletteGreenForeground1,
+  Failed: tokens.colorPaletteRedForeground1,
+  InProgress: tokens.colorBrandForeground1,
+  Pending: tokens.colorNeutralForeground4,
+  Timeout: tokens.colorPaletteMarigoldForeground1,
+  Unknown: tokens.colorNeutralForeground3,
 };
 
 const EVENT_TYPE_LABELS: Record<IntuneEventType, string> = {
@@ -274,7 +274,7 @@ export function EventTimeline({ events }: EventTimelineProps) {
                       padding: "2px 6px",
                       borderRadius: "3px",
                       backgroundColor: STATUS_COLORS[event.status],
-                      color: "#fff",
+                      color: tokens.colorNeutralForegroundOnBrand,
                       width: "65px",
                       textAlign: "center",
                       flexShrink: 0,

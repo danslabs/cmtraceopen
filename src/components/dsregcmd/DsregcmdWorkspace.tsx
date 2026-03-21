@@ -5,7 +5,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { Badge, Button, Textarea } from "@fluentui/react-components";
+import { Badge, Button, Textarea, tokens } from "@fluentui/react-components";
 import { save } from "@tauri-apps/plugin-dialog";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import {
@@ -580,11 +580,11 @@ function getNgcCaption(result: DsregcmdAnalysisResult): string {
 function getSeverityColor(severity: DsregcmdSeverity) {
   switch (severity) {
     case "Error":
-      return { border: "#fecaca", background: "#fef2f2", text: "#991b1b" };
+      return { border: tokens.colorPaletteRedBorder2, background: tokens.colorPaletteRedBackground1, text: tokens.colorPaletteRedForeground1 };
     case "Warning":
-      return { border: "#fde68a", background: "#fffbeb", text: "#92400e" };
+      return { border: tokens.colorPaletteYellowBorder2, background: tokens.colorPaletteYellowBackground1, text: tokens.colorPaletteMarigoldForeground2 };
     case "Info":
-      return { border: "#bfdbfe", background: "#eff6ff", text: "#1e40af" };
+      return { border: tokens.colorPaletteBlueBorderActive, background: tokens.colorPaletteBlueBackground2, text: tokens.colorPaletteBlueForeground2 };
   }
 }
 
@@ -1370,10 +1370,10 @@ function StatCard({
   tone?: "neutral" | "good" | "warn" | "bad";
 }) {
   const tones = {
-    neutral: { border: "#d1d5db", background: "#ffffff", value: "#111827" },
-    good: { border: "#bbf7d0", background: "#f0fdf4", value: "#166534" },
-    warn: { border: "#fde68a", background: "#fffbeb", value: "#92400e" },
-    bad: { border: "#fecaca", background: "#fef2f2", value: "#991b1b" },
+    neutral: { border: tokens.colorNeutralStroke2, background: tokens.colorNeutralCardBackground, value: tokens.colorNeutralForeground1 },
+    good: { border: tokens.colorPaletteGreenBorder2, background: tokens.colorPaletteGreenBackground1, value: tokens.colorPaletteGreenForeground1 },
+    warn: { border: tokens.colorPaletteYellowBorder2, background: tokens.colorPaletteYellowBackground1, value: tokens.colorPaletteMarigoldForeground2 },
+    bad: { border: tokens.colorPaletteRedBorder2, background: tokens.colorPaletteRedBackground1, value: tokens.colorPaletteRedForeground1 },
   } as const;
 
   const colors = tones[tone];
@@ -1391,7 +1391,7 @@ function StatCard({
       <div
         style={{
           fontSize: "11px",
-          color: "#5b6472",
+          color: tokens.colorNeutralForeground3,
           textTransform: "uppercase",
           letterSpacing: "0.04em",
         }}
@@ -1413,7 +1413,7 @@ function StatCard({
         style={{
           marginTop: "6px",
           fontSize: "12px",
-          color: "#3f4752",
+          color: tokens.colorNeutralForeground2,
           lineHeight: 1.45,
         }}
       >
@@ -1435,22 +1435,22 @@ function SectionFrame({
   return (
     <section
       style={{
-        border: "1px solid #d1d5db",
-        backgroundColor: "#ffffff",
+        border: `1px solid ${tokens.colorNeutralStroke2}`,
+        backgroundColor: tokens.colorNeutralCardBackground,
         borderRadius: "10px",
         overflow: "hidden",
         flexShrink: 0,
       }}
     >
-      <div style={{ padding: "12px 14px", backgroundColor: "#f6f9fc" }}>
-        <div style={{ fontSize: "14px", fontWeight: 700, color: "#111827" }}>
+      <div style={{ padding: "12px 14px", backgroundColor: tokens.colorNeutralBackground3 }}>
+        <div style={{ fontSize: "14px", fontWeight: 700, color: tokens.colorNeutralForeground1 }}>
           {title}
         </div>
-        <div style={{ marginTop: "4px", fontSize: "12px", color: "#5b6472" }}>
+        <div style={{ marginTop: "4px", fontSize: "12px", color: tokens.colorNeutralForeground3 }}>
           {caption}
         </div>
       </div>
-      <div style={{ borderTop: "1px solid #e2e8f0" }} />
+      <div style={{ borderTop: `1px solid ${tokens.colorNeutralStroke2}` }} />
       <div style={{ padding: "14px" }}>{children}</div>
     </section>
   );
@@ -1483,7 +1483,7 @@ function IssueCard({ issue }: { issue: DsregcmdDiagnosticInsight }) {
             fontWeight: 700,
             border: `1px solid ${colors.border}`,
             color: colors.text,
-            backgroundColor: "#ffffff",
+            backgroundColor: tokens.colorNeutralCardBackground,
             textTransform: "uppercase",
             letterSpacing: "0.04em",
           }}
@@ -1493,7 +1493,7 @@ function IssueCard({ issue }: { issue: DsregcmdDiagnosticInsight }) {
         <span
           style={{
             fontSize: "11px",
-            color: "#5b6472",
+            color: tokens.colorNeutralForeground3,
             textTransform: "uppercase",
           }}
         >
@@ -1505,7 +1505,7 @@ function IssueCard({ issue }: { issue: DsregcmdDiagnosticInsight }) {
           marginTop: "8px",
           fontSize: "15px",
           fontWeight: 700,
-          color: "#111827",
+          color: tokens.colorNeutralForeground1,
         }}
       >
         {issue.title}
@@ -1514,7 +1514,7 @@ function IssueCard({ issue }: { issue: DsregcmdDiagnosticInsight }) {
         style={{
           marginTop: "6px",
           fontSize: "13px",
-          color: "#374151",
+          color: tokens.colorNeutralForeground2,
           lineHeight: 1.5,
         }}
       >
@@ -1523,14 +1523,14 @@ function IssueCard({ issue }: { issue: DsregcmdDiagnosticInsight }) {
 
       {issue.suggestedFixes.length > 0 && (
         <div style={{ marginTop: "10px" }}>
-          <div style={{ fontSize: "12px", fontWeight: 700, color: "#111827" }}>
+          <div style={{ fontSize: "12px", fontWeight: 700, color: tokens.colorNeutralForeground1 }}>
             Suggested fixes
           </div>
           <ul
             style={{
               marginTop: "6px",
               paddingLeft: "18px",
-              color: "#374151",
+              color: tokens.colorNeutralForeground2,
               lineHeight: 1.5,
             }}
           >
@@ -1543,14 +1543,14 @@ function IssueCard({ issue }: { issue: DsregcmdDiagnosticInsight }) {
 
       {issue.nextChecks.length > 0 && (
         <div style={{ marginTop: "10px" }}>
-          <div style={{ fontSize: "12px", fontWeight: 700, color: "#111827" }}>
+          <div style={{ fontSize: "12px", fontWeight: 700, color: tokens.colorNeutralForeground1 }}>
             Next checks
           </div>
           <ul
             style={{
               marginTop: "6px",
               paddingLeft: "18px",
-              color: "#374151",
+              color: tokens.colorNeutralForeground2,
               lineHeight: 1.5,
             }}
           >
@@ -1563,14 +1563,14 @@ function IssueCard({ issue }: { issue: DsregcmdDiagnosticInsight }) {
 
       {issue.evidence.length > 0 && (
         <div style={{ marginTop: "10px" }}>
-          <div style={{ fontSize: "12px", fontWeight: 700, color: "#111827" }}>
+          <div style={{ fontSize: "12px", fontWeight: 700, color: tokens.colorNeutralForeground1 }}>
             Evidence
           </div>
           <ul
             style={{
               marginTop: "6px",
               paddingLeft: "18px",
-              color: "#374151",
+              color: tokens.colorNeutralForeground2,
               lineHeight: 1.5,
             }}
           >
@@ -1599,25 +1599,25 @@ function FactsTable({
   return (
     <div
       style={{
-        border: "1px solid #d1d5db",
-        backgroundColor: "#ffffff",
+        border: `1px solid ${tokens.colorNeutralStroke2}`,
+        backgroundColor: tokens.colorNeutralCardBackground,
         borderRadius: "10px",
         overflow: "hidden",
       }}
     >
-      <div style={{ padding: "10px 12px", backgroundColor: "#f8fafc" }}>
-        <div style={{ fontSize: "13px", fontWeight: 700, color: "#111827" }}>
+      <div style={{ padding: "10px 12px", backgroundColor: tokens.colorNeutralBackground3 }}>
+        <div style={{ fontSize: "13px", fontWeight: 700, color: tokens.colorNeutralForeground1 }}>
           {group.title}
         </div>
-        <div style={{ marginTop: "4px", fontSize: "11px", color: "#5b6472" }}>
+        <div style={{ marginTop: "4px", fontSize: "11px", color: tokens.colorNeutralForeground3 }}>
           {group.caption}
         </div>
       </div>
-      <div style={{ borderTop: "1px solid #e2e8f0" }} />
+      <div style={{ borderTop: `1px solid ${tokens.colorNeutralStroke2}` }} />
       <div>
         {visibleRows.length === 0 ? (
           <div
-            style={{ padding: "10px 12px", fontSize: "12px", color: "#5b6472" }}
+            style={{ padding: "10px 12px", fontSize: "12px", color: tokens.colorNeutralForeground3 }}
           >
             All fields in this group were not reported by dsregcmd for this
             capture.
@@ -1625,10 +1625,10 @@ function FactsTable({
         ) : (
           visibleRows.map((row) => {
             const tones = {
-              neutral: { value: "#111827", background: "#ffffff" },
-              good: { value: "#166534", background: "#f0fdf4" },
-              warn: { value: "#92400e", background: "#fffbeb" },
-              bad: { value: "#991b1b", background: "#fef2f2" },
+              neutral: { value: tokens.colorNeutralForeground1, background: tokens.colorNeutralCardBackground },
+              good: { value: tokens.colorPaletteGreenForeground1, background: tokens.colorPaletteGreenBackground1 },
+              warn: { value: tokens.colorPaletteMarigoldForeground2, background: tokens.colorPaletteYellowBackground1 },
+              bad: { value: tokens.colorPaletteRedForeground1, background: tokens.colorPaletteRedBackground1 },
             } as const;
             const palette = tones[row.tone ?? "neutral"];
 
@@ -1640,7 +1640,7 @@ function FactsTable({
                   gridTemplateColumns: "170px minmax(0, 1fr)",
                   gap: "8px",
                   padding: "9px 12px",
-                  borderTop: "1px solid #edf1f5",
+                  borderTop: `1px solid ${tokens.colorNeutralStroke2}`,
                   alignItems: "start",
                 }}
               >
@@ -1648,7 +1648,7 @@ function FactsTable({
                   style={{
                     fontSize: "12px",
                     fontWeight: 600,
-                    color: "#4b5563",
+                    color: tokens.colorNeutralForeground3,
                   }}
                 >
                   {row.label}
@@ -1674,9 +1674,9 @@ function FactsTable({
           <div
             style={{
               padding: "10px 12px",
-              borderTop: "1px solid #edf1f5",
+              borderTop: `1px solid ${tokens.colorNeutralStroke2}`,
               fontSize: "11px",
-              color: "#5b6472",
+              color: tokens.colorNeutralForeground3,
             }}
           >
             {hiddenCount} not reported {hiddenCount === 1 ? "field" : "fields"}{" "}
@@ -1693,14 +1693,14 @@ function EmptyWorkspace({ title, body }: { title: string; body: string }) {
     <div
       style={{
         margin: "18px",
-        border: "1px dashed #cbd5e1",
-        backgroundColor: "#f8fafc",
+        border: `1px dashed ${tokens.colorNeutralStroke2}`,
+        backgroundColor: tokens.colorNeutralBackground3,
         padding: "24px",
-        color: "#334155",
+        color: tokens.colorNeutralForeground2,
         borderRadius: "12px",
       }}
     >
-      <div style={{ fontSize: "18px", fontWeight: 700, color: "#0f172a" }}>
+      <div style={{ fontSize: "18px", fontWeight: 700, color: tokens.colorNeutralForeground1 }}>
         {title}
       </div>
       <div style={{ marginTop: "8px", fontSize: "13px", lineHeight: 1.6 }}>
@@ -1766,10 +1766,10 @@ function FlowBox({
   tone?: "neutral" | "good" | "warn" | "bad";
 }) {
   const colors = {
-    neutral: { border: "#d1d5db", background: "#ffffff", text: "#111827" },
-    good: { border: "#bbf7d0", background: "#f0fdf4", text: "#166534" },
-    warn: { border: "#fde68a", background: "#fffbeb", text: "#92400e" },
-    bad: { border: "#fecaca", background: "#fef2f2", text: "#991b1b" },
+    neutral: { border: tokens.colorNeutralStroke2, background: tokens.colorNeutralCardBackground, text: tokens.colorNeutralForeground1 },
+    good: { border: tokens.colorPaletteGreenBorder2, background: tokens.colorPaletteGreenBackground1, text: tokens.colorPaletteGreenForeground1 },
+    warn: { border: tokens.colorPaletteYellowBorder2, background: tokens.colorPaletteYellowBackground1, text: tokens.colorPaletteMarigoldForeground2 },
+    bad: { border: tokens.colorPaletteRedBorder2, background: tokens.colorPaletteRedBackground1, text: tokens.colorPaletteRedForeground1 },
   } as const;
   const palette = colors[tone];
 
@@ -1791,7 +1791,7 @@ function FlowBox({
         style={{
           marginTop: "6px",
           fontSize: "12px",
-          color: "#374151",
+          color: tokens.colorNeutralForeground2,
           lineHeight: 1.5,
         }}
       >
@@ -2043,7 +2043,7 @@ export function DsregcmdWorkspace() {
           display: "flex",
           flexDirection: "column",
           height: "100%",
-          backgroundColor: "#f8fafc",
+          backgroundColor: tokens.colorNeutralBackground2,
         }}
       >
         <div
@@ -2053,18 +2053,18 @@ export function DsregcmdWorkspace() {
             justifyContent: "space-between",
             gap: "10px",
             padding: "8px 12px",
-            backgroundColor: "#f3f4f6",
-            borderBottom: "1px solid #d1d5db",
+            backgroundColor: tokens.colorNeutralBackground3,
+            borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
           }}
         >
           <div>
             <div
-              style={{ fontSize: "14px", fontWeight: 700, color: "#111827" }}
+              style={{ fontSize: "14px", fontWeight: 700, color: tokens.colorNeutralForeground1 }}
             >
               dsregcmd Workspace
             </div>
             <div
-              style={{ marginTop: "4px", fontSize: "12px", color: "#4b5563" }}
+              style={{ marginTop: "4px", fontSize: "12px", color: tokens.colorNeutralForeground3 }}
             >
               Capture a live snapshot, paste clipboard text, open a text file,
               or select an evidence bundle folder.
@@ -2126,7 +2126,7 @@ export function DsregcmdWorkspace() {
         display: "flex",
         flexDirection: "column",
         height: "100%",
-        backgroundColor: "#f8fafc",
+        backgroundColor: tokens.colorNeutralBackground2,
       }}
     >
       <div
@@ -2136,20 +2136,20 @@ export function DsregcmdWorkspace() {
           justifyContent: "space-between",
           gap: "10px",
           padding: "8px 12px",
-          backgroundColor: "#f3f4f6",
-          borderBottom: "1px solid #d1d5db",
+          backgroundColor: tokens.colorNeutralBackground3,
+          borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
           flexWrap: "wrap",
         }}
       >
         <div style={{ minWidth: 0 }}>
-          <div style={{ fontSize: "14px", fontWeight: 700, color: "#111827" }}>
+          <div style={{ fontSize: "14px", fontWeight: 700, color: tokens.colorNeutralForeground1 }}>
             dsregcmd Workspace
           </div>
           <div
             style={{
               marginTop: "4px",
               fontSize: "12px",
-              color: "#4b5563",
+              color: tokens.colorNeutralForeground3,
               lineHeight: 1.4,
             }}
           >
@@ -2199,8 +2199,8 @@ export function DsregcmdWorkspace() {
           display: "flex",
           gap: 2,
           padding: "0 12px",
-          borderBottom: "1px solid #d1d5db",
-          background: "#f3f4f6",
+          borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
+          background: tokens.colorNeutralBackground3,
           flexShrink: 0,
         }}
       >
@@ -2323,7 +2323,7 @@ export function DsregcmdWorkspace() {
                 style={{
                   fontSize: "13px",
                   lineHeight: 1.6,
-                  color: "#374151",
+                  color: tokens.colorNeutralForeground2,
                   whiteSpace: "pre-wrap",
                 }}
               >
@@ -2334,15 +2334,15 @@ export function DsregcmdWorkspace() {
                   style={{
                     marginTop: "12px",
                     padding: "10px",
-                    border: "1px solid #e5e7eb",
-                    backgroundColor: "#f9fafb",
+                    border: `1px solid ${tokens.colorNeutralStroke2}`,
+                    backgroundColor: tokens.colorNeutralBackground2,
                   }}
                 >
                   <div
                     style={{
                       fontSize: "12px",
                       fontWeight: 700,
-                      color: "#111827",
+                      color: tokens.colorNeutralForeground1,
                     }}
                   >
                     Issue spotlight
@@ -2352,7 +2352,7 @@ export function DsregcmdWorkspace() {
                       marginTop: "6px",
                       fontSize: "13px",
                       fontWeight: 600,
-                      color: "#111827",
+                      color: tokens.colorNeutralForeground1,
                     }}
                   >
                     {issueSpotlight.title}
@@ -2361,7 +2361,7 @@ export function DsregcmdWorkspace() {
                     style={{
                       marginTop: "4px",
                       fontSize: "12px",
-                      color: "#4b5563",
+                      color: tokens.colorNeutralForeground3,
                       lineHeight: 1.5,
                     }}
                   >
@@ -2375,13 +2375,13 @@ export function DsregcmdWorkspace() {
             </div>
             <div
               style={{
-                border: "1px solid #e5e7eb",
-                backgroundColor: "#ffffff",
+                border: `1px solid ${tokens.colorNeutralStroke2}`,
+                backgroundColor: tokens.colorNeutralCardBackground,
                 padding: "12px",
               }}
             >
               <div
-                style={{ fontSize: "12px", fontWeight: 700, color: "#111827" }}
+                style={{ fontSize: "12px", fontWeight: 700, color: tokens.colorNeutralForeground1 }}
               >
                 Quick interpretation
               </div>
@@ -2389,7 +2389,7 @@ export function DsregcmdWorkspace() {
                 style={{
                   marginTop: "8px",
                   paddingLeft: "18px",
-                  color: "#374151",
+                  color: tokens.colorNeutralForeground2,
                   lineHeight: 1.6,
                 }}
               >
@@ -2425,7 +2425,7 @@ export function DsregcmdWorkspace() {
           caption="Ordered diagnostic findings with evidence, recommended checks, and suggested fixes."
         >
           {diagnostics.length === 0 ? (
-            <div style={{ fontSize: "13px", color: "#374151" }}>
+            <div style={{ fontSize: "13px", color: tokens.colorNeutralForeground2 }}>
               No diagnostics were produced for this dsregcmd capture.
             </div>
           ) : (
@@ -2485,7 +2485,7 @@ export function DsregcmdWorkspace() {
           caption="Important timestamps surfaced from PRT, certificate, and diagnostics fields."
         >
           {timelineItems.length === 0 ? (
-            <div style={{ fontSize: "13px", color: "#374151" }}>
+            <div style={{ fontSize: "13px", color: tokens.colorNeutralForeground2 }}>
               No timeline-friendly timestamps were found in this capture.
             </div>
           ) : (
@@ -2495,10 +2495,10 @@ export function DsregcmdWorkspace() {
               {timelineItems.map((item, index) => {
                 const palette =
                   item.tone === "warn"
-                    ? { line: "#f59e0b", dot: "#f59e0b", card: "#fffbeb" }
+                    ? { line: tokens.colorPaletteMarigoldForeground1, dot: tokens.colorPaletteMarigoldForeground1, card: tokens.colorPaletteYellowBackground1 }
                     : item.tone === "good"
-                      ? { line: "#16a34a", dot: "#16a34a", card: "#f0fdf4" }
-                      : { line: "#94a3b8", dot: "#64748b", card: "#f8fafc" };
+                      ? { line: tokens.colorPaletteGreenForeground1, dot: tokens.colorPaletteGreenForeground1, card: tokens.colorPaletteGreenBackground1 }
+                      : { line: tokens.colorNeutralStroke1, dot: tokens.colorNeutralForeground3, card: tokens.colorNeutralBackground3 };
 
                 return (
                   <div
@@ -2539,7 +2539,7 @@ export function DsregcmdWorkspace() {
                     </div>
                     <div
                       style={{
-                        border: "1px solid #e5e7eb",
+                        border: `1px solid ${tokens.colorNeutralStroke2}`,
                         backgroundColor: palette.card,
                         padding: "10px 12px",
                       }}
@@ -2548,7 +2548,7 @@ export function DsregcmdWorkspace() {
                         style={{
                           fontSize: "12px",
                           fontWeight: 700,
-                          color: "#111827",
+                          color: tokens.colorNeutralForeground1,
                         }}
                       >
                         {item.label}
@@ -2557,7 +2557,7 @@ export function DsregcmdWorkspace() {
                         style={{
                           marginTop: "4px",
                           fontSize: "12px",
-                          color: "#374151",
+                          color: tokens.colorNeutralForeground2,
                           wordBreak: "break-word",
                         }}
                       >
@@ -2654,13 +2654,13 @@ export function DsregcmdWorkspace() {
           >
             <div
               style={{
-                border: "1px solid #e5e7eb",
+                border: `1px solid ${tokens.colorNeutralStroke2}`,
                 padding: "12px",
-                backgroundColor: "#ffffff",
+                backgroundColor: tokens.colorNeutralCardBackground,
               }}
             >
               <div
-                style={{ fontSize: "12px", fontWeight: 700, color: "#111827" }}
+                style={{ fontSize: "12px", fontWeight: 700, color: tokens.colorNeutralForeground1 }}
               >
                 What the health cards mean
               </div>
@@ -2669,7 +2669,7 @@ export function DsregcmdWorkspace() {
                   marginTop: "8px",
                   fontSize: "12px",
                   lineHeight: 1.6,
-                  color: "#374151",
+                  color: tokens.colorNeutralForeground2,
                 }}
               >
                 Cards summarize join posture, token state, MDM visibility,
@@ -2680,13 +2680,13 @@ export function DsregcmdWorkspace() {
             </div>
             <div
               style={{
-                border: "1px solid #e5e7eb",
+                border: `1px solid ${tokens.colorNeutralStroke2}`,
                 padding: "12px",
-                backgroundColor: "#ffffff",
+                backgroundColor: tokens.colorNeutralCardBackground,
               }}
             >
               <div
-                style={{ fontSize: "12px", fontWeight: 700, color: "#111827" }}
+                style={{ fontSize: "12px", fontWeight: 700, color: tokens.colorNeutralForeground1 }}
               >
                 When the capture may mislead
               </div>
@@ -2695,7 +2695,7 @@ export function DsregcmdWorkspace() {
                   marginTop: "8px",
                   fontSize: "12px",
                   lineHeight: 1.6,
-                  color: "#374151",
+                  color: tokens.colorNeutralForeground2,
                 }}
               >
                 SYSTEM and remote-session captures can distort user-scoped token
@@ -2705,13 +2705,13 @@ export function DsregcmdWorkspace() {
             </div>
             <div
               style={{
-                border: "1px solid #e5e7eb",
+                border: `1px solid ${tokens.colorNeutralStroke2}`,
                 padding: "12px",
-                backgroundColor: "#ffffff",
+                backgroundColor: tokens.colorNeutralCardBackground,
               }}
             >
               <div
-                style={{ fontSize: "12px", fontWeight: 700, color: "#111827" }}
+                style={{ fontSize: "12px", fontWeight: 700, color: tokens.colorNeutralForeground1 }}
               >
                 Suggested next step
               </div>
@@ -2720,7 +2720,7 @@ export function DsregcmdWorkspace() {
                   marginTop: "8px",
                   fontSize: "12px",
                   lineHeight: 1.6,
-                  color: "#374151",
+                  color: tokens.colorNeutralForeground2,
                 }}
               >
                 Start with the highest-severity issue card, validate the
@@ -2778,7 +2778,7 @@ export function DsregcmdWorkspace() {
               style={{
                 marginTop: "10px",
                 fontSize: "12px",
-                color: exportStatus.tone === "error" ? "#991b1b" : "#166534",
+                color: exportStatus.tone === "error" ? tokens.colorPaletteRedForeground1 : tokens.colorPaletteGreenForeground1,
               }}
             >
               {exportStatus.message}
@@ -2796,8 +2796,8 @@ export function DsregcmdWorkspace() {
                 fontFamily: "Consolas, 'Courier New', monospace",
                 fontSize: "12px",
                 padding: "10px",
-                border: "1px solid #d1d5db",
-                backgroundColor: "#f9fafb",
+                border: `1px solid ${tokens.colorNeutralStroke2}`,
+                backgroundColor: tokens.colorNeutralBackground2,
               }}
             />
           )}
@@ -2827,10 +2827,10 @@ function TabButton({
         padding: "8px 14px",
         fontSize: 13,
         fontWeight: isActive ? 600 : 400,
-        color: isActive ? "#2563eb" : "#6b7280",
+        color: isActive ? tokens.colorBrandForeground1 : tokens.colorNeutralForeground3,
         background: "transparent",
         border: "none",
-        borderBottom: isActive ? "2px solid #2563eb" : "2px solid transparent",
+        borderBottom: isActive ? `2px solid ${tokens.colorBrandForeground1}` : "2px solid transparent",
         cursor: "pointer",
         transition: "border-color 0.15s, color 0.15s",
         display: "flex",
@@ -2845,8 +2845,8 @@ function TabButton({
             fontSize: 11,
             padding: "1px 6px",
             borderRadius: 10,
-            background: isActive ? "#dbeafe" : "#e5e7eb",
-            color: isActive ? "#1e40af" : "#4b5563",
+            background: isActive ? tokens.colorPaletteBlueBackground2 : tokens.colorNeutralBackground3,
+            color: isActive ? tokens.colorPaletteBlueForeground2 : tokens.colorNeutralForeground3,
           }}
         >
           {count}

@@ -6,10 +6,11 @@ import {
   DEFAULT_LOG_DETAILS_FONT_SIZE,
   DEFAULT_LOG_LIST_FONT_SIZE,
 } from "../lib/log-accessibility";
-import { type LogSeverityPaletteMode } from "../lib/constants";
+import type { ThemeId } from "../lib/themes/types";
+import { DEFAULT_THEME_ID } from "../lib/themes";
 
 export type IntuneWorkspaceId = "intune" | "new-intune";
-export type WorkspaceId = "log" | IntuneWorkspaceId | "dsregcmd";
+export type WorkspaceId = "log" | IntuneWorkspaceId | "dsregcmd" | "macos-diag";
 export type AppView = WorkspaceId;
 
 export function isIntuneWorkspace(workspace: WorkspaceId): workspace is IntuneWorkspaceId {
@@ -51,6 +52,14 @@ export function getUiChromeStatus(
     };
   }
 
+  if (activeView === "macos-diag") {
+    return {
+      viewLabel: "macOS Diagnostics workspace",
+      detailsLabel: "Details hidden in macOS Diagnostics workspace",
+      infoLabel: "Info hidden in macOS Diagnostics workspace",
+    };
+  }
+
   return {
     viewLabel: "Log view",
     detailsLabel: showDetails ? "Details on" : "Details off",
@@ -73,7 +82,7 @@ interface UiState {
   showFileAssociationPrompt: boolean;
   logListFontSize: number;
   logDetailsFontSize: number;
-  logSeverityPaletteMode: LogSeverityPaletteMode;
+  themeId: ThemeId;
 
   setActiveWorkspace: (workspace: WorkspaceId) => void;
   setActiveView: (view: AppView) => void;
@@ -95,7 +104,7 @@ interface UiState {
   resetLogListFontSize: () => void;
   setLogDetailsFontSize: (fontSize: number) => void;
   resetLogDetailsFontSize: () => void;
-  setLogSeverityPaletteMode: (mode: LogSeverityPaletteMode) => void;
+  setThemeId: (id: ThemeId) => void;
   resetLogAccessibilityPreferences: () => void;
   closeTransientDialogs: (trigger: string) => void;
 }
@@ -119,12 +128,14 @@ const sanitizePersistedUiState = (
     sanitized.logDetailsFontSize = clampLogDetailsFontSize(base);
   }
 
-  if (sanitized.logSeverityPaletteMode !== undefined) {
-    const validModes: LogSeverityPaletteMode[] = ["classic", "accessible"];
-    const mode = sanitized.logSeverityPaletteMode as LogSeverityPaletteMode;
+  if (sanitized.themeId !== undefined) {
+    const validThemeIds: ThemeId[] = [
+      "light", "dark", "high-contrast", "classic-cmtrace",
+      "solarized-dark", "nord", "dracula", "hotdog-stand",
+    ];
 
-    if (!validModes.includes(mode)) {
-      sanitized.logSeverityPaletteMode = "classic";
+    if (!validThemeIds.includes(sanitized.themeId as ThemeId)) {
+      sanitized.themeId = DEFAULT_THEME_ID;
     }
   }
 
@@ -148,7 +159,7 @@ export const useUiStore = create<UiState>()(
       showFileAssociationPrompt: false,
       logListFontSize: DEFAULT_LOG_LIST_FONT_SIZE,
       logDetailsFontSize: DEFAULT_LOG_DETAILS_FONT_SIZE,
-      logSeverityPaletteMode: "classic",
+      themeId: DEFAULT_THEME_ID,
 
       setActiveWorkspace: (workspace) => {
         const previousWorkspace = get().activeWorkspace;
@@ -216,12 +227,12 @@ export const useUiStore = create<UiState>()(
         set({ logDetailsFontSize: clampLogDetailsFontSize(fontSize) }),
       resetLogDetailsFontSize: () =>
         set({ logDetailsFontSize: DEFAULT_LOG_DETAILS_FONT_SIZE }),
-      setLogSeverityPaletteMode: (mode) => set({ logSeverityPaletteMode: mode }),
+      setThemeId: (id) => set({ themeId: id }),
       resetLogAccessibilityPreferences: () =>
         set({
           logListFontSize: DEFAULT_LOG_LIST_FONT_SIZE,
           logDetailsFontSize: DEFAULT_LOG_DETAILS_FONT_SIZE,
-          logSeverityPaletteMode: "classic",
+          themeId: DEFAULT_THEME_ID,
         }),
       closeTransientDialogs: (trigger) => {
         const state = get();
@@ -256,12 +267,23 @@ export const useUiStore = create<UiState>()(
       partialize: (state) => ({
         logListFontSize: state.logListFontSize,
         logDetailsFontSize: state.logDetailsFontSize,
-        logSeverityPaletteMode: state.logSeverityPaletteMode,
+        themeId: state.themeId,
       }),
       merge: (persistedState, currentState) => {
-        const sanitized = sanitizePersistedUiState(
-          persistedState as Partial<UiState>
-        );
+        const raw = persistedState as Partial<UiState> & {
+          logSeverityPaletteMode?: string;
+        };
+
+        // Migration: map legacy logSeverityPaletteMode to themeId
+        if (raw.logSeverityPaletteMode && !raw.themeId) {
+          raw.themeId =
+            raw.logSeverityPaletteMode === "classic"
+              ? "classic-cmtrace"
+              : "light";
+          delete raw.logSeverityPaletteMode;
+        }
+
+        const sanitized = sanitizePersistedUiState(raw);
         return {
           ...currentState,
           ...sanitized,

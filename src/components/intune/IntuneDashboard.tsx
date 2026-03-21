@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { tokens } from "@fluentui/react-components";
 import { formatDisplayDateTime, parseDisplayDateTimeValue } from "../../lib/date-time-format";
 import { useIntuneStore } from "../../stores/intune-store";
 import { useAppActions } from "../layout/Toolbar";
@@ -127,12 +128,12 @@ export function IntuneDashboard() {
   );
   const sourceStatusTone =
     analysisState.phase === "error"
-      ? "#b91c1c"
+      ? tokens.colorPaletteRedForeground1
       : analysisState.phase === "empty"
-        ? "#b45309"
+        ? tokens.colorPaletteMarigoldForeground1
         : analysisState.phase === "analyzing"
-          ? "#2563eb"
-          : "#6b7280";
+          ? tokens.colorBrandForeground1
+          : tokens.colorNeutralForeground3;
   const timelineScopeFileName = timelineScope.filePath ? getFileName(timelineScope.filePath) : null;
 
   return (
@@ -141,7 +142,7 @@ export function IntuneDashboard() {
         display: "flex",
         flexDirection: "column",
         height: "100%",
-        backgroundColor: "#ffffff",
+        backgroundColor: tokens.colorNeutralCardBackground,
       }}
     >
       <div
@@ -150,8 +151,8 @@ export function IntuneDashboard() {
           alignItems: "center",
           justifyContent: "space-between",
           padding: "6px 12px",
-          backgroundColor: "#f3f4f6",
-          borderBottom: "1px solid #d1d5db",
+          backgroundColor: tokens.colorNeutralBackground3,
+          borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
           flexShrink: 0,
         }}
       >
@@ -160,13 +161,13 @@ export function IntuneDashboard() {
             style={{
               fontSize: "13px",
               fontWeight: 600,
-              color: "#1f2937",
+              color: tokens.colorNeutralForeground1,
               fontFamily: "'Segoe UI', Tahoma, sans-serif",
             }}
           >
             Intune Diagnostics Workspace
           </span>
-          <div style={{ width: "1px", height: "16px", backgroundColor: "#cbd5e1" }} />
+          <div style={{ width: "1px", height: "16px", backgroundColor: tokens.colorNeutralStroke2 }} />
           <ActionButton
             onClick={() => {
               void openSourceFileDialog();
@@ -202,7 +203,7 @@ export function IntuneDashboard() {
             <span
               style={{
                 fontSize: "11px",
-                color: "#4b5563",
+                color: tokens.colorNeutralForeground3,
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
@@ -229,7 +230,7 @@ export function IntuneDashboard() {
                 style={{
                   marginTop: "4px",
                   fontSize: "10px",
-                  color: emptySourceFamilies.length > 0 ? "#92400e" : "#1d4ed8",
+                  color: emptySourceFamilies.length > 0 ? tokens.colorPaletteMarigoldForeground2 : tokens.colorPaletteBlueForeground2,
                   fontWeight: 600,
                 }}
               >
@@ -247,8 +248,8 @@ export function IntuneDashboard() {
           display: "flex",
           alignItems: "center",
           padding: "0 12px",
-          backgroundColor: "#f8fafc",
-          borderBottom: "1px solid #e2e8f0",
+          backgroundColor: tokens.colorNeutralBackground2,
+          borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
           minHeight: "40px",
           flexShrink: 0,
         }}
@@ -276,7 +277,7 @@ export function IntuneDashboard() {
               overflow: "hidden",
             }}
           >
-            <div style={{ width: "1px", height: "20px", backgroundColor: "#cbd5e1", marginRight: "12px" }} />
+            <div style={{ width: "1px", height: "20px", backgroundColor: tokens.colorNeutralStroke2, marginRight: "12px" }} />
             <div
               style={{
                 display: "flex",
@@ -288,23 +289,23 @@ export function IntuneDashboard() {
               }}
             >
               <StrongBadge label="Total" value={filteredSummary.totalEvents} />
-              <StrongBadge label="Success" value={filteredSummary.succeeded} color="#16a34a" />
-              <StrongBadge label="Fail" value={filteredSummary.failed} color="#dc2626" />
-              <StrongBadge label="Prog" value={filteredSummary.inProgress} color="#2563eb" />
+              <StrongBadge label="Success" value={filteredSummary.succeeded} color={tokens.colorPaletteGreenForeground1} />
+              <StrongBadge label="Fail" value={filteredSummary.failed} color={tokens.colorPaletteRedForeground1} />
+              <StrongBadge label="Prog" value={filteredSummary.inProgress} color={tokens.colorBrandForeground1} />
               <StrongBadge label="Win32" value={filteredSummary.win32Apps} />
               <StrongBadge label="WinGet" value={filteredSummary.wingetApps} />
               {filteredSummary.logTimeSpan && (
                 <>
-                  <div style={{ width: "1px", height: "12px", backgroundColor: "#cbd5e1", margin: "0 4px" }} />
-                  <span style={{ fontSize: "11px", color: "#64748b", fontWeight: 500 }}>
+                  <div style={{ width: "1px", height: "12px", backgroundColor: tokens.colorNeutralStroke2, margin: "0 4px" }} />
+                  <span style={{ fontSize: "11px", color: tokens.colorNeutralForeground3, fontWeight: 500 }}>
                     {filteredSummary.logTimeSpan}
                   </span>
                 </>
               )}
               {isWindowFiltered && (
                 <>
-                  <div style={{ width: "1px", height: "12px", backgroundColor: "#cbd5e1", margin: "0 4px" }} />
-                  <span style={{ fontSize: "11px", color: "#1d4ed8", fontWeight: 700 }}>
+                  <div style={{ width: "1px", height: "12px", backgroundColor: tokens.colorNeutralStroke2, margin: "0 4px" }} />
+                  <span style={{ fontSize: "11px", color: tokens.colorPaletteBlueForeground2, fontWeight: 700 }}>
                     {timeWindowLabel}
                   </span>
                 </>
@@ -314,7 +315,7 @@ export function IntuneDashboard() {
         )}
 
         <div style={{ display: "flex", alignItems: "center", gap: "8px", marginLeft: "auto", paddingLeft: "12px" }}>
-          <span style={{ fontSize: "10px", color: "#6b7280", fontWeight: 600, textTransform: "uppercase" }}>Window:</span>
+          <span style={{ fontSize: "10px", color: tokens.colorNeutralForeground3, fontWeight: 600, textTransform: "uppercase" }}>Window:</span>
           <select
             value={timeWindow}
             onChange={(e) => setTimeWindow(e.target.value as IntuneTimeWindowPreset)}
@@ -331,7 +332,7 @@ export function IntuneDashboard() {
 
         {activeTab === "timeline" && filteredEventsByTime.length > 0 && (
           <div style={{ display: "flex", alignItems: "center", gap: "6px", marginLeft: "auto", paddingLeft: "12px" }}>
-            <span style={{ fontSize: "10px", color: "#6b7280", fontWeight: 600, textTransform: "uppercase" }}>Filters:</span>
+            <span style={{ fontSize: "10px", color: tokens.colorNeutralForeground3, fontWeight: 600, textTransform: "uppercase" }}>Filters:</span>
             <select
               value={filterEventType}
               onChange={(e) => setFilterEventType(e.target.value as IntuneEventType | "All")}
@@ -373,21 +374,21 @@ export function IntuneDashboard() {
                 marginLeft: "2px",
                 fontSize: "10px",
                 padding: "2px 6px",
-                border: "1px solid #d1d5db",
+                border: `1px solid ${tokens.colorNeutralStroke2}`,
                 borderRadius: "3px",
-                backgroundColor: hasActiveFilters ? "#fff" : "#f1f5f9",
-                color: hasActiveFilters ? "#1e293b" : "#94a3b8",
+                backgroundColor: hasActiveFilters ? tokens.colorNeutralCardBackground : tokens.colorNeutralBackground3,
+                color: hasActiveFilters ? tokens.colorNeutralForeground1 : tokens.colorNeutralForeground4,
                 cursor: hasActiveFilters && !isAnalyzing ? "pointer" : "not-allowed",
               }}
             >
               Reset
             </button>
-            <span style={{ fontSize: "11px", color: "#64748b", fontWeight: 500, marginLeft: "4px" }}>
+            <span style={{ fontSize: "11px", color: tokens.colorNeutralForeground3, fontWeight: 500, marginLeft: "4px" }}>
               {filteredEventCount}/{filteredEventsByTime.length}
             </span>
             {timelineScope.filePath && (
               <>
-                <div style={{ width: "1px", height: "16px", backgroundColor: "#cbd5e1", margin: "0 2px" }} />
+                <div style={{ width: "1px", height: "16px", backgroundColor: tokens.colorNeutralStroke2, margin: "0 2px" }} />
                 <span
                   title={timelineScope.filePath}
                   style={{
@@ -396,9 +397,9 @@ export function IntuneDashboard() {
                     textOverflow: "ellipsis",
                     whiteSpace: "nowrap",
                     fontSize: "11px",
-                    color: "#92400e",
-                    backgroundColor: "#fef3c7",
-                    border: "1px solid #fcd34d",
+                    color: tokens.colorPaletteMarigoldForeground2,
+                    backgroundColor: tokens.colorPaletteYellowBackground1,
+                    border: `1px solid ${tokens.colorPaletteYellowBorder2}`,
                     borderRadius: "999px",
                     padding: "3px 8px",
                     fontWeight: 600,
@@ -412,10 +413,10 @@ export function IntuneDashboard() {
                   style={{
                     fontSize: "10px",
                     padding: "2px 6px",
-                    border: "1px solid #d1d5db",
+                    border: `1px solid ${tokens.colorNeutralStroke2}`,
                     borderRadius: "3px",
-                    backgroundColor: "#fff",
-                    color: "#1e293b",
+                    backgroundColor: tokens.colorNeutralCardBackground,
+                    color: tokens.colorNeutralForeground1,
                     cursor: isAnalyzing ? "not-allowed" : "pointer",
                   }}
                 >
@@ -434,9 +435,9 @@ export function IntuneDashboard() {
             style={{
               margin: "12px 12px 0",
               padding: "10px 12px",
-              border: analysisState.phase === "empty" ? "1px solid #fde68a" : "1px solid #fecaca",
-              backgroundColor: analysisState.phase === "empty" ? "#fffbeb" : "#fef2f2",
-              color: analysisState.phase === "empty" ? "#92400e" : "#991b1b",
+              border: analysisState.phase === "empty" ? `1px solid ${tokens.colorPaletteYellowBorder2}` : `1px solid ${tokens.colorPaletteRedBorder2}`,
+              backgroundColor: analysisState.phase === "empty" ? tokens.colorPaletteYellowBackground1 : tokens.colorPaletteRedBackground1,
+              color: analysisState.phase === "empty" ? tokens.colorPaletteMarigoldForeground2 : tokens.colorPaletteRedForeground1,
               fontSize: "12px",
             }}
           >
@@ -452,7 +453,7 @@ export function IntuneDashboard() {
               alignItems: "center",
               justifyContent: "center",
               height: "100%",
-              color: "#999",
+              color: tokens.colorNeutralForeground4,
               fontSize: "14px",
             }}
           >
@@ -465,7 +466,7 @@ export function IntuneDashboard() {
               alignItems: "center",
               justifyContent: "center",
               height: "100%",
-              color: "#6b7280",
+              color: tokens.colorNeutralForeground3,
               fontSize: "14px",
             }}
           >
@@ -478,7 +479,7 @@ export function IntuneDashboard() {
               alignItems: "center",
               justifyContent: "center",
               height: "100%",
-              color: "#92400e",
+              color: tokens.colorPaletteMarigoldForeground2,
               fontSize: "14px",
               padding: "0 24px",
               textAlign: "center",
@@ -493,7 +494,7 @@ export function IntuneDashboard() {
               alignItems: "center",
               justifyContent: "center",
               height: "100%",
-              color: "#991b1b",
+              color: tokens.colorPaletteRedForeground1,
               fontSize: "14px",
               padding: "0 24px",
               textAlign: "center",
@@ -539,10 +540,10 @@ function ActionButton({
       style={{
         fontSize: "12px",
         padding: "4px 10px",
-        border: "1px solid #94a3b8",
+        border: `1px solid ${tokens.colorNeutralStroke1}`,
         borderRadius: "4px",
-        backgroundColor: disabled ? "#e5e7eb" : "#ffffff",
-        color: disabled ? "#6b7280" : "#1f2937",
+        backgroundColor: disabled ? tokens.colorNeutralBackground3 : tokens.colorNeutralCardBackground,
+        color: disabled ? tokens.colorNeutralForeground3 : tokens.colorNeutralForeground1,
         cursor: disabled ? "not-allowed" : "pointer",
       }}
     >
@@ -555,8 +556,8 @@ const selectStyle: React.CSSProperties = {
   fontSize: "11px",
   padding: "2px 6px",
   borderRadius: "3px",
-  border: "1px solid #cbd5e1",
-  backgroundColor: "#fff",
+  border: `1px solid ${tokens.colorNeutralStroke2}`,
+  backgroundColor: tokens.colorNeutralCardBackground,
   outline: "none",
 };
 
@@ -581,9 +582,9 @@ function CanvasTabButton({
         fontSize: "11px",
         padding: "6px 12px",
         border: "none",
-        borderBottom: active ? "2px solid #2563eb" : "2px solid transparent",
+        borderBottom: active ? `2px solid ${tokens.colorBrandForeground1}` : "2px solid transparent",
         backgroundColor: "transparent",
-        color: disabled ? "#94a3b8" : active ? "#1e3a8a" : "#475569",
+        color: disabled ? tokens.colorNeutralForeground4 : active ? tokens.colorPaletteBlueForeground2 : tokens.colorNeutralForeground3,
         fontWeight: active ? 600 : 500,
         cursor: disabled ? "not-allowed" : "pointer",
         height: "100%",
@@ -596,8 +597,8 @@ function CanvasTabButton({
       <span>{label}</span>
       <span style={{
         fontSize: "9px",
-        backgroundColor: active ? "#dbeafe" : "#f1f5f9",
-        color: active ? "#1d4ed8" : "#64748b",
+        backgroundColor: active ? tokens.colorPaletteBlueBackground2 : tokens.colorNeutralBackground3,
+        color: active ? tokens.colorPaletteBlueForeground2 : tokens.colorNeutralForeground3,
         padding: "2px 6px",
         borderRadius: "99px",
         fontWeight: 700,
@@ -611,8 +612,8 @@ function CanvasTabButton({
 function StrongBadge({ label, value, color }: { label: string; value: number | string; color?: string }) {
   return (
     <div style={{ display: "flex", alignItems: "baseline", gap: "4px" }}>
-      <span style={{ color: "#64748b", fontSize: "10px", fontWeight: 600, textTransform: "uppercase" }}>{label}</span>
-      <span style={{ color: color || "#0f172a", fontSize: "12px", fontWeight: 700 }}>{value}</span>
+      <span style={{ color: tokens.colorNeutralForeground3, fontSize: "10px", fontWeight: 600, textTransform: "uppercase" }}>{label}</span>
+      <span style={{ color: color || tokens.colorNeutralForeground1, fontSize: "12px", fontWeight: 700 }}>{value}</span>
     </div>
   );
 }
@@ -755,7 +756,7 @@ function SummaryView({
       </h3>
 
       {sourceFile && (
-        <div style={{ marginBottom: "12px", color: "#666" }}>
+        <div style={{ marginBottom: "12px", color: tokens.colorNeutralForeground3 }}>
           <strong>Analyzed Path:</strong> {sourceFile}
         </div>
       )}
@@ -766,9 +767,9 @@ function SummaryView({
             marginBottom: "12px",
             padding: "10px 12px",
             borderRadius: "8px",
-            border: inactiveSourceFamilies.length > 0 ? "1px solid #fde68a" : "1px solid #bfdbfe",
-            backgroundColor: inactiveSourceFamilies.length > 0 ? "#fffbeb" : "#eff6ff",
-            color: inactiveSourceFamilies.length > 0 ? "#92400e" : "#1e3a8a",
+            border: inactiveSourceFamilies.length > 0 ? `1px solid ${tokens.colorPaletteYellowBorder2}` : `1px solid ${tokens.colorPaletteBlueBorderActive}`,
+            backgroundColor: inactiveSourceFamilies.length > 0 ? tokens.colorPaletteYellowBackground1 : tokens.colorPaletteBlueBackground2,
+            color: inactiveSourceFamilies.length > 0 ? tokens.colorPaletteMarigoldForeground2 : tokens.colorPaletteBlueForeground2,
           }}
         >
           <div style={{ fontSize: "12px", fontWeight: 700 }}>
@@ -791,7 +792,7 @@ function SummaryView({
       )}
 
       {sourceFiles.length > 0 && (
-        <div style={{ marginBottom: "12px", color: "#666" }}>
+        <div style={{ marginBottom: "12px", color: tokens.colorNeutralForeground3 }}>
           <div style={{ marginBottom: "4px" }}>
             <strong>Included IME Log Files:</strong> {sourceFiles.length}
           </div>
@@ -809,9 +810,9 @@ function SummaryView({
                 style={{
                   padding: "2px 8px",
                   borderRadius: "999px",
-                  backgroundColor: "#eff6ff",
-                  border: "1px solid #bfdbfe",
-                  color: "#1e3a8a",
+                  backgroundColor: tokens.colorPaletteBlueBackground2,
+                  border: `1px solid ${tokens.colorPaletteBlueBorderActive}`,
+                  color: tokens.colorPaletteBlueForeground2,
                   fontSize: "11px",
                   fontFamily: "'Courier New', monospace",
                 }}
@@ -824,7 +825,7 @@ function SummaryView({
       )}
 
       {summary.logTimeSpan && (
-        <div style={{ marginBottom: "12px", color: "#666" }}>
+        <div style={{ marginBottom: "12px", color: tokens.colorNeutralForeground3 }}>
           <strong>Log Time Span:</strong> {summary.logTimeSpan}
         </div>
       )}
@@ -835,9 +836,9 @@ function SummaryView({
             marginBottom: "12px",
             padding: "10px 12px",
             borderRadius: "8px",
-            border: "1px solid #bfdbfe",
-            backgroundColor: "#eff6ff",
-            color: "#1e3a8a",
+            border: `1px solid ${tokens.colorPaletteBlueBorderActive}`,
+            backgroundColor: tokens.colorPaletteBlueBackground2,
+            color: tokens.colorPaletteBlueForeground2,
             fontSize: "12px",
             lineHeight: 1.5,
           }}
@@ -863,9 +864,9 @@ function SummaryView({
         >
           <div
             style={{
-              border: "1px solid #dbe3ee",
+              border: `1px solid ${tokens.colorNeutralStroke2}`,
               borderRadius: "8px",
-              backgroundColor: "#f8fafc",
+              backgroundColor: tokens.colorNeutralBackground2,
               padding: "10px 12px",
             }}
           >
@@ -879,8 +880,8 @@ function SummaryView({
                 flexWrap: "wrap",
               }}
             >
-              <div style={{ fontSize: "12px", fontWeight: 700, color: "#0f172a" }}>Conclusions</div>
-              <div style={{ fontSize: "11px", color: "#64748b" }}>Click to jump to proof or focus the timeline.</div>
+              <div style={{ fontSize: "12px", fontWeight: 700, color: tokens.colorNeutralForeground1 }}>Conclusions</div>
+              <div style={{ fontSize: "11px", color: tokens.colorNeutralForeground3 }}>Click to jump to proof or focus the timeline.</div>
             </div>
             <div style={{ display: "grid", gap: "6px" }}>
               {conclusions.map((conclusion) => (
@@ -917,18 +918,18 @@ function SummaryView({
               }}
             >
               <CompactFact label="Files" value={String(diagnosticsCoverage.files.length)} />
-              <CompactFact label="Contributing" value={String(contributingFileCount)} color="#2563eb" />
-              <CompactFact label="Families" value={String(sourceFamilies.length)} color="#0f766e" />
+              <CompactFact label="Contributing" value={String(contributingFileCount)} color={tokens.colorBrandForeground1} />
+              <CompactFact label="Families" value={String(sourceFamilies.length)} color={tokens.colorPaletteTealForeground2} />
               <CompactFact
                 label="Rotated"
                 value={diagnosticsCoverage.hasRotatedLogs ? "Yes" : "No"}
-                color={diagnosticsCoverage.hasRotatedLogs ? "#b45309" : "#475569"}
+                color={diagnosticsCoverage.hasRotatedLogs ? tokens.colorPaletteMarigoldForeground2 : tokens.colorNeutralForeground3}
               />
               {diagnosticsCoverage.dominantSource && (
                 <CompactFact
                   label="Dominant"
                   value={buildDominantSourceLabel(diagnosticsCoverage.dominantSource)}
-                  color="#0f766e"
+                  color={tokens.colorPaletteTealForeground2}
                 />
               )}
             </div>
@@ -939,13 +940,13 @@ function SummaryView({
                   marginBottom: diagnosticsCoverage.files.length > 0 ? "10px" : 0,
                   padding: "8px 10px",
                   borderRadius: "6px",
-                  backgroundColor: "#f8fafc",
-                  border: "1px solid #e2e8f0",
-                  color: "#334155",
+                  backgroundColor: tokens.colorNeutralBackground2,
+                  border: `1px solid ${tokens.colorNeutralStroke2}`,
+                  color: tokens.colorNeutralForeground2,
                   fontSize: "12px",
                 }}
               >
-                <strong style={{ color: "#0f172a" }}>Timestamp Bounds:</strong>{" "}
+                <strong style={{ color: tokens.colorNeutralForeground1 }}>Timestamp Bounds:</strong>{" "}
                 {formatTimestampBounds(diagnosticsCoverage.timestampBounds)}
               </div>
             )}
@@ -960,7 +961,7 @@ function SummaryView({
                   style={{
                     fontSize: "11px",
                     fontWeight: 700,
-                    color: "#475569",
+                    color: tokens.colorNeutralForeground3,
                     marginBottom: "6px",
                   }}
                 >
@@ -976,9 +977,9 @@ function SummaryView({
                         fontSize: "10px",
                         padding: "4px 8px",
                         borderRadius: "999px",
-                        border: "1px solid #cbd5e1",
-                        backgroundColor: "#f8fafc",
-                        color: "#475569",
+                        border: `1px solid ${tokens.colorNeutralStroke2}`,
+                        backgroundColor: tokens.colorNeutralBackground2,
+                        color: tokens.colorNeutralForeground3,
                         fontWeight: 700,
                       }}
                     >
@@ -1029,7 +1030,7 @@ function SummaryView({
               }}
             >
               <ConfidenceBadge confidence={diagnosticsConfidence} />
-              <div style={{ fontSize: "12px", color: "#475569" }}>
+              <div style={{ fontSize: "12px", color: tokens.colorNeutralForeground3 }}>
                 {diagnosticsConfidence.score != null
                   ? `Score ${(diagnosticsConfidence.score * 100).toFixed(0)}%`
                   : "Score unavailable"}
@@ -1038,7 +1039,7 @@ function SummaryView({
 
             {diagnosticsConfidence.reasons.length > 0 ? (
               <>
-                <ul style={{ margin: 0, paddingLeft: "18px", color: "#1f2937" }}>
+                <ul style={{ margin: 0, paddingLeft: "18px", color: tokens.colorNeutralForeground1 }}>
                   {visibleConfidenceReasons.map((reason) => (
                     <li key={reason} style={{ marginBottom: "4px", lineHeight: 1.35 }}>
                       {reason}
@@ -1077,7 +1078,7 @@ function SummaryView({
                 <RepeatedFailureRow key={group.id} group={group} />
               ))}
               {hiddenRepeatedFailureCount > 0 && (
-                <div style={{ fontSize: "12px", color: "#64748b" }}>
+                <div style={{ fontSize: "12px", color: tokens.colorNeutralForeground3 }}>
                   {hiddenRepeatedFailureCount} more repeated failure group(s) were detected.
                 </div>
               )}
@@ -1107,9 +1108,9 @@ function SummaryView({
                 <div
                   key={`${step.diagnosticId}-${step.title}`}
                   style={{
-                    border: "1px solid #dbe3ee",
+                    border: `1px solid ${tokens.colorNeutralStroke2}`,
                     borderRadius: "8px",
-                    backgroundColor: "#f8fafc",
+                    backgroundColor: tokens.colorNeutralBackground2,
                     padding: "10px 12px",
                   }}
                 >
@@ -1129,8 +1130,8 @@ function SummaryView({
                           width: "22px",
                           height: "22px",
                           borderRadius: "999px",
-                          backgroundColor: "#dbeafe",
-                          color: "#1d4ed8",
+                          backgroundColor: tokens.colorPaletteBlueBackground2,
+                          color: tokens.colorPaletteBlueForeground2,
                           display: "inline-flex",
                           alignItems: "center",
                           justifyContent: "center",
@@ -1140,7 +1141,7 @@ function SummaryView({
                       >
                         {index + 1}
                       </span>
-                      <div style={{ fontSize: "13px", fontWeight: 700, color: "#0f172a" }}>{step.title}</div>
+                      <div style={{ fontSize: "13px", fontWeight: 700, color: tokens.colorNeutralForeground1 }}>{step.title}</div>
                     </div>
                     <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
                       <DiagnosticMetaBadge label={step.priority} tone={getPriorityTone(step.priority)} />
@@ -1148,11 +1149,11 @@ function SummaryView({
                     </div>
                   </div>
 
-                  <div style={{ fontSize: "12px", color: "#334155", marginBottom: "8px", lineHeight: 1.45 }}>
+                  <div style={{ fontSize: "12px", color: tokens.colorNeutralForeground2, marginBottom: "8px", lineHeight: 1.45 }}>
                     {step.action}
                   </div>
 
-                  <div style={{ fontSize: "11px", color: "#64748b", lineHeight: 1.45 }}>
+                  <div style={{ fontSize: "11px", color: tokens.colorNeutralForeground3, lineHeight: 1.45 }}>
                     {step.reason}
                   </div>
                 </div>
@@ -1168,7 +1169,7 @@ function SummaryView({
             style={{
               margin: "0 0 10px 0",
               fontSize: "13px",
-              color: "#111827",
+              color: tokens.colorNeutralForeground1,
             }}
           >
             Diagnostics Guidance
@@ -1192,7 +1193,7 @@ function SummaryView({
             fontSize: "11px",
             textTransform: "uppercase",
             letterSpacing: "0.05em",
-            color: "#64748b",
+            color: tokens.colorNeutralForeground3,
             marginBottom: "8px",
             fontWeight: 700,
           }}
@@ -1207,27 +1208,27 @@ function SummaryView({
           }}
         >
           <SummaryCard title="Total Events" value={summary.totalEvents} />
-          <SummaryCard title="Win32 Apps" value={summary.win32Apps} color="#6366f1" />
-          <SummaryCard title="WinGet Apps" value={summary.wingetApps} color="#8b5cf6" />
-          <SummaryCard title="Scripts" value={summary.scripts} color="#0ea5e9" />
-          <SummaryCard title="Remediations" value={summary.remediations} color="#14b8a6" />
-          <SummaryCard title="Downloads" value={summary.totalDownloads} color="#f97316" />
+          <SummaryCard title="Win32 Apps" value={summary.win32Apps} color={tokens.colorPalettePurpleForeground2} />
+          <SummaryCard title="WinGet Apps" value={summary.wingetApps} color={tokens.colorPalettePurpleForeground2} />
+          <SummaryCard title="Scripts" value={summary.scripts} color={tokens.colorPaletteTealForeground2} />
+          <SummaryCard title="Remediations" value={summary.remediations} color={tokens.colorPaletteTealForeground2} />
+          <SummaryCard title="Downloads" value={summary.totalDownloads} color={tokens.colorPalettePeachForeground2} />
           <SummaryCard
             title="Download Successes"
             value={summary.successfulDownloads}
-            color="#fb923c"
+            color={tokens.colorPalettePeachForeground2}
           />
           <SummaryCard
             title="Download Failures"
             value={summary.failedDownloads}
-            color="#f97316"
+            color={tokens.colorPalettePeachForeground2}
           />
-          <SummaryCard title="Succeeded" value={summary.succeeded} color="#22c55e" />
-          <SummaryCard title="Failed" value={summary.failed} color="#ef4444" />
-          <SummaryCard title="In Progress" value={summary.inProgress} color="#3b82f6" />
-          <SummaryCard title="Pending" value={summary.pending} color="#64748b" />
-          <SummaryCard title="Timed Out" value={summary.timedOut} color="#f59e0b" />
-          <SummaryCard title="Script Failures" value={summary.failedScripts} color="#dc2626" />
+          <SummaryCard title="Succeeded" value={summary.succeeded} color={tokens.colorPaletteGreenForeground1} />
+          <SummaryCard title="Failed" value={summary.failed} color={tokens.colorPaletteRedForeground1} />
+          <SummaryCard title="In Progress" value={summary.inProgress} color={tokens.colorBrandForeground1} />
+          <SummaryCard title="Pending" value={summary.pending} color={tokens.colorNeutralForeground3} />
+          <SummaryCard title="Timed Out" value={summary.timedOut} color={tokens.colorPaletteMarigoldForeground1} />
+          <SummaryCard title="Script Failures" value={summary.failedScripts} color={tokens.colorPaletteRedForeground1} />
         </div>
       </div>
     </div>
@@ -1270,9 +1271,9 @@ const secondaryToggleButtonStyle: React.CSSProperties = {
   fontSize: "11px",
   padding: "4px 8px",
   borderRadius: "4px",
-  border: "1px solid #cbd5e1",
-  backgroundColor: "#ffffff",
-  color: "#334155",
+  border: `1px solid ${tokens.colorNeutralStroke2}`,
+  backgroundColor: tokens.colorNeutralCardBackground,
+  color: tokens.colorNeutralForeground2,
   cursor: "pointer",
 };
 
@@ -1311,7 +1312,7 @@ function DiagnosticChipRow({
 }) {
   return (
     <div>
-      <div style={{ fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.05em", color: "#6b7280", marginBottom: "4px" }}>
+      <div style={{ fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.05em", color: tokens.colorNeutralForeground3, marginBottom: "4px" }}>
         {label}
       </div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
@@ -1372,7 +1373,7 @@ function ConclusionButton({
           flexShrink: 0,
         }}
       />
-      <span style={{ fontSize: "12px", color: "#0f172a", lineHeight: 1.35 }}>{conclusion.text}</span>
+      <span style={{ fontSize: "12px", color: tokens.colorNeutralForeground1, lineHeight: 1.35 }}>{conclusion.text}</span>
       <span
         style={{
           fontSize: "10px",
@@ -1401,15 +1402,15 @@ function SectionCard({
   return (
     <div
       style={{
-        border: "1px solid #e5e7eb",
+        border: `1px solid ${tokens.colorNeutralStroke2}`,
         borderRadius: "8px",
-        backgroundColor: "#ffffff",
+        backgroundColor: tokens.colorNeutralCardBackground,
         padding: "12px 14px",
       }}
     >
       <div style={{ marginBottom: "10px" }}>
-        <div style={{ fontSize: "13px", fontWeight: 700, color: "#111827" }}>{title}</div>
-        <div style={{ fontSize: "11px", color: "#6b7280", marginTop: "2px" }}>{subtitle}</div>
+        <div style={{ fontSize: "13px", fontWeight: 700, color: tokens.colorNeutralForeground1 }}>{title}</div>
+        <div style={{ fontSize: "11px", color: tokens.colorNeutralForeground3, marginTop: "2px" }}>{subtitle}</div>
       </div>
       {children}
     </div>
@@ -1433,14 +1434,14 @@ function CompactFact({
         gap: "6px",
         padding: "5px 8px",
         borderRadius: "999px",
-        border: "1px solid #dbe3ee",
-        backgroundColor: "#f8fafc",
+        border: `1px solid ${tokens.colorNeutralStroke2}`,
+        backgroundColor: tokens.colorNeutralBackground2,
       }}
     >
-      <span style={{ fontSize: "10px", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>
+      <span style={{ fontSize: "10px", fontWeight: 700, color: tokens.colorNeutralForeground3, textTransform: "uppercase" }}>
         {label}
       </span>
-      <span style={{ fontSize: "12px", fontWeight: 700, color: color ?? "#0f172a" }}>{value}</span>
+      <span style={{ fontSize: "12px", fontWeight: 700, color: color ?? tokens.colorNeutralForeground1 }}>{value}</span>
     </div>
   );
 }
@@ -1502,8 +1503,8 @@ function CoverageRow({ file }: { file: IntuneDiagnosticsFileCoverage }) {
         alignItems: "center",
         padding: "8px 10px",
         borderRadius: "6px",
-        border: "1px solid #e5e7eb",
-        backgroundColor: hasActivity ? "#fcfcfd" : "#f8fafc",
+        border: `1px solid ${tokens.colorNeutralStroke2}`,
+        backgroundColor: hasActivity ? tokens.colorNeutralCardBackground : tokens.colorNeutralBackground2,
       }}
     >
       <div style={{ minWidth: 0 }}>
@@ -1512,7 +1513,7 @@ function CoverageRow({ file }: { file: IntuneDiagnosticsFileCoverage }) {
           style={{
             fontSize: "12px",
             fontWeight: 600,
-            color: "#111827",
+            color: tokens.colorNeutralForeground1,
             overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
@@ -1522,16 +1523,16 @@ function CoverageRow({ file }: { file: IntuneDiagnosticsFileCoverage }) {
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "4px" }}>
           <SourceKindBadge kind={sourceKind} />
-          <RowStat label="Events" value={file.eventCount} color="#2563eb" />
-          <RowStat label="Downloads" value={file.downloadCount} color="#ea580c" />
+          <RowStat label="Events" value={file.eventCount} color={tokens.colorBrandForeground1} />
+          <RowStat label="Downloads" value={file.downloadCount} color={tokens.colorPalettePeachForeground2} />
           {file.rotationGroup && (
             <span
               style={{
                 fontSize: "10px",
                 padding: "2px 6px",
                 borderRadius: "999px",
-                backgroundColor: file.isRotatedSegment ? "#fef3c7" : "#e0f2fe",
-                color: file.isRotatedSegment ? "#92400e" : "#0f766e",
+                backgroundColor: file.isRotatedSegment ? tokens.colorPaletteYellowBackground1 : tokens.colorPaletteBlueBackground2,
+                color: file.isRotatedSegment ? tokens.colorPaletteMarigoldForeground2 : tokens.colorPaletteTealForeground2,
                 fontWeight: 700,
               }}
             >
@@ -1540,7 +1541,7 @@ function CoverageRow({ file }: { file: IntuneDiagnosticsFileCoverage }) {
           )}
         </div>
       </div>
-      <div style={{ textAlign: "right", fontSize: "11px", color: "#64748b" }}>
+      <div style={{ textAlign: "right", fontSize: "11px", color: tokens.colorNeutralForeground3 }}>
         {file.timestampBounds ? formatTimestampBounds(file.timestampBounds) : "No timestamps"}
       </div>
     </div>
@@ -1562,7 +1563,7 @@ function RowStat({
         fontSize: "10px",
         padding: "2px 6px",
         borderRadius: "999px",
-        backgroundColor: "#eef2ff",
+        backgroundColor: tokens.colorPaletteBlueBackground2,
         color,
         fontWeight: 700,
       }}
@@ -1598,10 +1599,10 @@ function RepeatedFailureRow({ group }: { group: IntuneRepeatedFailureGroup }) {
   return (
     <div
       style={{
-        border: "1px solid #e5e7eb",
+        border: `1px solid ${tokens.colorNeutralStroke2}`,
         borderRadius: "6px",
         padding: "10px 12px",
-        backgroundColor: "#fcfcfd",
+        backgroundColor: tokens.colorNeutralCardBackground,
       }}
     >
       <div
@@ -1613,17 +1614,17 @@ function RepeatedFailureRow({ group }: { group: IntuneRepeatedFailureGroup }) {
           flexWrap: "wrap",
         }}
       >
-        <div style={{ fontSize: "12px", fontWeight: 700, color: "#111827" }}>
+        <div style={{ fontSize: "12px", fontWeight: 700, color: tokens.colorNeutralForeground1 }}>
           {buildRepeatedFailureConclusion(group)}
         </div>
-        <span style={{ fontSize: "11px", color: "#b91c1c", fontWeight: 700 }}>
+        <span style={{ fontSize: "11px", color: tokens.colorPaletteRedForeground1, fontWeight: 700 }}>
           {group.occurrences} occurrence{group.occurrences === 1 ? "" : "s"}
         </span>
       </div>
 
-      <div style={{ fontSize: "12px", color: "#374151", marginTop: "4px" }}>{group.name}</div>
+      <div style={{ fontSize: "12px", color: tokens.colorNeutralForeground2, marginTop: "4px" }}>{group.name}</div>
 
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "6px", fontSize: "11px", color: "#64748b" }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "6px", fontSize: "11px", color: tokens.colorNeutralForeground3 }}>
         <span>{formatEventTypeLabel(group.eventType)}</span>
         <span>{group.sourceFiles.length} file(s)</span>
         {group.errorCode && <span>Error {group.errorCode}</span>}
@@ -1634,7 +1635,7 @@ function RepeatedFailureRow({ group }: { group: IntuneRepeatedFailureGroup }) {
 }
 
 function EmptyStateText({ label }: { label: string }) {
-  return <div style={{ fontSize: "12px", color: "#64748b" }}>{label}</div>;
+  return <div style={{ fontSize: "12px", color: tokens.colorNeutralForeground3 }}>{label}</div>;
 }
 
 function buildSummaryConclusions({
@@ -1893,51 +1894,51 @@ function getSourceKindTone(kind: IntuneLogSourceKind) {
   switch (kind) {
     case "appworkload":
       return {
-        border: "#fdba74",
-        background: "#fff7ed",
-        label: "#9a3412",
-        value: "#c2410c",
+        border: tokens.colorPalettePeachBorderActive,
+        background: tokens.colorPalettePeachBackground2,
+        label: tokens.colorPalettePeachForeground2,
+        value: tokens.colorPalettePeachForeground2,
       };
     case "appactionprocessor":
       return {
-        border: "#93c5fd",
-        background: "#eff6ff",
-        label: "#1d4ed8",
-        value: "#1e40af",
+        border: tokens.colorPaletteBlueBorderActive,
+        background: tokens.colorPaletteBlueBackground2,
+        label: tokens.colorPaletteBlueForeground2,
+        value: tokens.colorPaletteBlueForeground2,
       };
     case "agentexecutor":
     case "healthscripts":
       return {
-        border: "#86efac",
-        background: "#f0fdf4",
-        label: "#166534",
-        value: "#15803d",
+        border: tokens.colorPaletteGreenBorder2,
+        background: tokens.colorPaletteGreenBackground1,
+        label: tokens.colorPaletteGreenForeground1,
+        value: tokens.colorPaletteGreenForeground1,
       };
     case "clientcertcheck":
     case "devicehealthmonitoring":
       return {
-        border: "#fca5a5",
-        background: "#fef2f2",
-        label: "#b91c1c",
-        value: "#991b1b",
+        border: tokens.colorPaletteRedBorder2,
+        background: tokens.colorPaletteRedBackground1,
+        label: tokens.colorPaletteRedForeground1,
+        value: tokens.colorPaletteRedForeground1,
       };
     case "sensor":
     case "win32appinventory":
       return {
-        border: "#67e8f9",
-        background: "#ecfeff",
-        label: "#0f766e",
-        value: "#0f766e",
+        border: tokens.colorPaletteTealBorderActive,
+        background: tokens.colorPaletteTealBackground2,
+        label: tokens.colorPaletteTealForeground2,
+        value: tokens.colorPaletteTealForeground2,
       };
     case "clienthealth":
     case "intunemanagementextension":
     case "other":
     default:
       return {
-        border: "#cbd5e1",
-        background: "#f8fafc",
-        label: "#475569",
-        value: "#334155",
+        border: tokens.colorNeutralStroke2,
+        background: tokens.colorNeutralBackground2,
+        label: tokens.colorNeutralForeground3,
+        value: tokens.colorNeutralForeground2,
       };
   }
 }
@@ -1960,32 +1961,32 @@ function getConfidenceTone(level: IntuneDiagnosticsConfidence["level"]) {
   switch (level) {
     case "High":
       return {
-        border: "#86efac",
-        background: "#f0fdf4",
-        labelColor: "#166534",
-        valueColor: "#166534",
+        border: tokens.colorPaletteGreenBorder2,
+        background: tokens.colorPaletteGreenBackground1,
+        labelColor: tokens.colorPaletteGreenForeground1,
+        valueColor: tokens.colorPaletteGreenForeground1,
       };
     case "Medium":
       return {
-        border: "#fde68a",
-        background: "#fffbeb",
-        labelColor: "#92400e",
-        valueColor: "#92400e",
+        border: tokens.colorPaletteYellowBorder2,
+        background: tokens.colorPaletteYellowBackground1,
+        labelColor: tokens.colorPaletteMarigoldForeground2,
+        valueColor: tokens.colorPaletteMarigoldForeground2,
       };
     case "Low":
       return {
-        border: "#fecaca",
-        background: "#fef2f2",
-        labelColor: "#991b1b",
-        valueColor: "#991b1b",
+        border: tokens.colorPaletteRedBorder2,
+        background: tokens.colorPaletteRedBackground1,
+        labelColor: tokens.colorPaletteRedForeground1,
+        valueColor: tokens.colorPaletteRedForeground1,
       };
     case "Unknown":
     default:
       return {
-        border: "#cbd5e1",
-        background: "#f8fafc",
-        labelColor: "#475569",
-        valueColor: "#334155",
+        border: tokens.colorNeutralStroke2,
+        background: tokens.colorNeutralBackground2,
+        labelColor: tokens.colorNeutralForeground3,
+        valueColor: tokens.colorNeutralForeground2,
       };
   }
 }
@@ -2035,7 +2036,7 @@ function DiagnosticCard({
           marginBottom: "6px",
         }}
       >
-        <div style={{ fontSize: "13px", fontWeight: 600, color: "#111827" }}>
+        <div style={{ fontSize: "13px", fontWeight: 600, color: tokens.colorNeutralForeground1 }}>
           {diagnostic.title}
         </div>
         <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", justifyContent: "flex-end" }}>
@@ -2045,7 +2046,7 @@ function DiagnosticCard({
         </div>
       </div>
 
-      <div style={{ fontSize: "12px", color: "#374151", marginBottom: "10px" }}>
+      <div style={{ fontSize: "12px", color: tokens.colorNeutralForeground2, marginBottom: "10px" }}>
         {diagnostic.summary}
       </div>
 
@@ -2059,10 +2060,10 @@ function DiagnosticCard({
             border: `1px solid ${accent.border}`,
           }}
         >
-          <div style={{ fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.05em", color: "#6b7280", marginBottom: "4px" }}>
+          <div style={{ fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.05em", color: tokens.colorNeutralForeground3, marginBottom: "4px" }}>
             Likely Cause
           </div>
-          <div style={{ fontSize: "12px", color: "#1f2937", lineHeight: 1.45 }}>{diagnostic.likelyCause}</div>
+          <div style={{ fontSize: "12px", color: tokens.colorNeutralForeground1, lineHeight: 1.45 }}>{diagnostic.likelyCause}</div>
         </div>
       )}
 
@@ -2072,27 +2073,27 @@ function DiagnosticCard({
             <DiagnosticChipRow
               label="Focus Areas"
               items={diagnostic.focusAreas}
-              itemTone="#0f766e"
-              background="#ecfeff"
-              border="#99f6e4"
+              itemTone={tokens.colorPaletteTealForeground2}
+              background={tokens.colorPaletteTealBackground2}
+              border={tokens.colorPaletteTealBorderActive}
             />
           )}
           {diagnostic.affectedSourceFiles.length > 0 && (
             <DiagnosticChipRow
               label="Affected Sources"
               items={diagnostic.affectedSourceFiles.map((file) => getFileName(file))}
-              itemTone="#1d4ed8"
-              background="#eff6ff"
-              border="#bfdbfe"
+              itemTone={tokens.colorPaletteBlueForeground2}
+              background={tokens.colorPaletteBlueBackground2}
+              border={tokens.colorPaletteBlueBorderActive}
             />
           )}
           {diagnostic.relatedErrorCodes.length > 0 && (
             <DiagnosticChipRow
               label="Error Codes"
               items={diagnostic.relatedErrorCodes}
-              itemTone="#b45309"
-              background="#fffbeb"
-              border="#fde68a"
+              itemTone={tokens.colorPaletteMarigoldForeground2}
+              background={tokens.colorPaletteYellowBackground1}
+              border={tokens.colorPaletteYellowBorder2}
             />
           )}
         </div>
@@ -2105,13 +2106,13 @@ function DiagnosticCard({
               fontSize: "11px",
               textTransform: "uppercase",
               letterSpacing: "0.05em",
-              color: "#6b7280",
+              color: tokens.colorNeutralForeground3,
               marginBottom: "4px",
             }}
           >
             Evidence
           </div>
-          <ul style={{ margin: 0, paddingLeft: "18px", color: "#1f2937" }}>
+          <ul style={{ margin: 0, paddingLeft: "18px", color: tokens.colorNeutralForeground1 }}>
             {diagnostic.evidence.map((item) => (
               <li key={item} style={{ marginBottom: "2px" }}>
                 {item}
@@ -2126,13 +2127,13 @@ function DiagnosticCard({
               fontSize: "11px",
               textTransform: "uppercase",
               letterSpacing: "0.05em",
-              color: "#6b7280",
+              color: tokens.colorNeutralForeground3,
               marginBottom: "4px",
             }}
           >
             Next Checks
           </div>
-          <ul style={{ margin: 0, paddingLeft: "18px", color: "#1f2937" }}>
+          <ul style={{ margin: 0, paddingLeft: "18px", color: tokens.colorNeutralForeground1 }}>
             {diagnostic.nextChecks.map((item) => (
               <li key={item} style={{ marginBottom: "2px" }}>
                 {item}
@@ -2148,13 +2149,13 @@ function DiagnosticCard({
                 fontSize: "11px",
                 textTransform: "uppercase",
                 letterSpacing: "0.05em",
-                color: "#6b7280",
+                color: tokens.colorNeutralForeground3,
                 marginBottom: "4px",
               }}
             >
               Suggested Fixes
             </div>
-            <ul style={{ margin: 0, paddingLeft: "18px", color: "#1f2937" }}>
+            <ul style={{ margin: 0, paddingLeft: "18px", color: tokens.colorNeutralForeground1 }}>
               {diagnostic.suggestedFixes.map((item) => (
                 <li key={item} style={{ marginBottom: "2px" }}>
                   {item}
@@ -2172,22 +2173,22 @@ function getDiagnosticAccent(severity: IntuneDiagnosticSeverity) {
   switch (severity) {
     case "Error":
       return {
-        accent: "#b91c1c",
-        border: "#fecaca",
-        background: "#fef2f2",
+        accent: tokens.colorPaletteRedForeground1,
+        border: tokens.colorPaletteRedBorder2,
+        background: tokens.colorPaletteRedBackground1,
       };
     case "Warning":
       return {
-        accent: "#b45309",
-        border: "#fde68a",
-        background: "#fffbeb",
+        accent: tokens.colorPaletteMarigoldForeground2,
+        border: tokens.colorPaletteYellowBorder2,
+        background: tokens.colorPaletteYellowBackground1,
       };
     case "Info":
     default:
       return {
-        accent: "#1d4ed8",
-        border: "#bfdbfe",
-        background: "#eff6ff",
+        accent: tokens.colorPaletteBlueForeground2,
+        border: tokens.colorPaletteBlueBorderActive,
+        background: tokens.colorPaletteBlueBackground2,
       };
   }
 }
@@ -2195,34 +2196,34 @@ function getDiagnosticAccent(severity: IntuneDiagnosticSeverity) {
 function getPriorityTone(priority: IntuneRemediationPriority) {
   switch (priority) {
     case "Immediate":
-      return "#b91c1c";
+      return tokens.colorPaletteRedForeground1;
     case "High":
-      return "#b45309";
+      return tokens.colorPaletteMarigoldForeground2;
     case "Medium":
-      return "#1d4ed8";
+      return tokens.colorPaletteBlueForeground2;
     case "Monitor":
     default:
-      return "#475569";
+      return tokens.colorNeutralForeground3;
   }
 }
 
 function getCategoryTone(category: IntuneDiagnosticCategory) {
   switch (category) {
     case "Download":
-      return "#c2410c";
+      return tokens.colorPalettePeachForeground2;
     case "Install":
-      return "#7c3aed";
+      return tokens.colorPalettePurpleForeground2;
     case "Timeout":
-      return "#b45309";
+      return tokens.colorPaletteMarigoldForeground2;
     case "Script":
-      return "#0f766e";
+      return tokens.colorPaletteTealForeground2;
     case "Policy":
-      return "#2563eb";
+      return tokens.colorBrandForeground1;
     case "State":
-      return "#0f766e";
+      return tokens.colorPaletteTealForeground2;
     case "General":
     default:
-      return "#475569";
+      return tokens.colorNeutralForeground3;
   }
 }
 
@@ -2268,32 +2269,32 @@ function getConclusionTone(tone: SummaryConclusion["tone"]) {
   switch (tone) {
     case "critical":
       return {
-        accent: "#b91c1c",
-        border: "#fecaca",
-        background: "#fff7f7",
-        label: "#991b1b",
+        accent: tokens.colorPaletteRedForeground1,
+        border: tokens.colorPaletteRedBorder2,
+        background: tokens.colorPaletteRedBackground1,
+        label: tokens.colorPaletteRedForeground1,
       };
     case "warning":
       return {
-        accent: "#b45309",
-        border: "#fde68a",
-        background: "#fffbeb",
-        label: "#92400e",
+        accent: tokens.colorPaletteMarigoldForeground2,
+        border: tokens.colorPaletteYellowBorder2,
+        background: tokens.colorPaletteYellowBackground1,
+        label: tokens.colorPaletteMarigoldForeground2,
       };
     case "info":
       return {
-        accent: "#2563eb",
-        border: "#bfdbfe",
-        background: "#eff6ff",
-        label: "#1d4ed8",
+        accent: tokens.colorBrandForeground1,
+        border: tokens.colorPaletteBlueBorderActive,
+        background: tokens.colorPaletteBlueBackground2,
+        label: tokens.colorPaletteBlueForeground2,
       };
     case "neutral":
     default:
       return {
-        accent: "#475569",
-        border: "#dbe3ee",
-        background: "#ffffff",
-        label: "#475569",
+        accent: tokens.colorNeutralForeground3,
+        border: tokens.colorNeutralStroke2,
+        background: tokens.colorNeutralCardBackground,
+        label: tokens.colorNeutralForeground3,
       };
   }
 }
@@ -2573,16 +2574,16 @@ function SummaryCard({
     <div
       style={{
         padding: "10px 11px",
-        border: "1px solid #e5e7eb",
+        border: `1px solid ${tokens.colorNeutralStroke2}`,
         borderRadius: "6px",
-        borderLeft: `3px solid ${color || "#9ca3af"}`,
-        backgroundColor: "#ffffff",
+        borderLeft: `3px solid ${color || tokens.colorNeutralStroke1}`,
+        backgroundColor: tokens.colorNeutralCardBackground,
       }}
     >
       <div
         style={{
           fontSize: "11px",
-          color: "#6b7280",
+          color: tokens.colorNeutralForeground3,
           textTransform: "uppercase",
           letterSpacing: "0.05em",
         }}
@@ -2593,7 +2594,7 @@ function SummaryCard({
         style={{
           fontSize: "20px",
           fontWeight: "bold",
-          color: color || "#111",
+          color: color || tokens.colorNeutralForeground1,
           marginTop: "4px",
         }}
       >

@@ -1,5 +1,6 @@
 mod commands;
 pub mod dsregcmd;
+pub mod macos_diag;
 mod error_db;
 pub mod intune;
 mod menu;
@@ -63,6 +64,15 @@ pub fn run() {
             commands::dsregcmd::analyze_dsregcmd,
             commands::dsregcmd::capture_dsregcmd,
             commands::dsregcmd::load_dsregcmd_source,
+            commands::macos_diag::macos_scan_environment,
+            commands::macos_diag::macos_scan_intune_logs,
+            commands::macos_diag::macos_list_profiles,
+            commands::macos_diag::macos_inspect_defender,
+            commands::macos_diag::macos_list_packages,
+            commands::macos_diag::macos_get_package_info,
+            commands::macos_diag::macos_get_package_files,
+            commands::macos_diag::macos_query_unified_log,
+            commands::macos_diag::macos_open_system_settings,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

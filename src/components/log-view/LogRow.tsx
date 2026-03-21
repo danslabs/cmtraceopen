@@ -1,8 +1,8 @@
+import { tokens } from "@fluentui/react-components";
 import type { LogEntry } from "../../types/log";
 import {
-  getLogSeverityPalette,
   getLogViewGridTemplateColumns,
-  type LogSeverityPaletteMode,
+  type LogSeverityPalette,
 } from "../../lib/constants";
 import { formatLogEntryTimestamp } from "../../lib/date-time-format";
 import { LOG_UI_FONT_FAMILY } from "../../lib/log-accessibility";
@@ -14,7 +14,7 @@ interface LogRowProps {
   showDetails: boolean;
   listFontSize: number;
   rowLineHeight: number;
-  severityPaletteMode: LogSeverityPaletteMode;
+  severityPalette: LogSeverityPalette;
   highlightText: string;
   highlightCaseSensitive: boolean;
   onClick: (id: number) => void;
@@ -23,14 +23,13 @@ interface LogRowProps {
 function getRowStyle(
   entry: LogEntry,
   isSelected: boolean,
-  severityPaletteMode: LogSeverityPaletteMode
+  palette: LogSeverityPalette
 ) {
-  const palette = getLogSeverityPalette(severityPaletteMode);
 
   if (isSelected) {
     return {
-      backgroundColor: "#0078D7",
-      color: "#FFFFFF",
+      backgroundColor: tokens.colorBrandBackground,
+      color: tokens.colorNeutralForegroundOnBrand,
     };
   }
 
@@ -57,11 +56,9 @@ function highlightMessage(
   text: string,
   highlight: string,
   caseSensitive: boolean,
-  severityPaletteMode: LogSeverityPaletteMode
+  palette: LogSeverityPalette
 ): React.ReactNode {
   if (!highlight) return text;
-
-  const palette = getLogSeverityPalette(severityPaletteMode);
   const flags = caseSensitive ? "g" : "gi";
   const escaped = highlight.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const regex = new RegExp(`(${escaped})`, flags);
@@ -78,7 +75,7 @@ function highlightMessage(
           key={i}
           style={{
             backgroundColor: palette.highlightDefault,
-            color: "#000",
+            color: tokens.colorNeutralForeground1,
           }}
         >
           {part}
@@ -97,12 +94,12 @@ export function LogRow({
   showDetails,
   listFontSize,
   rowLineHeight,
-  severityPaletteMode,
+  severityPalette,
   highlightText,
   highlightCaseSensitive,
   onClick,
 }: LogRowProps) {
-  const style = getRowStyle(entry, isSelected, severityPaletteMode);
+  const style = getRowStyle(entry, isSelected, severityPalette);
   const gridTemplateColumns = getLogViewGridTemplateColumns(showDetails);
   const timestampLabel = formatLogEntryTimestamp(entry);
 
@@ -118,13 +115,13 @@ export function LogRow({
         display: "grid",
         gridTemplateColumns,
         cursor: "pointer",
-        borderBottom: "1px solid #e0e0e0",
+        borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
         fontSize: `${listFontSize}px`,
         fontFamily: LOG_UI_FONT_FAMILY,
         lineHeight: `${rowLineHeight}px`,
         whiteSpace: "nowrap",
         transition: "filter 80ms linear",
-        boxShadow: `inset 3px 0 0 ${isSelected ? "#FFFFFF" : "transparent"}`,
+        boxShadow: `inset 3px 0 0 ${isSelected ? tokens.colorNeutralForegroundOnBrand : "transparent"}`,
       }}
       onClick={() => onClick(entry.id)}
     >
@@ -141,7 +138,7 @@ export function LogRow({
           entry.message,
           highlightText,
           highlightCaseSensitive,
-          severityPaletteMode
+          severityPalette
         )}
       </div>
       {showDetails && (
@@ -152,7 +149,7 @@ export function LogRow({
               overflow: "hidden",
               textOverflow: "ellipsis",
               padding: "1px 4px",
-              borderLeft: "1px solid #d0d0d0",
+              borderLeft: `1px solid ${tokens.colorNeutralStroke1}`,
             }}
           >
             {entry.component ?? ""}
@@ -163,7 +160,7 @@ export function LogRow({
               overflow: "hidden",
               textOverflow: "ellipsis",
               padding: "1px 4px",
-              borderLeft: "1px solid #d0d0d0",
+              borderLeft: `1px solid ${tokens.colorNeutralStroke1}`,
             }}
           >
             {timestampLabel ?? ""}
@@ -174,7 +171,7 @@ export function LogRow({
               overflow: "hidden",
               textOverflow: "ellipsis",
               padding: "1px 4px",
-              borderLeft: "1px solid #d0d0d0",
+              borderLeft: `1px solid ${tokens.colorNeutralStroke1}`,
             }}
           >
             {entry.threadDisplay ?? ""}

@@ -42,14 +42,12 @@ const useStyles = makeStyles({
     flexDirection: "column",
     height: "100%",
     minHeight: 0,
-    backgroundColor: tokens.colorNeutralBackground1,
-    backgroundImage:
-      "radial-gradient(circle at top right, rgba(15,108,189,0.12), transparent 28%), linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(244,247,251,1) 100%)",
+    backgroundColor: tokens.colorNeutralBackground2,
   },
   hero: {
     ...shorthands.padding("18px", "20px", "16px"),
     borderBottom: `1px solid ${tokens.colorNeutralStroke1}`,
-    backgroundColor: "rgba(255,255,255,0.86)",
+    backgroundColor: tokens.colorNeutralBackground1,
     backdropFilter: "blur(10px)",
   },
   heroTop: {
@@ -97,7 +95,7 @@ const useStyles = makeStyles({
     flexWrap: "wrap",
     ...shorthands.padding("10px", "20px"),
     borderBottom: `1px solid ${tokens.colorNeutralStroke1}`,
-    backgroundColor: "rgba(255,255,255,0.72)",
+    backgroundColor: tokens.colorNeutralBackground1,
   },
   navButtons: {
     display: "flex",
@@ -123,7 +121,7 @@ const useStyles = makeStyles({
   },
   emptyCard: {
     width: "min(720px, 100%)",
-    backgroundColor: "rgba(255,255,255,0.96)",
+    backgroundColor: tokens.colorNeutralCardBackground,
   },
   metricsGrid: {
     display: "grid",
@@ -135,7 +133,7 @@ const useStyles = makeStyles({
     display: "grid",
     gap: "8px",
     minHeight: "116px",
-    backgroundColor: "rgba(255,255,255,0.96)",
+    backgroundColor: tokens.colorNeutralCardBackground,
   },
   metricValue: {
     fontWeight: 700,
@@ -162,7 +160,7 @@ const useStyles = makeStyles({
   sectionCard: {
     display: "grid",
     gap: "12px",
-    backgroundColor: "rgba(255,255,255,0.96)",
+    backgroundColor: tokens.colorNeutralCardBackground,
   },
   sectionHeader: {
     display: "flex",
@@ -239,7 +237,7 @@ const useStyles = makeStyles({
     display: "flex",
     flexDirection: "column",
     overflow: "hidden",
-    backgroundColor: "rgba(255,255,255,0.96)",
+    backgroundColor: tokens.colorNeutralCardBackground,
   },
   investigationHeader: {
     display: "flex",
@@ -693,7 +691,7 @@ export function NewIntuneWorkspace() {
                     ? `${Math.round(diagnosticsCoverage.dominantSource.eventShare * 100)}% of scored events`
                     : `${diagnosticsCoverage.files.length} analyzed files`
                 }
-                accent="#0f766e"
+                accent={tokens.colorPaletteTealForeground2}
               />
               {eventLogAnalysis && (
                 <MetricCard
@@ -703,7 +701,7 @@ export function NewIntuneWorkspace() {
                       eventLogAnalysis.warningEntryCount,
                   )}
                   hint={eventLogHint ?? "No Windows Event Log evidence"}
-                  accent="#7c3aed"
+                  accent={tokens.colorPalettePurpleForeground2}
                 />
               )}
               {(summary?.totalDownloads ?? 0) > 0 && (
@@ -711,7 +709,7 @@ export function NewIntuneWorkspace() {
                   title="Content downloads"
                   value={String(summary?.totalDownloads ?? 0)}
                   hint={`${summary?.successfulDownloads ?? 0} succeeded, ${summary?.failedDownloads ?? 0} failed`}
-                  accent="#ea580c"
+                  accent={tokens.colorPalettePeachForeground2}
                 />
               )}
             </div>
