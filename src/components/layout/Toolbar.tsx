@@ -981,6 +981,8 @@ export function Toolbar() {
         >
           Error Lookup
         </Button>
+        <Divider vertical />
+        <ThemePicker />
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap", justifyContent: "flex-end" }}>
@@ -1026,9 +1028,6 @@ export function Toolbar() {
           </Button>
         ))}
 
-        <Divider vertical />
-
-        <ThemePicker />
       </div>
     </div>
   );
