@@ -40,17 +40,11 @@ PowerShell scripts, remediations, ESP, and sync sessions
 
 ## Getting Started
 
-### Prerequisites
-
-- [Node.js](https://nodejs.org/) (v18+)
-- [Rust](https://www.rust-lang.org/tools/install) (latest stable)
-- [Tauri v2 prerequisites](https://v2.tauri.app/start/prerequisites/)
-
-### Build
+### Build for development 
 
 For a Windows-focused developer setup guide, see [windows_build_from_source.md](windows_build_from_source.md).
 
-### Install
+### Install 
 
 Download the latest release from [Releases](https://github.com/adamgell/CMTraceOpen/releases).
 
