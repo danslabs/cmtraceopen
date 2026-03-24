@@ -279,6 +279,7 @@ export const useUiStore = create<UiState>()(
       },
 
       openTab: (filePath, fileName) => {
+        if (!filePath) return;
         const { openTabs } = get();
         const existingIndex = openTabs.findIndex((t) => t.filePath === filePath);
         if (existingIndex >= 0) {
@@ -286,7 +287,7 @@ export const useUiStore = create<UiState>()(
           return;
         }
         const newTab: TabState = {
-          id: `tab-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          id: crypto.randomUUID(),
           filePath,
           fileName,
           scrollPosition: 0,
@@ -300,7 +301,10 @@ export const useUiStore = create<UiState>()(
 
       closeTab: (index) => {
         const { openTabs, activeTabIndex } = get();
-        if (index < 0 || index >= openTabs.length) return;
+        if (index < 0 || index >= openTabs.length) {
+          console.warn("[ui-store] closeTab: invalid index", { index, tabCount: openTabs.length });
+          return;
+        }
         const newTabs = openTabs.filter((_, i) => i !== index);
         let newActive = activeTabIndex;
         if (newTabs.length === 0) {
@@ -315,13 +319,19 @@ export const useUiStore = create<UiState>()(
 
       switchTab: (index) => {
         const { openTabs } = get();
-        if (index < 0 || index >= openTabs.length) return;
+        if (index < 0 || index >= openTabs.length) {
+          console.warn("[ui-store] switchTab: invalid index", { index, tabCount: openTabs.length });
+          return;
+        }
         set({ activeTabIndex: index });
       },
 
       saveTabScrollState: (index, scrollPosition, selectedLineId) => {
         const { openTabs } = get();
-        if (index < 0 || index >= openTabs.length) return;
+        if (index < 0 || index >= openTabs.length) {
+          console.warn("[ui-store] saveTabScrollState: invalid index", { index, tabCount: openTabs.length });
+          return;
+        }
         const updated = [...openTabs];
         updated[index] = { ...updated[index], scrollPosition, selectedLineId };
         set({ openTabs: updated });

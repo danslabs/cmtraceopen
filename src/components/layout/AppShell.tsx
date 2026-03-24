@@ -75,7 +75,6 @@ export function AppShell() {
   );
 
   const activeTabIndex = useUiStore((s) => s.activeTabIndex);
-  const openTabs = useUiStore((s) => s.openTabs);
 
   const entries = useLogStore((s) => s.entries);
   const filterClauses = useFilterStore((s) => s.clauses);
@@ -186,8 +185,9 @@ export function AppShell() {
 
   // When the active tab changes, load the corresponding file
   useEffect(() => {
-    if (activeTabIndex < 0 || activeTabIndex >= openTabs.length) return;
-    const tab = openTabs[activeTabIndex];
+    const tabs = useUiStore.getState().openTabs;
+    if (activeTabIndex < 0 || activeTabIndex >= tabs.length) return;
+    const tab = tabs[activeTabIndex];
     const currentPath = useLogStore.getState().openFilePath;
     if (currentPath === tab.filePath) return;
 
@@ -195,7 +195,7 @@ export function AppShell() {
     loadPathAsLogSource(tab.filePath).catch((err) => {
       console.error("[tab-switch] failed to load", tab.filePath, err);
     });
-  }, [activeTabIndex, openTabs]);
+  }, [activeTabIndex]);
 
   const handleApplyFilter = useCallback(
     async (clauses: FilterClause[]) => {

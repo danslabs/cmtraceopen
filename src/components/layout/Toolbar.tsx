@@ -87,7 +87,7 @@ const DSREGCMD_FILE_DIALOG_FILTERS = [
 
 const LIVE_INTUNE_SOURCE_ID = "windows-intune-ime-logs";
 
-const WORKSPACE_LABELS: Record<string, string> = {
+const WORKSPACE_LABELS: Record<WorkspaceId, string> = {
   log: "Log Explorer",
   intune: "Intune Diagnostics",
   "new-intune": "New Intune Workspace",
@@ -901,7 +901,7 @@ export function Toolbar() {
         Workspace:
       </label>
       <Dropdown
-        value={WORKSPACE_LABELS[activeView] ?? "Log Explorer"}
+        value={WORKSPACE_LABELS[activeView]}
         selectedOptions={[activeView]}
         onOptionSelect={(_e, data) => {
           if (data.optionValue) {
@@ -912,11 +912,9 @@ export function Toolbar() {
         style={{ minWidth: "180px" }}
         aria-label="Workspace"
       >
-        <Option value="log">Log Explorer</Option>
-        <Option value="intune">Intune Diagnostics</Option>
-        <Option value="new-intune">New Intune Workspace</Option>
-        <Option value="dsregcmd">dsregcmd</Option>
-        <Option value="macos-diag">macOS Diagnostics</Option>
+        {(Object.entries(WORKSPACE_LABELS) as [WorkspaceId, string][]).map(([value, label]) => (
+          <Option key={value} value={value}>{label}</Option>
+        ))}
       </Dropdown>
 
       <div style={{ flex: 1 }} />

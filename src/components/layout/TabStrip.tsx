@@ -98,6 +98,9 @@ export function TabStrip() {
   const visibleTabs = openTabs.slice(0, MAX_VISIBLE_TABS);
   const overflowTabs = openTabs.slice(MAX_VISIBLE_TABS);
   const hasOverflow = overflowTabs.length > 0;
+  const focusableIndex = activeTabIndex < visibleTabs.length ? activeTabIndex : 0;
+
+  tabRefs.current.length = visibleTabs.length;
 
   return (
     <div role="tablist" aria-label="Open log files" style={stripStyle}>
@@ -111,7 +114,7 @@ export function TabStrip() {
             ref={(el) => { tabRefs.current[index] = el; }}
             role="tab"
             aria-selected={isActive}
-            tabIndex={isActive ? 0 : -1}
+            tabIndex={index === focusableIndex ? 0 : -1}
             style={{
               ...tabStyle,
               ...(isActive ? activeTabStyle : inactiveTabStyle),
@@ -122,15 +125,16 @@ export function TabStrip() {
             onMouseLeave={() => setHoveredTabIndex(null)}
           >
             <span style={tabLabelStyle}>{tab.fileName}</span>
-            {(isHovered || isActive) && (
-              <button
-                aria-label={`Close ${tab.fileName}`}
-                style={closeButtonStyle}
-                onClick={(e) => handleCloseTab(e, index)}
-              >
-                ×
-              </button>
-            )}
+            <button
+              aria-label={`Close ${tab.fileName}`}
+              style={{
+                ...closeButtonBaseStyle,
+                visibility: isHovered || isActive ? "visible" : "hidden",
+              }}
+              onClick={(e) => handleCloseTab(e, index)}
+            >
+              ×
+            </button>
           </div>
         );
       })}
@@ -222,7 +226,7 @@ const tabLabelStyle: CSSProperties = {
   flex: 1,
 };
 
-const closeButtonStyle: CSSProperties = {
+const closeButtonBaseStyle: CSSProperties = {
   display: "inline-flex",
   alignItems: "center",
   justifyContent: "center",

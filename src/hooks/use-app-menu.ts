@@ -84,6 +84,8 @@ export function useAppMenu() {
                 sourceId: payload.source_id,
                 trigger: payload.trigger || "native-menu.known-source",
               });
+            } else {
+              console.warn("[app-menu] open_known_source received without source_id", { payload });
             }
             return;
           }

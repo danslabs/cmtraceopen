@@ -284,6 +284,7 @@ pub fn handle_menu_event<R: Runtime>(app: &AppHandle<R>, menu_id: &str) {
     }
 
     let Some(payload) = payload_for_menu_id(menu_id) else {
+        eprintln!("[menu] unrecognized menu_id: {menu_id}");
         return;
     };
 

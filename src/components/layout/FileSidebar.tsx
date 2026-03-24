@@ -915,11 +915,7 @@ function SidebarFooter() {
         size="small"
         appearance="subtle"
         disabled={!commandState.canRefresh}
-        onClick={() =>
-          void refreshActiveSource().catch((error) => {
-            console.error("Failed to refresh active source:", error);
-          })
-        }
+        onClick={() => { refreshActiveSource().catch((err) => console.error("[sidebar-footer] refresh failed", err)); }}
         style={{ fontSize: "10px", padding: "3px 8px", minWidth: 0 }}
       >
         Refresh
