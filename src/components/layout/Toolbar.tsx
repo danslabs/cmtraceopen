@@ -10,7 +10,9 @@ import {
 import {
   Button,
   Divider,
+  Dropdown,
   Input,
+  Option,
   tokens,
 } from "@fluentui/react-components";
 import { open } from "@tauri-apps/plugin-dialog";
@@ -80,6 +82,14 @@ const DSREGCMD_FILE_DIALOG_FILTERS = [
 ];
 
 const LIVE_INTUNE_SOURCE_ID = "windows-intune-ime-logs";
+
+const WORKSPACE_LABELS: Record<string, string> = {
+  log: "Log Explorer",
+  intune: "Intune Diagnostics",
+  "new-intune": "New Intune Workspace",
+  dsregcmd: "dsregcmd",
+  "macos-diag": "macOS Diagnostics",
+};
 
 function getOpenFileDialogFilters(workspace: WorkspaceId) {
   if (isIntuneWorkspace(workspace)) {
@@ -945,31 +955,24 @@ export function Toolbar() {
       >
         Workspace:
       </label>
-      <select
-        value={activeView}
-        onChange={(e) => setActiveView(e.target.value as WorkspaceId)}
-        title="Switch workspace"
-        style={{
-          ...getToolbarControlStyle({ disabled: false, active: true }),
-          padding: "5px 28px 5px 10px",
-          fontSize: "11px",
-          fontWeight: 600,
-          minWidth: "160px",
-          appearance: "none" as const,
-          WebkitAppearance: "none" as const,
-          backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5' viewBox='0 0 8 5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23888'/%3E%3C/svg%3E\")",
-          backgroundRepeat: "no-repeat",
-          backgroundPosition: "right 9px center",
-          borderColor: tokens.colorBrandStroke1,
+      <Dropdown
+        value={WORKSPACE_LABELS[activeView] ?? "Log Explorer"}
+        selectedOptions={[activeView]}
+        onOptionSelect={(_e, data) => {
+          if (data.optionValue) {
+            setActiveView(data.optionValue as WorkspaceId);
+          }
         }}
+        size="small"
+        style={{ minWidth: "180px" }}
+        aria-label="Workspace"
       >
-        <option value="log">Log Explorer</option>
-        <option value="intune">Intune Diagnostics</option>
-        <option value="new-intune">New Intune Workspace</option>
-        <option value="dsregcmd">dsregcmd</option>
-        <option value="macos-diag">macOS Diagnostics</option>
-      </select>
+        <Option value="log">Log Explorer</Option>
+        <Option value="intune">Intune Diagnostics</Option>
+        <Option value="new-intune">New Intune Workspace</Option>
+        <Option value="dsregcmd">dsregcmd</Option>
+        <Option value="macos-diag">macOS Diagnostics</Option>
+      </Dropdown>
 
       <div style={{ flex: 1 }} />
 
