@@ -13,6 +13,14 @@ export type IntuneWorkspaceId = "intune" | "new-intune";
 export type WorkspaceId = "log" | IntuneWorkspaceId | "dsregcmd" | "macos-diag";
 export type AppView = WorkspaceId;
 
+export interface TabState {
+  id: string;
+  filePath: string;
+  fileName: string;
+  scrollPosition: number;
+  selectedLineId: number | null;
+}
+
 export function isIntuneWorkspace(workspace: WorkspaceId): workspace is IntuneWorkspaceId {
   return workspace === "intune" || workspace === "new-intune";
 }
@@ -83,6 +91,8 @@ interface UiState {
   logListFontSize: number;
   logDetailsFontSize: number;
   themeId: ThemeId;
+  openTabs: TabState[];
+  activeTabIndex: number;
 
   setActiveWorkspace: (workspace: WorkspaceId) => void;
   setActiveView: (view: AppView) => void;
@@ -107,6 +117,10 @@ interface UiState {
   setThemeId: (id: ThemeId) => void;
   resetLogAccessibilityPreferences: () => void;
   closeTransientDialogs: (trigger: string) => void;
+  openTab: (filePath: string, fileName: string) => void;
+  closeTab: (index: number) => void;
+  switchTab: (index: number) => void;
+  saveTabScrollState: (index: number, scrollPosition: number, selectedLineId: number | null) => void;
 }
 
 const DEFAULT_WORKSPACE: WorkspaceId = "log";
@@ -160,6 +174,8 @@ export const useUiStore = create<UiState>()(
       logListFontSize: DEFAULT_LOG_LIST_FONT_SIZE,
       logDetailsFontSize: DEFAULT_LOG_DETAILS_FONT_SIZE,
       themeId: DEFAULT_THEME_ID,
+      openTabs: [],
+      activeTabIndex: -1,
 
       setActiveWorkspace: (workspace) => {
         const previousWorkspace = get().activeWorkspace;
@@ -260,6 +276,55 @@ export const useUiStore = create<UiState>()(
           showEvidenceBundleDialog: false,
           showFileAssociationPrompt: false,
         });
+      },
+
+      openTab: (filePath, fileName) => {
+        const { openTabs } = get();
+        const existingIndex = openTabs.findIndex((t) => t.filePath === filePath);
+        if (existingIndex >= 0) {
+          set({ activeTabIndex: existingIndex });
+          return;
+        }
+        const newTab: TabState = {
+          id: `tab-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          filePath,
+          fileName,
+          scrollPosition: 0,
+          selectedLineId: null,
+        };
+        set({
+          openTabs: [...openTabs, newTab],
+          activeTabIndex: openTabs.length,
+        });
+      },
+
+      closeTab: (index) => {
+        const { openTabs, activeTabIndex } = get();
+        if (index < 0 || index >= openTabs.length) return;
+        const newTabs = openTabs.filter((_, i) => i !== index);
+        let newActive = activeTabIndex;
+        if (newTabs.length === 0) {
+          newActive = -1;
+        } else if (index === activeTabIndex) {
+          newActive = index > 0 ? index - 1 : 0;
+        } else if (index < activeTabIndex) {
+          newActive = activeTabIndex - 1;
+        }
+        set({ openTabs: newTabs, activeTabIndex: newActive });
+      },
+
+      switchTab: (index) => {
+        const { openTabs } = get();
+        if (index < 0 || index >= openTabs.length) return;
+        set({ activeTabIndex: index });
+      },
+
+      saveTabScrollState: (index, scrollPosition, selectedLineId) => {
+        const { openTabs } = get();
+        if (index < 0 || index >= openTabs.length) return;
+        const updated = [...openTabs];
+        updated[index] = { ...updated[index], scrollPosition, selectedLineId };
+        set({ openTabs: updated });
       },
     }),
     {
