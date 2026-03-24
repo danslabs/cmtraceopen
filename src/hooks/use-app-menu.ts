@@ -10,8 +10,7 @@ interface AppMenuActionPayload {
   action: string;
   category: string;
   trigger: string;
-  preset_id: string | null;
-  platform: string | null;
+  source_id: string | null;
 }
 
 export function useAppMenu() {
@@ -79,12 +78,13 @@ export function useAppMenu() {
           case "show_accessibility_settings":
             showAccessibilityDialog();
             return;
-          case "load_known_source_preset": {
-            await openKnownSourceCatalogAction({
-              presetMenuId: payload.preset_id,
-              menuId: payload.menu_id,
-              trigger: payload.trigger || "native-menu.log-preset-selected",
-            });
+          case "open_known_source": {
+            if (payload.source_id) {
+              await openKnownSourceCatalogAction({
+                sourceId: payload.source_id,
+                trigger: payload.trigger || "native-menu.known-source",
+              });
+            }
             return;
           }
           default:

@@ -1554,7 +1554,7 @@ fn macos_known_log_sources() -> Vec<KnownSourceMetadata> {
     ]
 }
 
-fn build_known_log_sources() -> Vec<KnownSourceMetadata> {
+pub fn build_known_log_sources() -> Vec<KnownSourceMetadata> {
     #[cfg(target_os = "windows")]
     {
         windows_known_log_sources()
