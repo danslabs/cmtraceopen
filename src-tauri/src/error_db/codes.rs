@@ -38,6 +38,7 @@ impl ErrorCategory {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct ErrorCode {
     pub code: u32,
     pub description: &'static str,
