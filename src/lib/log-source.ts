@@ -167,11 +167,13 @@ function clearSelectedFileState(source: LogSource, entries: FolderEntry[]): void
   state.clearActiveFile();
 }
 
+/** Max concurrent IPC file-parse calls during folder loading. */
+const FOLDER_LOAD_CONCURRENCY = 4;
+
 /**
- * Progressive folder loader: parses files one-by-one via individual IPC calls,
- * updating the status bar after each file and caching results as they arrive.
- * The user sees a live progress indicator ("Parsing file 3 of 12...") instead
- * of a frozen "Loading source..." message.
+ * Progressive folder loader: parses files concurrently (up to FOLDER_LOAD_CONCURRENCY
+ * at a time) via individual IPC calls, driving a visible ProgressBar + status text
+ * in real time. Each file is cached as it completes for instant tab switching.
  */
 async function loadFolderProgressive(
   source: LogSource,
@@ -190,6 +192,7 @@ async function loadFolderProgressive(
     state.setAggregateFiles([]);
     state.setEntries([]);
     state.selectEntry(null);
+    state.setFolderLoadProgress(null);
     state.setSourceStatus({
       kind: "empty",
       message: "Source loaded, but no files were found.",
@@ -197,24 +200,28 @@ async function loadFolderProgressive(
     return;
   }
 
-  const allEntries: LogEntry[] = [];
-  const aggregateFiles: import("../types/log").AggregateParsedFileResult[] = [];
-  let totalLines = 0;
+  // Signal the UI to show the progress bar
+  state.setFolderLoadProgress({ current: 0, total: fileEntries.length, currentFile: "" });
+  state.setSourceStatus({
+    kind: "loading",
+    message: `Parsing ${fileEntries.length} files from ${folderName}...`,
+  });
 
-  for (let i = 0; i < fileEntries.length; i++) {
-    const file = fileEntries[i];
+  interface FileResult {
+    result: ParseResult;
+    index: number;
+  }
 
-    // Update progress in the status bar
-    state.setSourceStatus({
-      kind: "loading",
-      message: `Parsing file ${i + 1} of ${fileEntries.length}: ${getBaseName(file.path)}`,
-      detail: `${folderName} — ${Math.round(((i) / fileEntries.length) * 100)}%`,
-    });
+  const results: FileResult[] = [];
+  let completed = 0;
 
+  // Process files in concurrent batches
+  const parseOne = async (index: number): Promise<void> => {
+    const file = fileEntries[index];
     try {
       const result = await openLogFile(file.path);
 
-      // Cache this file's entries immediately for instant tab switching
+      // Cache immediately for instant tab switching
       setCachedTabSnapshot(result.filePath, {
         entries: result.entries,
         formatDetected: result.formatDetected,
@@ -225,21 +232,66 @@ async function loadFolderProgressive(
         sourceOpenMode: "single-file",
       });
 
-      allEntries.push(...result.entries);
-      totalLines += result.totalLines;
-      aggregateFiles.push({
-        filePath: result.filePath,
-        totalLines: result.totalLines,
-        parseErrors: result.parseErrors,
-        fileSize: result.fileSize,
-        byteOffset: result.byteOffset,
-      });
+      results.push({ result, index });
     } catch (err) {
       console.warn("[log-source] skipping unparseable file in folder", {
         filePath: file.path,
         error: err,
       });
     }
+
+    completed++;
+    // Update progress bar + status text
+    state.setFolderLoadProgress({
+      current: completed,
+      total: fileEntries.length,
+      currentFile: getBaseName(file.path),
+    });
+    state.setSourceStatus({
+      kind: "loading",
+      message: `Parsed ${completed} of ${fileEntries.length} files`,
+      detail: getBaseName(file.path),
+    });
+  };
+
+  // Run with bounded concurrency
+  const pending: Promise<void>[] = [];
+  for (let i = 0; i < fileEntries.length; i++) {
+    const p = parseOne(i);
+    pending.push(p);
+
+    if (pending.length >= FOLDER_LOAD_CONCURRENCY) {
+      await Promise.race(pending);
+      // Remove settled promises
+      for (let j = pending.length - 1; j >= 0; j--) {
+        const settled = await Promise.race([
+          pending[j].then(() => true),
+          Promise.resolve(false),
+        ]);
+        if (settled) pending.splice(j, 1);
+      }
+    }
+  }
+  // Wait for remaining
+  await Promise.all(pending);
+
+  // Sort results by original file order, merge entries
+  results.sort((a, b) => a.index - b.index);
+
+  const allEntries: LogEntry[] = [];
+  const aggregateFiles: import("../types/log").AggregateParsedFileResult[] = [];
+  let totalLines = 0;
+
+  for (const { result } of results) {
+    allEntries.push(...result.entries);
+    totalLines += result.totalLines;
+    aggregateFiles.push({
+      filePath: result.filePath,
+      totalLines: result.totalLines,
+      parseErrors: result.parseErrors,
+      fileSize: result.fileSize,
+      byteOffset: result.byteOffset,
+    });
   }
 
   // Re-assign sequential IDs across the merged entries
@@ -259,6 +311,7 @@ async function loadFolderProgressive(
   state.setTotalLines(totalLines);
   state.setByteOffset(0);
   state.selectEntry(null);
+  state.setFolderLoadProgress(null);
   state.setSourceStatus({
     kind: "loaded",
     message: `Loaded ${aggregateFiles.length} file${aggregateFiles.length === 1 ? "" : "s"} from ${folderName}.`,
@@ -268,7 +321,7 @@ async function loadFolderProgressive(
   console.info("[log-source] progressive folder load complete", {
     fileCount: aggregateFiles.length,
     totalEntries: allEntries.length,
-    cachedFiles: aggregateFiles.length,
+    concurrency: FOLDER_LOAD_CONCURRENCY,
   });
 }
 async function recoverFromSelectedFileLoadFailure(

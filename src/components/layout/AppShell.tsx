@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from "react";
-import { tokens } from "@fluentui/react-components";
+import { tokens, ProgressBar, Spinner } from "@fluentui/react-components";
 import { invoke } from "@tauri-apps/api/core";
 import { Toolbar } from "./Toolbar";
 import { TabStrip } from "./TabStrip";
@@ -207,6 +207,11 @@ export function AppShell() {
     [entries, runFilter, setClauses]
   );
 
+  const folderLoadProgress = useLogStore((s) => s.folderLoadProgress);
+  const folderLoadCurrentFile = useLogStore((s) => s.folderLoadCurrentFile);
+  const folderLoadCompletedFiles = useLogStore((s) => s.folderLoadCompletedFiles);
+  const folderLoadTotalFiles = useLogStore((s) => s.folderLoadTotalFiles);
+
   const renderWorkspace = () => {
     if (activeView === "log") {
       return (
@@ -215,9 +220,58 @@ export function AppShell() {
             style={{
               flex: 1,
               overflow: "hidden",
+              position: "relative",
             }}
           >
             <LogListView />
+
+            {/* Folder loading overlay with progress bar */}
+            {folderLoadProgress !== null && (
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: tokens.colorNeutralBackground1,
+                  opacity: 0.95,
+                  zIndex: 100,
+                  gap: "16px",
+                  padding: "32px",
+                }}
+              >
+                <Spinner size="medium" />
+                <div style={{ width: "100%", maxWidth: "400px" }}>
+                  <ProgressBar
+                    value={folderLoadProgress}
+                    max={1}
+                    thickness="large"
+                    color="brand"
+                  />
+                </div>
+                <div
+                  style={{
+                    fontSize: "14px",
+                    fontWeight: 600,
+                    color: tokens.colorNeutralForeground1,
+                  }}
+                >
+                  Parsing {folderLoadCompletedFiles ?? 0} of {folderLoadTotalFiles ?? 0} files
+                </div>
+                {folderLoadCurrentFile && (
+                  <div
+                    style={{
+                      fontSize: "12px",
+                      color: tokens.colorNeutralForeground3,
+                    }}
+                  >
+                    {folderLoadCurrentFile}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {showInfoPane && (

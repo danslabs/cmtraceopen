@@ -458,6 +458,14 @@ interface LogState {
   findLastMatchId: number | null;
   /** Byte offset in the file after initial parse — used to start tailing */
   byteOffset: number;
+  /** Folder loading progress (0–1) while progressive loading is active, null otherwise. */
+  folderLoadProgress: number | null;
+  /** Name of the file currently being parsed during folder loading. */
+  folderLoadCurrentFile: string | null;
+  /** Total file count in the current folder load. */
+  folderLoadTotalFiles: number | null;
+  /** Number of files completed so far. */
+  folderLoadCompletedFiles: number | null;
 
   hasActiveSource: () => boolean;
   canRefreshSource: () => boolean;
@@ -491,6 +499,11 @@ interface LogState {
   clearFindStatus: () => void;
   clearActiveFile: () => void;
   clear: () => void;
+  setFolderLoadProgress: (progress: {
+    current: number;
+    total: number;
+    currentFile: string;
+  } | null) => void;
 }
 
 function runSharedFind(trigger: string, direction: FindDirection): boolean {
@@ -576,6 +589,10 @@ export const useLogStore = create<LogState>((set, get) => ({
   findStatusText: "",
   findLastMatchId: null,
   byteOffset: 0,
+  folderLoadProgress: null,
+  folderLoadCurrentFile: null,
+  folderLoadTotalFiles: null,
+  folderLoadCompletedFiles: null,
 
   hasActiveSource: () => {
     const state = get();
@@ -708,4 +725,20 @@ export const useLogStore = create<LogState>((set, get) => ({
       findStatusText: "",
       findLastMatchId: null,
     }),
+  setFolderLoadProgress: (progress) =>
+    set(
+      progress
+        ? {
+            folderLoadProgress: progress.current / progress.total,
+            folderLoadCurrentFile: progress.currentFile,
+            folderLoadTotalFiles: progress.total,
+            folderLoadCompletedFiles: progress.current,
+          }
+        : {
+            folderLoadProgress: null,
+            folderLoadCurrentFile: null,
+            folderLoadTotalFiles: null,
+            folderLoadCompletedFiles: null,
+          }
+    ),
 }));
