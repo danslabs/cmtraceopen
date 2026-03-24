@@ -53,6 +53,8 @@ export function StatusBar() {
   const activeView = useUiStore((s) => s.activeView);
   const showDetails = useUiStore((s) => s.showDetails);
   const showInfoPane = useUiStore((s) => s.showInfoPane);
+  const openTabs = useUiStore((s) => s.openTabs);
+  const activeTabIndex = useUiStore((s) => s.activeTabIndex);
 
   const intuneAnalysisState = useIntuneStore((s) => s.analysisState);
   const intuneSummary = useIntuneStore((s) => s.summary);
@@ -165,6 +167,10 @@ export function StatusBar() {
           ? `Source ${activeFileName}`
           : `Source ${activeSourceLabel}`,
     ];
+
+    if (openTabs.length > 0) {
+      leftParts.push(`Tab ${activeTabIndex + 1} of ${openTabs.length}`);
+    }
 
     if (parserDisplay) {
       leftParts.push(`Parser ${parserDisplay.parserLabel}`);
