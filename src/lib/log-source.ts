@@ -2,14 +2,12 @@ import {
   getKnownLogSources,
   listLogSourceFolder,
   openLogFile,
-  openLogSourceFolderAggregate,
   openLogSourceFile,
   stopTail,
 } from "./commands";
 import { useLogStore, setCachedTabSnapshot, getCachedTabSnapshot } from "../stores/log-store";
 import { useUiStore, type TabSourceContext } from "../stores/ui-store";
 import type {
-  AggregateParseResult,
   FolderEntry,
   KnownSourceMetadata,
   LogEntry,
@@ -169,71 +167,109 @@ function clearSelectedFileState(source: LogSource, entries: FolderEntry[]): void
   state.clearActiveFile();
 }
 
-function applyAggregateParseResultToStore(
+/**
+ * Progressive folder loader: parses files one-by-one via individual IPC calls,
+ * updating the status bar after each file and caching results as they arrive.
+ * The user sees a live progress indicator ("Parsing file 3 of 12...") instead
+ * of a frozen "Loading source..." message.
+ */
+async function loadFolderProgressive(
   source: LogSource,
-  entries: FolderEntry[],
-  result: AggregateParseResult
-): void {
+  folderEntries: FolderEntry[]
+): Promise<void> {
   const state = useLogStore.getState();
+  const fileEntries = folderEntries.filter((e) => !e.isDir);
+  const folderPath = getLogSourcePath(source) ?? "folder";
+  const folderName = getBaseName(folderPath);
 
-  state.setActiveSource(source);
-  state.setSourceEntries(entries);
-  state.setSelectedSourceFilePath(null);
-  state.setSourceOpenMode("aggregate-folder");
-  state.setAggregateFiles(result.files);
-  state.setEntries(result.entries);
-  state.setFormatDetected(null);
-  state.setParserSelection(null);
-  state.setTotalLines(result.totalLines);
-  state.setByteOffset(0);
-  state.selectEntry(null);
-  state.setSourceStatus(
-    result.files.length === 0
-      ? {
-        kind: "empty",
-        message: "Source loaded, but no files were found.",
-      }
-      : {
-        kind: "loaded",
-        message: `Loaded ${result.files.length} file${result.files.length === 1 ? "" : "s"} from ${getBaseName(result.folderPath)}.`,
-        detail: "Folder opened as a merged aggregate view.",
-      }
-  );
+  if (fileEntries.length === 0) {
+    state.setActiveSource(source);
+    state.setSourceEntries(folderEntries);
+    state.setSelectedSourceFilePath(null);
+    state.setSourceOpenMode("aggregate-folder");
+    state.setAggregateFiles([]);
+    state.setEntries([]);
+    state.selectEntry(null);
+    state.setSourceStatus({
+      kind: "empty",
+      message: "Source loaded, but no files were found.",
+    });
+    return;
+  }
 
-  // Pre-cache per-file entry snapshots so tab switches within this folder
-  // are instant. Each LogEntry already carries its filePath, so we group
-  // the merged array back into per-file buckets without any extra IPC.
-  if (result.files.length > 0 && result.entries.length > 0) {
-    const fileMetaMap = new Map(result.files.map((f) => [f.filePath, f]));
-    const perFile = new Map<string, LogEntry[]>();
+  const allEntries: LogEntry[] = [];
+  const aggregateFiles: import("../types/log").AggregateParsedFileResult[] = [];
+  let totalLines = 0;
 
-    for (const entry of result.entries) {
-      let bucket = perFile.get(entry.filePath);
-      if (!bucket) {
-        bucket = [];
-        perFile.set(entry.filePath, bucket);
-      }
-      bucket.push(entry);
-    }
+  for (let i = 0; i < fileEntries.length; i++) {
+    const file = fileEntries[i];
 
-    for (const [filePath, fileEntries] of perFile) {
-      const meta = fileMetaMap.get(filePath);
-      setCachedTabSnapshot(filePath, {
-        entries: fileEntries,
-        formatDetected: null,
-        parserSelection: null,
-        totalLines: meta?.totalLines ?? fileEntries.length,
-        byteOffset: meta?.byteOffset ?? 0,
-        selectedSourceFilePath: filePath,
+    // Update progress in the status bar
+    state.setSourceStatus({
+      kind: "loading",
+      message: `Parsing file ${i + 1} of ${fileEntries.length}: ${getBaseName(file.path)}`,
+      detail: `${folderName} — ${Math.round(((i) / fileEntries.length) * 100)}%`,
+    });
+
+    try {
+      const result = await openLogFile(file.path);
+
+      // Cache this file's entries immediately for instant tab switching
+      setCachedTabSnapshot(result.filePath, {
+        entries: result.entries,
+        formatDetected: result.formatDetected,
+        parserSelection: result.parserSelection,
+        totalLines: result.totalLines,
+        byteOffset: result.byteOffset,
+        selectedSourceFilePath: result.filePath,
         sourceOpenMode: "single-file",
       });
-    }
 
-    console.info("[log-source] pre-cached entries for folder files", {
-      fileCount: perFile.size,
-      totalEntries: result.entries.length,
-    });
+      allEntries.push(...result.entries);
+      totalLines += result.totalLines;
+      aggregateFiles.push({
+        filePath: result.filePath,
+        totalLines: result.totalLines,
+        parseErrors: result.parseErrors,
+        fileSize: result.fileSize,
+        byteOffset: result.byteOffset,
+      });
+    } catch (err) {
+      console.warn("[log-source] skipping unparseable file in folder", {
+        filePath: file.path,
+        error: err,
+      });
+    }
   }
+
+  // Re-assign sequential IDs across the merged entries
+  for (let i = 0; i < allEntries.length; i++) {
+    allEntries[i] = { ...allEntries[i], id: i };
+  }
+
+  // Apply the final aggregate state
+  state.setActiveSource(source);
+  state.setSourceEntries(folderEntries);
+  state.setSelectedSourceFilePath(null);
+  state.setSourceOpenMode("aggregate-folder");
+  state.setAggregateFiles(aggregateFiles);
+  state.setEntries(allEntries);
+  state.setFormatDetected(null);
+  state.setParserSelection(null);
+  state.setTotalLines(totalLines);
+  state.setByteOffset(0);
+  state.selectEntry(null);
+  state.setSourceStatus({
+    kind: "loaded",
+    message: `Loaded ${aggregateFiles.length} file${aggregateFiles.length === 1 ? "" : "s"} from ${folderName}.`,
+    detail: "Folder opened as a merged aggregate view.",
+  });
+
+  console.info("[log-source] progressive folder load complete", {
+    fileCount: aggregateFiles.length,
+    totalEntries: allEntries.length,
+    cachedFiles: aggregateFiles.length,
+  });
 }
 async function recoverFromSelectedFileLoadFailure(
   source: LogSource,
@@ -554,8 +590,7 @@ export async function loadLogSource(
 
       if (!requestedFilePath) {
         await stopCurrentTailIfNeeded(null);
-        const aggregateResult = await openLogSourceFolderAggregate(source);
-        applyAggregateParseResultToStore(source, listing.entries, aggregateResult);
+        await loadFolderProgressive(source, listing.entries);
 
         return {
           source,
@@ -603,8 +638,7 @@ export async function loadLogSource(
 
     if (!requestedFilePath) {
       await stopCurrentTailIfNeeded(null);
-      const aggregateResult = await openLogSourceFolderAggregate(source);
-      applyAggregateParseResultToStore(source, listing.entries, aggregateResult);
+      await loadFolderProgressive(source, listing.entries);
 
       return {
         source,
