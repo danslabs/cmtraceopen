@@ -1,4 +1,4 @@
-import { type CSSProperties, type MouseEvent as ReactMouseEvent, useCallback, useEffect, useRef, useState } from "react";
+import { type CSSProperties, type KeyboardEvent, type MouseEvent as ReactMouseEvent, useCallback, useEffect, useRef, useState } from "react";
 import { tokens } from "@fluentui/react-components";
 import { useUiStore } from "../../stores/ui-store";
 
@@ -13,6 +13,7 @@ export function TabStrip() {
   const [hoveredTabIndex, setHoveredTabIndex] = useState<number | null>(null);
   const [overflowOpen, setOverflowOpen] = useState(false);
   const overflowRef = useRef<HTMLDivElement>(null);
+  const tabRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // Close overflow dropdown when clicking outside
   useEffect(() => {
@@ -52,6 +53,36 @@ export function TabStrip() {
     []
   );
 
+  const handleTabKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLDivElement>, index: number) => {
+      const visibleCount = Math.min(openTabs.length, MAX_VISIBLE_TABS);
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        switchTab(index);
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        const next = (index + 1) % visibleCount;
+        switchTab(next);
+        tabRefs.current[next]?.focus();
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        const prev = (index - 1 + visibleCount) % visibleCount;
+        switchTab(prev);
+        tabRefs.current[prev]?.focus();
+      } else if (e.key === "Home") {
+        e.preventDefault();
+        switchTab(0);
+        tabRefs.current[0]?.focus();
+      } else if (e.key === "End") {
+        e.preventDefault();
+        const last = visibleCount - 1;
+        switchTab(last);
+        tabRefs.current[last]?.focus();
+      }
+    },
+    [openTabs.length, switchTab]
+  );
+
   const handleOverflowSelect = useCallback(
     (index: number) => {
       switchTab(index);
@@ -75,15 +106,18 @@ export function TabStrip() {
         const isHovered = index === hoveredTabIndex;
 
         return (
-          <button
+          <div
             key={tab.id}
+            ref={(el) => { tabRefs.current[index] = el; }}
             role="tab"
             aria-selected={isActive}
+            tabIndex={isActive ? 0 : -1}
             style={{
               ...tabStyle,
               ...(isActive ? activeTabStyle : inactiveTabStyle),
             }}
             onClick={() => handleSwitchTab(index)}
+            onKeyDown={(e) => handleTabKeyDown(e, index)}
             onMouseEnter={() => setHoveredTabIndex(index)}
             onMouseLeave={() => setHoveredTabIndex(null)}
           >
@@ -97,7 +131,7 @@ export function TabStrip() {
                 ×
               </button>
             )}
-          </button>
+          </div>
         );
       })}
       {hasOverflow && (
@@ -167,10 +201,6 @@ const tabStyle: CSSProperties = {
   boxSizing: "border-box",
   userSelect: "none",
   fontSize: 12,
-  border: "none",
-  borderRadius: 0,
-  background: "none",
-  outline: "none",
   fontFamily: "inherit",
 };
 
