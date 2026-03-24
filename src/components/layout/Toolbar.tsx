@@ -93,6 +93,7 @@ const WORKSPACE_LABELS: Record<WorkspaceId, string> = {
   "new-intune": "New Intune Workspace",
   dsregcmd: "dsregcmd",
   "macos-diag": "macOS Diagnostics",
+  deployment: "Software Deployment",
 };
 
 function getOpenFileDialogFilters(workspace: WorkspaceId) {

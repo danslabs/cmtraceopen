@@ -112,6 +112,7 @@ pub(crate) fn build_timestamp(
 
 pub(crate) fn severity_from_type_field(type_value: Option<u32>, message: &str) -> Severity {
     match type_value {
+        Some(0) => Severity::Info, // PSADT v4 Success type — treated as Info
         Some(2) => Severity::Warning,
         Some(3) => Severity::Error,
         Some(_) => Severity::Info,

@@ -10,13 +10,17 @@ export type ParserKind =
   | "panther"
   | "cbs"
   | "dism"
-  | "reportingEvents";
+  | "reportingEvents"
+  | "msi"
+  | "psadtLegacy";
 export type ParserImplementation =
   | "ccm"
   | "simple"
   | "genericTimestamped"
   | "reportingEvents"
-  | "plainText";
+  | "plainText"
+  | "msi"
+  | "psadtLegacy";
 export type ParserProvenance = "dedicated" | "heuristic" | "fallback";
 export type ParseQuality = "structured" | "semiStructured" | "textFallback";
 export type RecordFraming = "physicalLine" | "logicalRecord";

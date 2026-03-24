@@ -749,5 +749,3 @@ async function recoverOrLoadSelectedFolderFile(
     return recoverFromSelectedFileLoadFailure(source, entries, requestedFilePath, error);
   }
 }
-
-

@@ -18,6 +18,7 @@ import { IntuneDashboard } from "../intune/IntuneDashboard";
 import { NewIntuneWorkspace } from "../intune/NewIntuneWorkspace";
 import { DsregcmdWorkspace } from "../dsregcmd/DsregcmdWorkspace";
 import { MacosDiagWorkspace } from "../macos-diag/MacosDiagWorkspace";
+import { DeploymentWorkspace } from "../deployment/DeploymentWorkspace";
 import type { FilterClause } from "../dialogs/FilterDialog";
 import type { LogEntry } from "../../types/log";
 import { useUiStore } from "../../stores/ui-store";
@@ -306,6 +307,14 @@ export function AppShell() {
       return (
         <div style={{ flex: 1, overflow: "hidden" }}>
           <MacosDiagWorkspace />
+        </div>
+      );
+    }
+
+    if (activeView === "deployment") {
+      return (
+        <div style={{ flex: 1, overflow: "hidden" }}>
+          <DeploymentWorkspace />
         </div>
       );
     }

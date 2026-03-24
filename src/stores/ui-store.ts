@@ -20,7 +20,7 @@ export interface ErrorLookupHistoryEntry {
 }
 
 export type IntuneWorkspaceId = "intune" | "new-intune";
-export type WorkspaceId = "log" | IntuneWorkspaceId | "dsregcmd" | "macos-diag";
+export type WorkspaceId = "log" | IntuneWorkspaceId | "dsregcmd" | "macos-diag" | "deployment";
 export type AppView = WorkspaceId;
 
 /** Source context for a tab — enough to restore sidebar and skip redundant folder re-parsing. */
@@ -90,6 +90,14 @@ export function getUiChromeStatus(
     };
   }
 
+  if (activeView === "deployment") {
+    return {
+      viewLabel: "Software Deployment workspace",
+      detailsLabel: "Details hidden in Software Deployment workspace",
+      infoLabel: "Info hidden in Software Deployment workspace",
+    };
+  }
+
   return {
     viewLabel: "Log view",
     detailsLabel: showDetails ? "Details on" : "Details off",
@@ -113,6 +121,8 @@ interface UiState {
   logListFontSize: number;
   logDetailsFontSize: number;
   themeId: ThemeId;
+  openTabs: TabState[];
+  activeTabIndex: number;
   errorLookupHistory: ErrorLookupHistoryEntry[];
   focusedErrorCode: {
     codeHex: string;
@@ -120,8 +130,6 @@ interface UiState {
     description: string;
     category: string;
   } | null;
-  openTabs: TabState[];
-  activeTabIndex: number;
 
   setActiveWorkspace: (workspace: WorkspaceId) => void;
   setActiveView: (view: AppView) => void;
@@ -213,10 +221,10 @@ export const useUiStore = create<UiState>()(
       logListFontSize: DEFAULT_LOG_LIST_FONT_SIZE,
       logDetailsFontSize: DEFAULT_LOG_DETAILS_FONT_SIZE,
       themeId: DEFAULT_THEME_ID,
-      errorLookupHistory: [],
-      focusedErrorCode: null,
       openTabs: [],
       activeTabIndex: -1,
+      errorLookupHistory: [],
+      focusedErrorCode: null,
 
       setActiveWorkspace: (workspace) => {
         const previousWorkspace = get().activeWorkspace;

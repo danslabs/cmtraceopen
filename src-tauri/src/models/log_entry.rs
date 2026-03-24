@@ -34,6 +34,8 @@ pub enum ParserKind {
     Cbs,
     Dism,
     ReportingEvents,
+    Msi,
+    PsadtLegacy,
 }
 
 /// Concrete parser implementation currently used by the backend.
@@ -45,6 +47,8 @@ pub enum ParserImplementation {
     GenericTimestamped,
     ReportingEvents,
     PlainText,
+    Msi,
+    PsadtLegacy,
 }
 
 /// How the backend arrived at the parser selection.

@@ -104,6 +104,8 @@ const PARSER_COLUMN_MAP: Record<ParserKind, ColumnId[]> = {
   reportingEvents: ["message", "component", "dateTime"],
   timestamped: ["message", "dateTime"],
   plain: ["message"],
+  msi: ["message", "component", "dateTime", "thread"],
+  psadtLegacy: ["message", "component", "dateTime", "sourceFile"],
 };
 
 /** Default columns used before any file is loaded. Matches legacy hardcoded layout. */

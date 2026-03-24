@@ -13,7 +13,7 @@
 //! - Otherwise → Plain text
 
 use super::{
-    cbs, dism, panther, reporting_events,
+    cbs, dism, msi, panther, psadt, reporting_events,
     timestamped::{self, DateOrder},
 };
 use crate::models::log_entry::{
@@ -162,12 +162,38 @@ impl ResolvedParser {
         )
     }
 
+    pub fn msi() -> Self {
+        Self::new(
+            ParserKind::Msi,
+            ParserImplementation::Msi,
+            ParserProvenance::Dedicated,
+            ParseQuality::SemiStructured,
+            RecordFraming::PhysicalLine,
+            DateOrder::MonthFirst,
+            None,
+        )
+    }
+
+    pub fn psadt_legacy() -> Self {
+        Self::new(
+            ParserKind::PsadtLegacy,
+            ParserImplementation::PsadtLegacy,
+            ParserProvenance::Dedicated,
+            ParseQuality::Structured,
+            RecordFraming::PhysicalLine,
+            DateOrder::default(),
+            None,
+        )
+    }
+
     pub fn compatibility_format(&self) -> LogFormat {
         match self.implementation {
             ParserImplementation::Ccm => LogFormat::Ccm,
             ParserImplementation::Simple => LogFormat::Simple,
             ParserImplementation::GenericTimestamped => LogFormat::Timestamped,
             ParserImplementation::ReportingEvents => LogFormat::Timestamped,
+            ParserImplementation::Msi => LogFormat::Timestamped,
+            ParserImplementation::PsadtLegacy => LogFormat::Timestamped,
             ParserImplementation::PlainText => LogFormat::Plain,
         }
     }
@@ -233,6 +259,8 @@ pub fn detect_parser(path: &str, content: &str) -> ResolvedParser {
     let mut reporting_events_count = 0;
     let mut simple_count = 0;
     let mut panther_count = 0;
+    let mut msi_count = 0u32;
+    let mut psadt_legacy_count = 0u32;
     let mut timestamp_count = 0;
     let mut has_day_first = false;
 
@@ -254,7 +282,11 @@ pub fn detect_parser(path: &str, content: &str) -> ResolvedParser {
             timestamp_count += 1;
         } else if panther::matches_panther_record(line.trim()) {
             panther_count += 1;
-        } else if timestamped::matches_any_timestamp(line.trim()) {
+        } else {
+            msi_count += msi::matches_msi_content(line.trim());
+            psadt_legacy_count += psadt::matches_psadt_legacy_content(line.trim());
+        }
+        if timestamped::matches_any_timestamp(line.trim()) {
             timestamp_count += 1;
             // Check for EU-style dates (first field > 12 → must be day)
             if let Some(first_field) = timestamped::slash_date_first_field(line.trim()) {
@@ -283,6 +315,10 @@ pub fn detect_parser(path: &str, content: &str) -> ResolvedParser {
         ResolvedParser::reporting_events()
     } else if dism_count >= 2 {
         ResolvedParser::dism()
+    } else if msi_count >= 2 {
+        ResolvedParser::msi()
+    } else if psadt_legacy_count >= 2 {
+        ResolvedParser::psadt_legacy()
     } else if timestamp_count >= 2 {
         // Require at least 2 timestamp matches to avoid false positives
         ResolvedParser::generic_timestamped(if has_day_first {

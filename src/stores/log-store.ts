@@ -254,6 +254,10 @@ function getParserLabel(parser: ParserSelectionInfo["parser"]): string {
       return "DISM";
     case "reportingEvents":
       return "ReportingEvents";
+    case "msi":
+      return "MSI";
+    case "psadtLegacy":
+      return "PSADT Legacy";
   }
 }
 
@@ -271,6 +275,10 @@ function getImplementationLabel(
       return "ReportingEvents parser";
     case "plainText":
       return "Plain text parser";
+    case "msi":
+      return "MSI verbose parser";
+    case "psadtLegacy":
+      return "PSADT Legacy parser";
   }
 }
 
