@@ -22,6 +22,7 @@ export function useAppMenu() {
     showFindDialog,
     showFilterDialog,
     showErrorLookupDialog,
+    showEvidenceBundleDialog,
     showAboutDialog,
     showAccessibilityDialog,
     togglePauseResume,
@@ -56,6 +57,9 @@ export function useAppMenu() {
             return;
           case "show_error_lookup":
             showErrorLookupDialog();
+            return;
+          case "show_evidence_bundle":
+            showEvidenceBundleDialog();
             return;
           case "toggle_pause":
             togglePauseResume();
@@ -120,6 +124,7 @@ export function useAppMenu() {
     showAccessibilityDialog,
     showAboutDialog,
     showErrorLookupDialog,
+    showEvidenceBundleDialog,
     showFilterDialog,
     showFindDialog,
     toggleDetailsPane,

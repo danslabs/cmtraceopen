@@ -13,6 +13,7 @@ pub const MENU_ID_EDIT_FIND: &str = "edit.find";
 pub const MENU_ID_EDIT_FILTER: &str = "edit.filter";
 
 pub const MENU_ID_TOOLS_ERROR_LOOKUP: &str = "tools.error_lookup";
+pub const MENU_ID_TOOLS_BUNDLE_SUMMARY: &str = "tools.bundle_summary";
 
 pub const MENU_ID_WINDOW_TOGGLE_DETAILS: &str = "window.toggle.details";
 pub const MENU_ID_WINDOW_TOGGLE_INFO: &str = "window.toggle.info";
@@ -68,6 +69,13 @@ pub fn build_app_menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<Menu<R>> 
         true,
         None::<&str>,
     )?;
+    let bundle_summary = MenuItem::with_id(
+        app,
+        MENU_ID_TOOLS_BUNDLE_SUMMARY,
+        "Bundle Summary...",
+        true,
+        None::<&str>,
+    )?;
 
     let toggle_details = MenuItem::with_id(
         app,
@@ -99,7 +107,7 @@ pub fn build_app_menu<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<Menu<R>> 
         &[&open_log_file, &open_log_folder, &known_sources, &quit],
     )?;
     let edit_menu = Submenu::with_items(app, "Edit", true, &[&find, &filter])?;
-    let tools_menu = Submenu::with_items(app, "Tools", true, &[&error_lookup])?;
+    let tools_menu = Submenu::with_items(app, "Tools", true, &[&error_lookup, &bundle_summary])?;
     let window_menu = Submenu::with_items(
         app,
         "Window",
@@ -209,6 +217,15 @@ fn payload_for_menu_id(menu_id: &str) -> Option<AppMenuActionPayload> {
             version: 1,
             menu_id: MENU_ID_TOOLS_ERROR_LOOKUP,
             action: "show_error_lookup",
+            category: "tools",
+            trigger: "menu",
+            preset_id: None,
+            platform: None,
+        },
+        MENU_ID_TOOLS_BUNDLE_SUMMARY => AppMenuActionPayload {
+            version: 1,
+            menu_id: MENU_ID_TOOLS_BUNDLE_SUMMARY,
+            action: "show_evidence_bundle",
             category: "tools",
             trigger: "menu",
             preset_id: None,
