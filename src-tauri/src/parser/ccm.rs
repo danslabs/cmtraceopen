@@ -119,8 +119,23 @@ pub(crate) fn severity_from_type_field(type_value: Option<u32>, message: &str) -
     }
 }
 
+/// Cache for thread display strings. Thread IDs repeat heavily in log files
+/// (typically 5-20 unique threads across thousands of entries), so caching
+/// avoids a `format!()` allocation per line.
 pub(crate) fn format_thread_display(thread: u32) -> String {
-    format!("{} (0x{:04X})", thread, thread)
+    use std::cell::RefCell;
+    use std::collections::HashMap;
+
+    thread_local! {
+        static CACHE: RefCell<HashMap<u32, String>> = RefCell::new(HashMap::new());
+    }
+
+    CACHE.with(|cache| {
+        let mut map = cache.borrow_mut();
+        map.entry(thread)
+            .or_insert_with(|| format!("{} (0x{:04X})", thread, thread))
+            .clone()
+    })
 }
 
 pub fn parse_content(
