@@ -24,6 +24,25 @@ export type IntuneWorkspaceId = "intune" | "new-intune";
 export type WorkspaceId = "log" | IntuneWorkspaceId | "dsregcmd" | "macos-diag" | "deployment";
 export type AppView = WorkspaceId;
 
+export type PlatformId = "windows" | "macos" | "linux";
+
+/** Which workspaces are available on each platform. */
+const WORKSPACE_PLATFORM_MAP: Record<WorkspaceId, PlatformId[] | "all"> = {
+  log: "all",
+  intune: "all",
+  "new-intune": "all",
+  dsregcmd: ["windows"],
+  "macos-diag": ["macos"],
+  deployment: ["windows"],
+};
+
+export function getAvailableWorkspaces(platform: PlatformId): WorkspaceId[] {
+  return (Object.keys(WORKSPACE_PLATFORM_MAP) as WorkspaceId[]).filter((ws) => {
+    const platforms = WORKSPACE_PLATFORM_MAP[ws];
+    return platforms === "all" || platforms.includes(platform);
+  });
+}
+
 /** Source context for a tab — enough to restore sidebar and skip redundant folder re-parsing. */
 export interface TabSourceContext {
   /** The broad source container kind that produced this tab's content. */
@@ -135,8 +154,10 @@ interface UiState {
     description: string;
     category: string;
   } | null;
+  currentPlatform: PlatformId;
 
   setActiveWorkspace: (workspace: WorkspaceId) => void;
+  setCurrentPlatform: (platform: PlatformId) => void;
   setActiveView: (view: AppView) => void;
   ensureWorkspaceVisible: (workspace: WorkspaceId, trigger: string) => void;
   ensureLogViewVisible: (trigger: string) => void;
@@ -248,8 +269,16 @@ export const useUiStore = create<UiState>()(
       activeTabIndex: -1,
       errorLookupHistory: [],
       focusedErrorCode: null,
+      currentPlatform: "windows" as PlatformId,
 
+      setCurrentPlatform: (platform) => set({ currentPlatform: platform }),
       setActiveWorkspace: (workspace) => {
+        const available = getAvailableWorkspaces(get().currentPlatform);
+        if (!available.includes(workspace)) {
+          console.warn(`Workspace "${workspace}" not available on ${get().currentPlatform}`);
+          return;
+        }
+
         const previousWorkspace = get().activeWorkspace;
 
         if (previousWorkspace === workspace) {
@@ -270,6 +299,12 @@ export const useUiStore = create<UiState>()(
         get().setActiveWorkspace(view);
       },
       ensureWorkspaceVisible: (workspace, trigger) => {
+        const available = getAvailableWorkspaces(get().currentPlatform);
+        if (!available.includes(workspace)) {
+          console.warn(`Workspace "${workspace}" not available on ${get().currentPlatform}`);
+          return;
+        }
+
         if (get().activeWorkspace === workspace) {
           console.info("[ui-store] workspace already visible", { trigger, workspace });
           return;
