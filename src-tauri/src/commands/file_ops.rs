@@ -1481,6 +1481,41 @@ fn windows_known_log_sources() -> Vec<KnownSourceMetadata> {
             },
             None,
         ),
+        // ── PatchMyPC ───────────────────────────────────────────────────
+        windows_known_source(
+            "windows-deployment-patchmypc-logs",
+            "PatchMyPC Logs Folder",
+            "PatchMyPC client and notification logs (CMTrace format).",
+            KnownSourcePathKind::Folder,
+            "C:\\ProgramData\\PatchMyPC\\Logs",
+            &["*.log"],
+            KnownSourceGroupingMetadata {
+                family_id: "windows-deployment".to_string(),
+                family_label: "Software Deployment".to_string(),
+                group_id: "deployment-patchmypc".to_string(),
+                group_label: "PatchMyPC".to_string(),
+                group_order: 50,
+                source_order: 50,
+            },
+            None,
+        ),
+        windows_known_source(
+            "windows-deployment-patchmypc-install-logs",
+            "PatchMyPC Install Logs",
+            "MSI verbose and WiX/Burn bootstrapper logs from PatchMyPC-managed installations.",
+            KnownSourcePathKind::Folder,
+            "C:\\ProgramData\\PatchMyPCInstallLogs",
+            &["*.log"],
+            KnownSourceGroupingMetadata {
+                family_id: "windows-deployment".to_string(),
+                family_label: "Software Deployment".to_string(),
+                group_id: "deployment-patchmypc".to_string(),
+                group_label: "PatchMyPC".to_string(),
+                group_order: 50,
+                source_order: 60,
+            },
+            None,
+        ),
     ]
 }
 

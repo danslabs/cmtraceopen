@@ -986,8 +986,12 @@ export function FileSidebar({ width = FILE_SIDEBAR_RECOMMENDED_WIDTH, activeView
           </button>
         </div>
       )}
-      {activeView === "log" ? <LogSidebar /> : isIntuneWorkspace(activeView) ? <IntuneSidebar /> : <DsregcmdSidebar />}
-      {activeView === "log" && <SidebarFooter />}
+      {activeView === "log" || activeView === "deployment" || activeView === "macos-diag"
+        ? <LogSidebar />
+        : isIntuneWorkspace(activeView)
+          ? <IntuneSidebar />
+          : <DsregcmdSidebar />}
+      {(activeView === "log" || activeView === "deployment") && <SidebarFooter />}
     </aside>
   );
 }

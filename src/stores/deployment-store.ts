@@ -9,6 +9,8 @@ export interface DeploymentLogFile {
     | "psadt-legacy"
     | "msi-verbose"
     | "psadt-wrapper"
+    | "burn"
+    | "patchmypc"
     | "unknown";
   outcome: "success" | "failure" | "deferred" | "unknown";
   exitCode: number | null;

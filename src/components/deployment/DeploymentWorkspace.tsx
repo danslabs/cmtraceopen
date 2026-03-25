@@ -16,6 +16,7 @@ function InventoryBar({
       (f) => f.format === "psadt-cmtrace" || f.format === "psadt-legacy"
     ).length,
     msi: files.filter((f) => f.format === "msi-verbose").length,
+    burn: files.filter((f) => f.format === "burn").length,
     wrapper: files.filter((f) => f.format === "psadt-wrapper").length,
     unknown: files.filter((f) => f.format === "unknown").length,
   };
@@ -33,6 +34,7 @@ function InventoryBar({
     >
       {counts.psadt > 0 && <span>{counts.psadt} PSADT</span>}
       {counts.msi > 0 && <span>{counts.msi} MSI verbose</span>}
+      {counts.burn > 0 && <span>{counts.burn} WiX/Burn</span>}
       {counts.wrapper > 0 && <span>{counts.wrapper} Wrapper</span>}
       {counts.unknown > 0 && <span>{counts.unknown} Other</span>}
       <span style={{ color: tokens.colorNeutralForeground3 }}>
@@ -110,11 +112,11 @@ export function DeploymentWorkspace() {
           Software Deployment Analysis
         </div>
         <div style={{ fontSize: "13px" }}>
-          Open a deployment log folder to analyze PSADT and MSI logs.
+          Open a deployment log folder to analyze PSADT, MSI, PatchMyPC, and WiX/Burn logs.
         </div>
         <div style={{ fontSize: "12px", color: tokens.colorNeutralForeground4 }}>
-          Use the Known Sources menu to open C:\Windows\Logs\Software or another
-          deployment log folder.
+          Use the Known Sources menu to open C:\Windows\Logs\Software,
+          C:\ProgramData\PatchMyPCInstallLogs, or another deployment log folder.
         </div>
       </div>
     );
@@ -193,7 +195,7 @@ export function DeploymentWorkspace() {
           No deployment logs found in this folder.
         </div>
         <div style={{ fontSize: "12px" }}>
-          Expected PSADT logs (CMTrace or Legacy format) or MSI verbose logs.
+          Expected PSADT, MSI verbose, WiX/Burn, or PatchMyPC logs.
         </div>
       </div>
     );
