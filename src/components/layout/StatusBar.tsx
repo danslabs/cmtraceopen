@@ -19,6 +19,7 @@ import {
 } from "../../stores/ui-store";
 import { useIntuneStore } from "../../stores/intune-store";
 import { useDsregcmdStore } from "../../stores/dsregcmd-store";
+import { useDeploymentStore } from "../../stores/deployment-store";
 
 interface SeverityCounts {
   errors: number;
@@ -65,6 +66,9 @@ export function StatusBar() {
   const dsregcmdSourceContext = useDsregcmdStore((s) => s.sourceContext);
   const dsregcmdResult = useDsregcmdStore((s) => s.result);
   const dsregcmdIsAnalyzing = useDsregcmdStore((s) => s.isAnalyzing);
+
+  const deploymentPhase = useDeploymentStore((s) => s.phase);
+  const deploymentResult = useDeploymentStore((s) => s.result);
 
   const filterClauseCount = useFilterStore((s) => s.clauses.length);
   const filteredIds = useFilterStore((s) => s.filteredIds);
@@ -259,6 +263,26 @@ export function StatusBar() {
         .join(" | ");
     } else {
       rightStatusText = intuneAnalysisState.message;
+    }
+  } else if (activeView === "deployment") {
+    leftParts = [
+      "Software Deployment",
+      deploymentPhase === "analyzing"
+        ? "Analyzing"
+        : deploymentPhase === "ready" && deploymentResult
+          ? `${deploymentResult.totalFiles} files`
+          : deploymentPhase === "error"
+            ? "Analysis failed"
+            : deploymentPhase === "empty"
+              ? "No deployment logs found"
+              : "Ready",
+    ];
+    if (deploymentResult) {
+      rightStatusText = [
+        `${deploymentResult.succeeded} succeeded`,
+        `${deploymentResult.failed} failed`,
+        deploymentResult.deferred > 0 ? `${deploymentResult.deferred} deferred` : null,
+      ].filter(Boolean).join(" | ");
     }
   } else {
     const diagnostics = dsregcmdResult?.diagnostics ?? [];

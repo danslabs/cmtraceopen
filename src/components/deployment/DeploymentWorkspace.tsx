@@ -1,8 +1,10 @@
+import { useEffect } from "react";
 import { tokens, Spinner, Button } from "@fluentui/react-components";
 import {
   useDeploymentStore,
   type DeploymentLogFile,
 } from "../../stores/deployment-store";
+import { useLogStore } from "../../stores/log-store";
 import { DeploymentErrorCard } from "./DeploymentErrorCard";
 import { DeploymentSuccessTable } from "./DeploymentSuccessTable";
 
@@ -93,6 +95,22 @@ export function DeploymentWorkspace() {
   const result = useDeploymentStore((s) => s.result);
   const errorMessage = useDeploymentStore((s) => s.errorMessage);
   const analyzeFolder = useDeploymentStore((s) => s.analyzeFolder);
+
+  // Auto-trigger analysis when workspace activates and a folder is already loaded
+  const activeSource = useLogStore((s) => s.activeSource);
+  useEffect(() => {
+    if (phase !== "idle") return;
+    if (!activeSource) return;
+    const folderPath =
+      activeSource.kind === "folder"
+        ? activeSource.path
+        : activeSource.kind === "known"
+          ? activeSource.defaultPath
+          : null;
+    if (folderPath) {
+      analyzeFolder(folderPath);
+    }
+  }, [phase, activeSource, analyzeFolder]);
 
   if (phase === "idle") {
     return (
