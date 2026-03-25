@@ -240,9 +240,10 @@ export function buildGridTemplateColumns(
 ): string {
   return columns
     .map((c) => {
+      const override = widthOverrides?.[c.id];
+      if (override != null) return `${override}px`;
       if (c.isFlex) return "minmax(0, 1fr)";
-      const w = widthOverrides?.[c.id] ?? c.defaultWidth;
-      return `${w}px`;
+      return `${c.defaultWidth}px`;
     })
     .join(" ");
 }

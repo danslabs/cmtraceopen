@@ -161,7 +161,16 @@ export function LogListView() {
       e.preventDefault();
       e.stopPropagation();
       const def = getColumnDef(colId);
-      const currentWidth = columnWidths[colId] ?? def?.defaultWidth ?? 100;
+      // For flex columns without an override, measure the rendered width from the DOM
+      let currentWidth = columnWidths[colId];
+      if (currentWidth == null) {
+        if (def?.isFlex) {
+          const cell = (e.currentTarget as HTMLElement).parentElement;
+          currentWidth = cell?.offsetWidth ?? 400;
+        } else {
+          currentWidth = def?.defaultWidth ?? 100;
+        }
+      }
       resizeRef.current = { colId, startX: e.clientX, startWidth: currentWidth };
     },
     [columnWidths]
@@ -413,8 +422,8 @@ function HeaderCell({
     >
       {col.label}
 
-      {/* Resize handle in upper-right corner — not on flex (message) column */}
-      {!col.isFlex && (
+      {/* Resize handle in upper-right corner */}
+      {(
         <div
           onMouseDown={(e) => onResizeStart(col.id, e)}
           onMouseEnter={() => setResizeHover(true)}
