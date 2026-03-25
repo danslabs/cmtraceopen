@@ -963,6 +963,7 @@ fn describe_parser_selection(parser_selection: &ParserSelectionInfo) -> String {
             ParserKind::PsadtLegacy => "PSADT Legacy format log".to_string(),
             ParserKind::IntuneMacOs => "Intune macOS MDM log".to_string(),
             ParserKind::Dhcp => "Windows DHCP Server log".to_string(),
+            ParserKind::Burn => "WiX/Burn bootstrapper log".to_string(),
         },
     }
 }

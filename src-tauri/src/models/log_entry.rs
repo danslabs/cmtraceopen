@@ -38,6 +38,7 @@ pub enum ParserKind {
     PsadtLegacy,
     IntuneMacOs,
     Dhcp,
+    Burn,
 }
 
 /// Concrete parser implementation currently used by the backend.
@@ -53,6 +54,7 @@ pub enum ParserImplementation {
     PsadtLegacy,
     IntuneMacOs,
     Dhcp,
+    Burn,
 }
 
 /// How the backend arrived at the parser selection.

@@ -164,6 +164,7 @@ const PARSER_COLUMN_MAP: Record<ParserKind, ColumnId[]> = {
   psadtLegacy: ["severity", "dateTime", "message", "component", "sourceFile"],
   intuneMacOs: ["severity", "dateTime", "message", "component", "thread", "sourceFile"],
   dhcp: ["severity", "dateTime", "message", "ipAddress", "hostName", "macAddress"],
+  burn: ["severity", "dateTime", "message", "component", "thread"],
 };
 
 /** Default columns used before any file is loaded. */

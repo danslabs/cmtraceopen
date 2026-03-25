@@ -1,3 +1,4 @@
+pub mod burn;
 pub mod cbs;
 pub mod panther;
 pub mod ccm;
@@ -90,6 +91,9 @@ pub fn parse_lines_with_selection(
         }
         crate::models::log_entry::ParserImplementation::Dhcp => {
             dhcp::parse_lines(lines, file_path)
+        }
+        crate::models::log_entry::ParserImplementation::Burn => {
+            burn::parse_lines(lines, file_path)
         }
         crate::models::log_entry::ParserImplementation::GenericTimestamped => match selection.parser {
             crate::models::log_entry::ParserKind::Cbs => cbs::parse_lines(lines, file_path),

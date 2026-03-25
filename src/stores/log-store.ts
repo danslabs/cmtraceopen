@@ -262,6 +262,8 @@ function getParserLabel(parser: ParserSelectionInfo["parser"]): string {
       return "Intune macOS";
     case "dhcp":
       return "DHCP Server";
+    case "burn":
+      return "WiX/Burn";
   }
 }
 
@@ -287,6 +289,8 @@ function getImplementationLabel(
       return "Intune macOS pipe-delimited parser";
     case "dhcp":
       return "DHCP Server CSV parser";
+    case "burn":
+      return "WiX/Burn bootstrapper parser";
   }
 }
 

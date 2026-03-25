@@ -14,7 +14,8 @@ export type ParserKind =
   | "msi"
   | "psadtLegacy"
   | "intuneMacOs"
-  | "dhcp";
+  | "dhcp"
+  | "burn";
 export type ParserImplementation =
   | "ccm"
   | "simple"
@@ -24,7 +25,8 @@ export type ParserImplementation =
   | "msi"
   | "psadtLegacy"
   | "intuneMacOs"
-  | "dhcp";
+  | "dhcp"
+  | "burn";
 export type ParserProvenance = "dedicated" | "heuristic" | "fallback";
 export type ParseQuality = "structured" | "semiStructured" | "textFallback";
 export type RecordFraming = "physicalLine" | "logicalRecord";
