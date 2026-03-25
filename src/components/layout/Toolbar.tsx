@@ -420,6 +420,21 @@ export function useAppActions(): AppActionHandlers {
         return;
       }
 
+      if (workspace === "deployment") {
+        // Extract folder path from source
+        const folderPath =
+          source.kind === "folder"
+            ? source.path
+            : source.kind === "known"
+              ? source.defaultPath
+              : null;
+        if (folderPath) {
+          const { useDeploymentStore } = await import("../../stores/deployment-store");
+          await useDeploymentStore.getState().analyzeFolder(folderPath);
+          return;
+        }
+      }
+
       await loadLogWorkspaceSource(source, trigger);
     },
     [
@@ -444,6 +459,12 @@ export function useAppActions(): AppActionHandlers {
             ? { kind: "folder", path }
             : { kind: "file", path };
         await analyzeIntuneWorkspaceSource(source, "drag-drop.path-open", activeWorkspace);
+        return;
+      }
+
+      if (activeWorkspace === "deployment") {
+        const { useDeploymentStore } = await import("../../stores/deployment-store");
+        await useDeploymentStore.getState().analyzeFolder(path);
         return;
       }
 
