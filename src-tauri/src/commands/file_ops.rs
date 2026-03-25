@@ -419,7 +419,7 @@ pub fn write_text_output_file(path: String, contents: String) -> Result<(), Stri
 /// with the file paths as command-line arguments. This command retrieves those
 /// paths so the frontend can open them. Consumed on the first call.
 #[tauri::command]
-pub fn get_initial_file_path(state: State<'_, AppState>) -> Result<Vec<String>, String> {
+pub fn get_initial_file_paths(state: State<'_, AppState>) -> Result<Vec<String>, String> {
     let mut guard = state.initial_file_paths.lock().map_err(|e| e.to_string())?;
     let paths = std::mem::take(&mut *guard);
     Ok(paths)

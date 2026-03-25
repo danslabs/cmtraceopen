@@ -221,7 +221,7 @@ export async function loadDsregcmdSource(
 }
 
 export async function getInitialFilePaths(): Promise<string[]> {
-  return invokeCommand<string[]>("get_initial_file_path");
+  return invokeCommand<string[]>("get_initial_file_paths");
 }
 
 export async function getFileAssociationPromptStatus(): Promise<FileAssociationPromptStatus> {

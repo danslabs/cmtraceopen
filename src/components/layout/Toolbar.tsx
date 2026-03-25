@@ -517,8 +517,10 @@ export function useAppActions(): AppActionHandlers {
       return;
     }
 
+    const isLogWorkspace = activeWorkspace === "log";
+
     const selected = await open({
-      multiple: true,
+      multiple: isLogWorkspace,
       filters: getOpenFileDialogFilters(activeWorkspace),
     });
 
