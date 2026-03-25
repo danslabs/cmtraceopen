@@ -961,6 +961,7 @@ fn describe_parser_selection(parser_selection: &ParserSelectionInfo) -> String {
             ParserKind::ReportingEvents => "Windows Update reporting log".to_string(),
             ParserKind::Msi => "MSI verbose log".to_string(),
             ParserKind::PsadtLegacy => "PSADT Legacy format log".to_string(),
+            ParserKind::IntuneMacOs => "Intune macOS MDM log".to_string(),
         },
     }
 }

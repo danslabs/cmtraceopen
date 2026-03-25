@@ -258,6 +258,8 @@ function getParserLabel(parser: ParserSelectionInfo["parser"]): string {
       return "MSI";
     case "psadtLegacy":
       return "PSADT Legacy";
+    case "intuneMacOs":
+      return "Intune macOS";
   }
 }
 
@@ -279,6 +281,8 @@ function getImplementationLabel(
       return "MSI verbose parser";
     case "psadtLegacy":
       return "PSADT Legacy parser";
+    case "intuneMacOs":
+      return "Intune macOS pipe-delimited parser";
   }
 }
 

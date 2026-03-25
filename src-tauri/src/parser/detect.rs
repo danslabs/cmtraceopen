@@ -13,7 +13,7 @@
 //! - Otherwise → Plain text
 
 use super::{
-    cbs, dism, msi, panther, psadt, reporting_events,
+    cbs, dism, intune_macos, msi, panther, psadt, reporting_events,
     timestamped::{self, DateOrder},
 };
 use crate::models::log_entry::{
@@ -174,6 +174,18 @@ impl ResolvedParser {
         )
     }
 
+    pub fn intune_macos() -> Self {
+        Self::new(
+            ParserKind::IntuneMacOs,
+            ParserImplementation::IntuneMacOs,
+            ParserProvenance::Dedicated,
+            ParseQuality::Structured,
+            RecordFraming::PhysicalLine,
+            DateOrder::default(),
+            None,
+        )
+    }
+
     pub fn psadt_legacy() -> Self {
         Self::new(
             ParserKind::PsadtLegacy,
@@ -194,6 +206,7 @@ impl ResolvedParser {
             ParserImplementation::ReportingEvents => LogFormat::Timestamped,
             ParserImplementation::Msi => LogFormat::Timestamped,
             ParserImplementation::PsadtLegacy => LogFormat::Timestamped,
+            ParserImplementation::IntuneMacOs => LogFormat::Timestamped,
             ParserImplementation::PlainText => LogFormat::Plain,
         }
     }
@@ -253,6 +266,9 @@ pub fn detect_parser(path: &str, content: &str) -> ResolvedParser {
         )
     );
 
+    let intune_macos_path_hint = path_lower.contains("intunemdmdaemon")
+        || path_lower.contains("/logs/microsoft/intune/");
+
     let mut ccm_count = 0;
     let mut cbs_count = 0;
     let mut dism_count = 0;
@@ -261,6 +277,7 @@ pub fn detect_parser(path: &str, content: &str) -> ResolvedParser {
     let mut panther_count = 0;
     let mut msi_count = 0u32;
     let mut psadt_legacy_count = 0u32;
+    let mut intune_macos_count = 0u32;
     let mut timestamp_count = 0;
     let mut has_day_first = false;
 
@@ -282,6 +299,9 @@ pub fn detect_parser(path: &str, content: &str) -> ResolvedParser {
             timestamp_count += 1;
         } else if panther::matches_panther_record(line.trim()) {
             panther_count += 1;
+        } else if intune_macos::matches_intune_macos(line.trim()) {
+            intune_macos_count += 1;
+            timestamp_count += 1;
         } else {
             msi_count += msi::matches_msi_content(line.trim());
             psadt_legacy_count += psadt::matches_psadt_legacy_content(line.trim());
@@ -315,6 +335,8 @@ pub fn detect_parser(path: &str, content: &str) -> ResolvedParser {
         ResolvedParser::reporting_events()
     } else if dism_count >= 2 {
         ResolvedParser::dism()
+    } else if (intune_macos_path_hint && intune_macos_count >= 1) || intune_macos_count >= 2 {
+        ResolvedParser::intune_macos()
     } else if msi_count >= 2 {
         ResolvedParser::msi()
     } else if psadt_legacy_count >= 2 {

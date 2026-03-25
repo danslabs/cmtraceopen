@@ -132,6 +132,7 @@ const PARSER_COLUMN_MAP: Record<ParserKind, ColumnId[]> = {
   plain: ["severity", "message"],
   msi: ["severity", "dateTime", "message", "component", "thread"],
   psadtLegacy: ["severity", "dateTime", "message", "component", "sourceFile"],
+  intuneMacOs: ["severity", "dateTime", "message", "component", "thread", "sourceFile"],
 };
 
 /** Default columns used before any file is loaded. */

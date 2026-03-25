@@ -36,6 +36,7 @@ pub enum ParserKind {
     ReportingEvents,
     Msi,
     PsadtLegacy,
+    IntuneMacOs,
 }
 
 /// Concrete parser implementation currently used by the backend.
@@ -49,6 +50,7 @@ pub enum ParserImplementation {
     PlainText,
     Msi,
     PsadtLegacy,
+    IntuneMacOs,
 }
 
 /// How the backend arrived at the parser selection.

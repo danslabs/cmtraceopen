@@ -12,7 +12,8 @@ export type ParserKind =
   | "dism"
   | "reportingEvents"
   | "msi"
-  | "psadtLegacy";
+  | "psadtLegacy"
+  | "intuneMacOs";
 export type ParserImplementation =
   | "ccm"
   | "simple"
@@ -20,7 +21,8 @@ export type ParserImplementation =
   | "reportingEvents"
   | "plainText"
   | "msi"
-  | "psadtLegacy";
+  | "psadtLegacy"
+  | "intuneMacOs";
 export type ParserProvenance = "dedicated" | "heuristic" | "fallback";
 export type ParseQuality = "structured" | "semiStructured" | "textFallback";
 export type RecordFraming = "physicalLine" | "logicalRecord";
