@@ -20,6 +20,7 @@ import {
   tokens,
 } from "@fluentui/react-components";
 import { open } from "@tauri-apps/plugin-dialog";
+import { platform } from "@tauri-apps/plugin-os";
 import { analyzeIntuneLogs, inspectPathKind } from "../../lib/commands";
 import {
   analyzeDsregcmdPath,
@@ -30,7 +31,7 @@ import { useLogStore } from "../../stores/log-store";
 import { useFilterStore } from "../../stores/filter-store";
 import { useIntuneStore } from "../../stores/intune-store";
 import { useDsregcmdStore } from "../../stores/dsregcmd-store";
-import { isIntuneWorkspace, type IntuneWorkspaceId, type WorkspaceId, useUiStore } from "../../stores/ui-store";
+import { isIntuneWorkspace, getAvailableWorkspaces, type IntuneWorkspaceId, type WorkspaceId, type PlatformId, useUiStore } from "../../stores/ui-store";
 import { ThemePicker } from "./ThemePicker";
 import {
   getLogSourcePath,
@@ -771,6 +772,19 @@ export function Toolbar() {
     refreshKnownLogSources().catch((error) => {
       console.warn("[toolbar] failed to refresh known sources", { error });
     });
+
+    try {
+      const p = platform();
+      const mapped: PlatformId = p === "macos" ? "macos" : p === "windows" ? "windows" : "linux";
+      const store = useUiStore.getState();
+      store.setCurrentPlatform(mapped);
+      const available = getAvailableWorkspaces(mapped);
+      if (!available.includes(store.activeWorkspace)) {
+        store.setActiveWorkspace("log");
+      }
+    } catch (error) {
+      console.warn("[toolbar] failed to detect platform", { error });
+    }
   }, []);
 
   const openLabels = useMemo(
