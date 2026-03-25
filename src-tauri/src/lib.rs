@@ -29,6 +29,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_clipboard_manager::init())
+        .plugin(tauri_plugin_os::init())
         .setup(|app| {
             let native_menu = menu::build_app_menu(app.handle())?;
             app.set_menu(native_menu)?;
