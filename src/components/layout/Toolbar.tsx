@@ -321,7 +321,11 @@ export function useAppActions(): AppActionHandlers {
 
   const loadLogWorkspaceSource = useCallback(
     async (source: LogSource, trigger: string) => {
-      useUiStore.getState().ensureLogViewVisible(trigger);
+      // Don't switch away from deployment workspace — it shows logs too
+      const currentWorkspace = useUiStore.getState().activeWorkspace;
+      if (currentWorkspace !== "deployment") {
+        useUiStore.getState().ensureLogViewVisible(trigger);
+      }
       useFilterStore.getState().clearFilter();
 
       try {
