@@ -182,10 +182,6 @@ export function useKeyboard() {
       }
 
       if (event.key === "F3" && !isInput) {
-        if (showFindBarOpen) {
-          return;
-        }
-
         event.preventDefault();
 
         const logState = useLogStore.getState();

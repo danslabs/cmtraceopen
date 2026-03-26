@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type KeyboardEvent } from "react";
 import {
   Button,
   Input,
@@ -40,7 +40,7 @@ export function FindBar({ onClose }: FindBarProps) {
     }
   }, []);
 
-  const handleKeyDown = (event: React.KeyboardEvent) => {
+  const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Escape") {
       event.preventDefault();
       onClose();
@@ -107,7 +107,7 @@ export function FindBar({ onClose }: FindBarProps) {
             <span
               style={{
                 fontSize: 11,
-                color: matchCount === 0 && !findRegexError
+                color: findRegexError || matchCount === 0
                   ? tokens.colorPaletteRedForeground1
                   : tokens.colorNeutralForeground3,
                 whiteSpace: "nowrap",

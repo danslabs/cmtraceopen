@@ -57,7 +57,11 @@ function getRowStyle(
   }
 
   if (isFindMatch) {
-    return { backgroundColor: FIND_MATCH_OVERLAY, color };
+    return {
+      backgroundColor: bg,
+      backgroundImage: `linear-gradient(${FIND_MATCH_OVERLAY}, ${FIND_MATCH_OVERLAY})`,
+      color,
+    };
   }
 
   return { backgroundColor: bg, color };

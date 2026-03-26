@@ -561,6 +561,18 @@ interface LogState {
   setPendingScrollTarget: (target: { filePath: string; lineNumber: number } | null) => void;
 }
 
+/** Debounced version of recomputeAndSetMatches for keystroke-driven updates. */
+let recomputeTimer: ReturnType<typeof setTimeout> | null = null;
+const RECOMPUTE_DEBOUNCE_MS = 150;
+
+function debouncedRecomputeAndSetMatches(): void {
+  if (recomputeTimer !== null) clearTimeout(recomputeTimer);
+  recomputeTimer = setTimeout(() => {
+    recomputeTimer = null;
+    recomputeAndSetMatches();
+  }, RECOMPUTE_DEBOUNCE_MS);
+}
+
 /** Recompute matches and update store state. Called on query/option changes. */
 function recomputeAndSetMatches(): void {
   const state = useLogStore.getState();
@@ -601,8 +613,22 @@ function recomputeAndSetMatches(): void {
       if (idx >= 0) {
         newIndex = idx;
       } else {
-        // Find the nearest match after the current selection
-        newIndex = 0;
+        // Find the nearest match after the current selection by entry order
+        const selectedEntryIdx = state.entries.findIndex((e) => e.id === state.selectedId);
+        if (selectedEntryIdx >= 0) {
+          const entryIdToIndex = new Map(state.entries.map((e, i) => [e.id, i]));
+          let candidateIndex = -1;
+          for (let i = 0; i < matchIds.length; i++) {
+            const matchEntryIdx = entryIdToIndex.get(matchIds[i]);
+            if (matchEntryIdx !== undefined && matchEntryIdx > selectedEntryIdx) {
+              candidateIndex = i;
+              break;
+            }
+          }
+          newIndex = candidateIndex >= 0 ? candidateIndex : 0;
+        } else {
+          newIndex = 0;
+        }
       }
     } else {
       newIndex = 0;
@@ -663,20 +689,24 @@ export const useLogStore = create<LogState>((set, get) => ({
     return !state.isLoading && hasSourceContext(state.activeSource, state.openFilePath);
   },
   hasFindSession: () => get().findQuery.trim().length > 0 && get().findMatchIds.length > 0,
-  setEntries: (entries) =>
+  setEntries: (entries) => {
     set((state) => ({
       entries,
       selectedId:
         state.selectedId !== null && !entries.some((entry) => entry.id === state.selectedId)
           ? null
           : state.selectedId,
-    })),
-  appendEntries: (newEntries) =>
+    }));
+    recomputeAndSetMatches();
+  },
+  appendEntries: (newEntries) => {
     set((state) => ({
       entries: [...state.entries, ...newEntries],
       totalLines: state.totalLines + newEntries.length,
-    })),
-  appendAggregateEntries: (filePath, newEntries) =>
+    }));
+    recomputeAndSetMatches();
+  },
+  appendAggregateEntries: (filePath, newEntries) => {
     set((state) => {
       const nextId = state.entries.reduce(
         (maxId, entry) => Math.max(maxId, entry.id),
@@ -696,7 +726,9 @@ export const useLogStore = create<LogState>((set, get) => ({
         entries,
         totalLines: state.totalLines + entriesWithIds.length,
       };
-    }),
+    });
+    recomputeAndSetMatches();
+  },
   selectEntry: (id) => set({ selectedId: id }),
   togglePause: () => set((state) => ({ isPaused: !state.isPaused })),
   setLoading: (loading) => set({ isLoading: loading }),
@@ -726,13 +758,16 @@ export const useLogStore = create<LogState>((set, get) => ({
       },
     }),
   setByteOffset: (offset) => set({ byteOffset: offset }),
-  setActiveColumns: (columns) => set({ activeColumns: columns }),
+  setActiveColumns: (columns) => {
+    set({ activeColumns: columns });
+    recomputeAndSetMatches();
+  },
   setHighlightText: (text) => set({ highlightText: text }),
   setHighlightCaseSensitive: (sensitive) =>
     set({ highlightCaseSensitive: sensitive }),
   setFindQuery: (text) => {
     set({ findQuery: text });
-    recomputeAndSetMatches();
+    debouncedRecomputeAndSetMatches();
   },
   setFindCaseSensitive: (sensitive) => {
     set({ findCaseSensitive: sensitive });
