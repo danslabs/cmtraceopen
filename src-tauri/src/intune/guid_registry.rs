@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use once_cell::sync::Lazy;
 use regex::Regex;
+use serde::{Deserialize, Serialize};
 
 use super::ime_parser::ImeLine;
 
@@ -16,7 +17,7 @@ pub(crate) static SETUP_FILE_JSON_RE: Lazy<Regex> =
     Lazy::new(|| Regex::new(r#"\"SetUpFilePath\"\s*:\s*\"([^\"]+)\""#).unwrap());
 
 /// Generic GUID pattern for secondary extraction.
-static GUID_RE: Lazy<Regex> = Lazy::new(|| {
+pub(crate) static GUID_RE: Lazy<Regex> = Lazy::new(|| {
     Regex::new(
         r#"([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})"#,
     )
@@ -47,7 +48,7 @@ pub(crate) fn setup_file_name(path: &str) -> String {
 // ── GUID registry types ─────────────────────────────────────────────────────
 
 /// Indicates where a GUID→name association was found, ranked by confidence.
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum GuidNameSource {
     /// `"SetUpFilePath"` — lowest confidence (just a filename)
     SetUpFilePath = 0,
@@ -166,6 +167,30 @@ impl GuidRegistry {
     pub fn iter(&self) -> impl Iterator<Item = (&String, &GuidEntry)> {
         self.entries.iter()
     }
+
+    /// Convert to a serializable map for the frontend.
+    pub fn to_serializable(&self) -> HashMap<String, GuidRegistryEntry> {
+        self.entries
+            .iter()
+            .map(|(k, v)| {
+                (
+                    k.clone(),
+                    GuidRegistryEntry {
+                        name: v.name.clone(),
+                        source: v.source.clone(),
+                    },
+                )
+            })
+            .collect()
+    }
+}
+
+/// Serializable entry for the frontend GUID registry.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GuidRegistryEntry {
+    pub name: String,
+    pub source: GuidNameSource,
 }
 
 // ── Private extraction helpers ───────────────────────────────────────────────
@@ -231,7 +256,7 @@ fn extract_all_field_values(msg: &str, prefix: &str, suffix: &str) -> Vec<String
 ///
 /// Checks (in order): `"AppId"`, `"Id"`, then falls back to a generic
 /// GUID regex when a name field is also present on the same line.
-fn extract_app_id(msg: &str) -> Option<String> {
+pub(crate) fn extract_app_id(msg: &str) -> Option<String> {
     // Try "AppId" — direct and escaped JSON
     if let Some(value) = extract_json_field(msg, "\"AppId\":\"", "\"") {
         return Some(value.to_string());
@@ -285,8 +310,13 @@ fn has_name_field(msg: &str) -> bool {
         || msg.contains("SetUpFilePath")
 }
 
+/// Extract a display name, discarding the confidence source.
+pub(crate) fn extract_app_name(msg: &str) -> Option<String> {
+    extract_app_name_with_source(msg).map(|(name, _)| name)
+}
+
 /// Extract a display name along with its confidence source.
-fn extract_app_name_with_source(msg: &str) -> Option<(String, GuidNameSource)> {
+pub(crate) fn extract_app_name_with_source(msg: &str) -> Option<(String, GuidNameSource)> {
     // ApplicationName (highest confidence)
     if let Some(value) = extract_json_field(msg, "\"ApplicationName\":\"", "\"") {
         return Some((value.to_string(), GuidNameSource::ApplicationName));
@@ -330,7 +360,7 @@ fn extract_app_name_with_source(msg: &str) -> Option<(String, GuidNameSource)> {
 }
 
 /// Detect whether a name is a fallback like "Download (guid)" or "Download: id".
-fn is_fallback_name(name: &str) -> bool {
+pub(crate) fn is_fallback_name(name: &str) -> bool {
     name.starts_with("Download (") || name.starts_with("Download:")
 }
 
