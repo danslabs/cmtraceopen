@@ -26,6 +26,14 @@ export type AppView = WorkspaceId;
 
 export type PlatformId = "windows" | "macos" | "linux";
 
+export interface CollectionProgressState {
+  requestId: string;
+  message: string;
+  currentItem: string | null;
+  completedItems: number;
+  totalItems: number;
+}
+
 /** Which workspaces are available on each platform. */
 const WORKSPACE_PLATFORM_MAP: Record<WorkspaceId, PlatformId[] | "all"> = {
   log: "all",
@@ -155,6 +163,7 @@ interface UiState {
     category: string;
   } | null;
   currentPlatform: PlatformId;
+  collectionProgress: CollectionProgressState | null;
 
   setActiveWorkspace: (workspace: WorkspaceId) => void;
   setCurrentPlatform: (platform: PlatformId) => void;
@@ -202,6 +211,7 @@ interface UiState {
   closeTab: (index: number) => void;
   switchTab: (index: number) => void;
   saveTabScrollState: (index: number, scrollPosition: number, selectedLineId: number | null) => void;
+  setCollectionProgress: (progress: CollectionProgressState | null) => void;
 }
 
 const DEFAULT_WORKSPACE: WorkspaceId = "log";
@@ -270,6 +280,7 @@ export const useUiStore = create<UiState>()(
       errorLookupHistory: [],
       focusedErrorCode: null,
       currentPlatform: "windows" as PlatformId,
+      collectionProgress: null,
 
       setCurrentPlatform: (platform) => set({ currentPlatform: platform }),
       setActiveWorkspace: (workspace) => {
@@ -479,6 +490,7 @@ export const useUiStore = create<UiState>()(
         updated[index] = { ...updated[index], scrollPosition, selectedLineId };
         set({ openTabs: updated });
       },
+      setCollectionProgress: (progress) => set({ collectionProgress: progress }),
     }),
     {
       name: "cmtraceopen-ui-preferences",

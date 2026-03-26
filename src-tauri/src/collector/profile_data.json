@@ -1,0 +1,1298 @@
+{
+    "profileName": "cmtrace-full-diagnostics-v1",
+    "profileVersion": "1.0.0",
+    "logs": [
+        {
+            "id": "ime-logs",
+            "family": "intune-ime",
+            "sourcePattern": "C:\\ProgramData\\Microsoft\\IntuneManagementExtension\\Logs\\*",
+            "destinationFolder": "logs/intune-ime",
+            "notes": "IME text logs and rotated variants."
+        },
+        {
+            "id": "panther-all",
+            "family": "panther",
+            "sourcePattern": "%SystemRoot%\\Panther\\*",
+            "destinationFolder": "logs/panther",
+            "notes": "Full Panther folder: setupact, setuperr, OOBE, Autopilot-adjacent logs."
+        },
+        {
+            "id": "autopilot-service-state-json",
+            "family": "autopilot",
+            "sourcePattern": "%SystemRoot%\\ServiceState\\Autopilot\\*.json",
+            "destinationFolder": "exports/autopilot",
+            "notes": "High-value Autopilot JSON artifacts staged under ServiceState."
+        },
+        {
+            "id": "mdm-diagnostics-public-documents",
+            "family": "mdm-diagnostics",
+            "sourcePattern": "C:\\Users\\Public\\Documents\\MDMDiagnostics\\*",
+            "destinationFolder": "exports/mdm-diagnostics",
+            "notes": "MDM diagnostics outputs from MdmDiagnosticsTool."
+        },
+        {
+            "id": "cbs-logs",
+            "family": "cbs",
+            "sourcePattern": "%SystemRoot%\\Logs\\CBS\\*.log",
+            "destinationFolder": "logs/cbs",
+            "notes": "Component-based servicing logs."
+        },
+        {
+            "id": "dism-logs",
+            "family": "dism",
+            "sourcePattern": "%SystemRoot%\\Logs\\DISM\\*",
+            "destinationFolder": "logs/dism",
+            "notes": "DISM servicing logs."
+        },
+        {
+            "id": "measured-boot-logs",
+            "family": "bitlocker",
+            "sourcePattern": "%SystemRoot%\\Logs\\MeasuredBoot\\*.log",
+            "destinationFolder": "logs/bitlocker",
+            "notes": "Measured boot logs for BitLocker troubleshooting."
+        },
+        {
+            "id": "company-portal-logs",
+            "family": "company-portal",
+            "sourcePattern": "%LOCALAPPDATA%\\Packages\\Microsoft.CompanyPortal_8wekyb3d8bbwe\\LocalState\\*",
+            "destinationFolder": "logs/company-portal",
+            "notes": "Company Portal app local state and logs."
+        },
+        {
+            "id": "configmgr-ccm-logs",
+            "family": "configmgr",
+            "sourcePattern": "%SystemRoot%\\ccmsetup\\Logs\\*",
+            "destinationFolder": "logs/configmgr/ccmsetup",
+            "notes": "ConfigMgr CCMSetup logs."
+        },
+        {
+            "id": "device-inventory-logs",
+            "family": "device-inventory",
+            "sourcePattern": "%ProgramFiles%\\Microsoft Device Inventory Agent\\Logs\\*",
+            "destinationFolder": "logs/device-inventory",
+            "notes": "Device Inventory Agent logs."
+        },
+        {
+            "id": "epm-agent-logs",
+            "family": "epm",
+            "sourcePattern": "%ProgramFiles%\\Microsoft EPM Agent\\Logs\\*",
+            "destinationFolder": "logs/epm",
+            "notes": "Endpoint Privilege Management agent logs."
+        },
+        {
+            "id": "epm-mdm-logs",
+            "family": "epm",
+            "sourcePattern": "%SystemRoot%\\system32\\config\\systemprofile\\AppData\\Local\\mdm\\*.log",
+            "destinationFolder": "logs/epm-mdm",
+            "notes": "EPM MDM agent logs from system profile."
+        },
+        {
+            "id": "sidecar-mdm-logs",
+            "family": "sidecar",
+            "sourcePattern": "%LOCALAPPDATA%\\mdm\\*.log",
+            "destinationFolder": "logs/sidecar",
+            "notes": "Sidecar (Win32 app) MDM logs from user profile."
+        },
+        {
+            "id": "diagnostic-log-csp",
+            "family": "general",
+            "sourcePattern": "%ProgramData%\\microsoft\\diagnosticlogcsp\\collectors\\*",
+            "destinationFolder": "logs/diagnostic-log-csp",
+            "notes": "DiagnosticLogCSP collector output."
+        },
+        {
+            "id": "odj-connector-logs",
+            "family": "general",
+            "sourcePattern": "%ProgramFiles%\\Microsoft Intune\\ODJConnector\\ODJConnectorUI\\*.log",
+            "destinationFolder": "logs/odj-connector",
+            "notes": "ODJ Connector UI logs."
+        },
+        {
+            "id": "policy-client-logs",
+            "family": "general",
+            "sourcePattern": "%SystemRoot%\\PolicyClient*.log",
+            "destinationFolder": "logs/policy-client",
+            "notes": "Policy client logs."
+        },
+        {
+            "id": "reporting-events-logs",
+            "family": "general",
+            "sourcePattern": "%SystemRoot%\\SoftwareDistribution\\ReportingEvents*.log",
+            "destinationFolder": "logs/reporting-events",
+            "notes": "Windows Update reporting events logs."
+        },
+        {
+            "id": "intune-online-management-logs",
+            "family": "intune",
+            "sourcePattern": "%ProgramFiles%\\Microsoft\\OnlineManagement\\Logs\\*.log",
+            "destinationFolder": "logs/online-management",
+            "notes": "Legacy Intune Online Management logs."
+        },
+        {
+            "id": "policy-platform-logs",
+            "family": "intune",
+            "sourcePattern": "%ProgramFiles%\\microsoft policy platform\\policyplatformclient*.log",
+            "destinationFolder": "logs/policy-platform",
+            "notes": "Policy platform client logs."
+        },
+        {
+            "id": "ndes-connector-logs",
+            "family": "ndes",
+            "sourcePattern": "%ProgramFiles%\\Microsoft Intune\\NDESConnectorSvc\\Logs\\*",
+            "destinationFolder": "logs/ndes",
+            "notes": "NDES Connector service logs."
+        },
+        {
+            "id": "msi-logs-windir",
+            "family": "msi",
+            "sourcePattern": "%SystemRoot%\\temp\\*MSI*.log",
+            "destinationFolder": "logs/msi",
+            "notes": "MSI installer logs from Windows temp."
+        },
+        {
+            "id": "msi-logs-temp",
+            "family": "msi",
+            "sourcePattern": "%TEMP%\\*MSI*.log",
+            "destinationFolder": "logs/msi-user",
+            "notes": "MSI installer logs from user temp."
+        },
+        {
+            "id": "windows-inf-logs",
+            "family": "setup",
+            "sourcePattern": "%SystemRoot%\\inf\\*.log",
+            "destinationFolder": "logs/inf",
+            "notes": "Windows INF setup logs."
+        },
+        {
+            "id": "wbem-logs",
+            "family": "wmi",
+            "sourcePattern": "%SystemRoot%\\system32\\wbem\\logs\\*.*",
+            "destinationFolder": "logs/wmi",
+            "notes": "WMI/WBem logs."
+        },
+        {
+            "id": "uso-shared-system-logs",
+            "family": "windows-update",
+            "sourcePattern": "%ProgramData%\\USOShared\\Logs\\System\\*",
+            "destinationFolder": "logs/windows-update/system",
+            "notes": "Update Session Orchestrator system logs."
+        },
+        {
+            "id": "uso-shared-user-logs",
+            "family": "windows-update",
+            "sourcePattern": "%ProgramData%\\USOShared\\Logs\\User\\*",
+            "destinationFolder": "logs/windows-update/user",
+            "notes": "Update Session Orchestrator user logs."
+        },
+        {
+            "id": "update-health-tools-logs",
+            "family": "windows-update",
+            "sourcePattern": "%ProgramFiles%\\Microsoft Update Health Tools\\Logs\\*",
+            "destinationFolder": "logs/windows-update/health-tools",
+            "notes": "Microsoft Update Health Tools logs."
+        },
+        {
+            "id": "edge-mam-log",
+            "family": "general",
+            "sourcePattern": "%LOCALAPPDATA%\\Microsoft\\Edge\\User Data\\MAMLog.txt",
+            "destinationFolder": "logs/edge",
+            "notes": "Edge MAM (Mobile Application Management) log."
+        },
+        {
+            "id": "teams-logs",
+            "family": "teams",
+            "sourcePattern": "%APPDATA%\\Microsoft\\Teams\\*.txt",
+            "destinationFolder": "logs/teams",
+            "notes": "Microsoft Teams log files."
+        },
+        {
+            "id": "teams-squirrel-log",
+            "family": "teams",
+            "sourcePattern": "%LOCALAPPDATA%\\Microsoft\\Teams\\SquirrelSetup.log",
+            "destinationFolder": "logs/teams",
+            "notes": "Teams Squirrel installer log."
+        },
+        {
+            "id": "winget-state",
+            "family": "wpm",
+            "sourcePattern": "%TEMP%\\winget\\defaultState\\WPM-*.txt",
+            "destinationFolder": "logs/winget",
+            "notes": "Windows Package Manager state files."
+        },
+        {
+            "id": "remote-help-logs",
+            "family": "general",
+            "sourcePattern": "%ProgramData%\\Microsoft\\RemoteHelp\\Logs\\*",
+            "destinationFolder": "logs/remote-help",
+            "notes": "Remote Help logs if present."
+        },
+        {
+            "id": "antimalware-support",
+            "family": "antimalware",
+            "sourcePattern": "%ProgramData%\\Microsoft\\Microsoft Antimalware\\Support\\*.cab",
+            "destinationFolder": "logs/antimalware",
+            "notes": "Microsoft Antimalware support cabs."
+        }
+    ],
+    "registry": [
+        {
+            "id": "mdm-enrollments",
+            "family": "mdm-enrollment",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Enrollments",
+            "fileName": "REG_SW_Microsoft_Enrollments.reg",
+            "notes": "Enrollment state and tenant-scoped enrollment metadata."
+        },
+        {
+            "id": "omadm-accounts",
+            "family": "omadm",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Provisioning\\OMADM\\Accounts",
+            "fileName": "REG_SW_Provisioning_OMADM_Accounts.reg",
+            "notes": "OMA-DM account configuration."
+        },
+        {
+            "id": "autopilot-diagnostics",
+            "family": "autopilot",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Provisioning\\Diagnostics\\AutoPilot",
+            "fileName": "REG_SW_Provisioning_Diagnostics_Autopilot.reg",
+            "notes": "Autopilot deployment diagnostics."
+        },
+        {
+            "id": "autopilot-settings",
+            "family": "autopilot",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Provisioning\\AutopilotSettings",
+            "fileName": "REG_SW_Provisioning_AutopilotSettings.reg",
+            "notes": "Autopilot profile and device preparation settings."
+        },
+        {
+            "id": "policymanager-device",
+            "family": "policymanager",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\PolicyManager\\Current\\Device",
+            "fileName": "REG_SW_PolicyManager_Current_Device.reg",
+            "notes": "Current device PolicyManager state."
+        },
+        {
+            "id": "autopilot-esp-diagnostics",
+            "family": "autopilot",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\Autopilot\\EnrollmentStatusTracking\\ESPTrackingInfo\\Diagnostics",
+            "fileName": "REG_SW_Autopilot_ESP_Diagnostics.reg",
+            "notes": "ESP tracking diagnostics."
+        },
+        {
+            "id": "ime-state",
+            "family": "intune-ime",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\IntuneManagementExtension",
+            "fileName": "REG_SW_IntuneManagementExtension.reg",
+            "notes": "IME service and local state."
+        },
+        {
+            "id": "provisioning-nodecache-csp",
+            "family": "provisioning",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Provisioning\\NodeCache\\CSP",
+            "fileName": "REG_SW_Provisioning_NodeCache_CSP.reg",
+            "notes": "Provisioning CSP node cache."
+        },
+        {
+            "id": "omadm-syncml-odjapplied",
+            "family": "omadm",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Provisioning\\OMADM\\SyncML\\ODJApplied",
+            "fileName": "REG_SW_OMADM_SyncML_ODJApplied.reg",
+            "notes": "Hybrid join offline domain join application marker."
+        },
+        {
+            "id": "provisioning-full",
+            "family": "provisioning",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\provisioning",
+            "fileName": "REG_SW_Provisioning.reg",
+            "notes": "Full provisioning state."
+        },
+        {
+            "id": "cloud-managed-update",
+            "family": "windows-update",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\CloudManagedUpdate",
+            "fileName": "REG_SW_CloudManagedUpdate.reg",
+            "notes": "Cloud managed update configuration."
+        },
+        {
+            "id": "policymanager-device-update",
+            "family": "windows-update",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\PolicyManager\\current\\device\\Update",
+            "fileName": "REG_SW_PolicyManager_Current_Device_Update.reg",
+            "notes": "PolicyManager update policies."
+        },
+        {
+            "id": "windows-update-reg",
+            "family": "windows-update",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\WindowsUpdate",
+            "fileName": "REG_SW_WindowsUpdate.reg",
+            "notes": "Windows Update configuration."
+        },
+        {
+            "id": "cv-windows-update",
+            "family": "windows-update",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\WindowsUpdate",
+            "fileName": "REG_SW_CV_WindowsUpdate.reg",
+            "notes": "CurrentVersion Windows Update settings."
+        },
+        {
+            "id": "wufbds",
+            "family": "windows-update",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\WufbDS",
+            "fileName": "REG_SW_WufbDS.reg",
+            "notes": "Windows Update for Business deployment service state."
+        },
+        {
+            "id": "wu-policies",
+            "family": "windows-update",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate",
+            "fileName": "REG_SW_Policies_WindowsUpdate.reg",
+            "notes": "Group Policy Windows Update settings."
+        },
+        {
+            "id": "cloud-domain-join",
+            "family": "device-join",
+            "path": "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\CloudDomainJoin",
+            "fileName": "REG_CCS_CloudDomainJoin.reg",
+            "notes": "Cloud domain join state."
+        },
+        {
+            "id": "eas-control",
+            "family": "device-join",
+            "path": "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\EAS",
+            "fileName": "REG_CCS_EAS.reg",
+            "notes": "Exchange ActiveSync control."
+        },
+        {
+            "id": "session-manager",
+            "family": "system",
+            "path": "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager",
+            "fileName": "REG_CCS_SessionManager.reg",
+            "notes": "Session Manager configuration."
+        },
+        {
+            "id": "timezone-info",
+            "family": "system",
+            "path": "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\TimeZoneInformation",
+            "fileName": "REG_CCS_TimeZone.reg",
+            "notes": "Time zone configuration."
+        },
+        {
+            "id": "certpropsvc",
+            "family": "certificates",
+            "path": "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\CertPropSvc",
+            "fileName": "REG_CCS_CertPropSvc.reg",
+            "notes": "Certificate propagation service."
+        },
+        {
+            "id": "cryptsvc",
+            "family": "certificates",
+            "path": "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\CryptSvc",
+            "fileName": "REG_CCS_CryptSvc.reg",
+            "notes": "Cryptographic services."
+        },
+        {
+            "id": "http-services",
+            "family": "networking",
+            "path": "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\HTTP",
+            "fileName": "REG_CCS_HTTP.reg",
+            "notes": "HTTP.sys service configuration."
+        },
+        {
+            "id": "firewall-mdm",
+            "family": "firewall",
+            "path": "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\SharedAccess\\Parameters\\FirewallPolicy\\Mdm",
+            "fileName": "REG_CCS_Firewall_Mdm.reg",
+            "notes": "MDM-managed firewall rules."
+        },
+        {
+            "id": "shared-access",
+            "family": "firewall",
+            "path": "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\SharedAccess",
+            "fileName": "REG_CCS_SharedAccess.reg",
+            "notes": "SharedAccess/firewall service configuration."
+        },
+        {
+            "id": "tpm-service",
+            "family": "security",
+            "path": "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\TPM",
+            "fileName": "REG_CCS_TPM.reg",
+            "notes": "TPM service configuration."
+        },
+        {
+            "id": "bitlocker-csp",
+            "family": "security",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\BitLockerCsp",
+            "fileName": "REG_SW_BitLockerCsp.reg",
+            "notes": "BitLocker CSP configuration."
+        },
+        {
+            "id": "ccm",
+            "family": "configmgr",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\CCM",
+            "fileName": "REG_SW_CCM.reg",
+            "notes": "ConfigMgr client state."
+        },
+        {
+            "id": "declared-config",
+            "family": "mdm",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\DeclaredConfiguration\\HostOS",
+            "fileName": "REG_SW_DeclaredConfiguration.reg",
+            "notes": "Declared configuration HostOS state."
+        },
+        {
+            "id": "device-inventory",
+            "family": "general",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\DeviceInventory",
+            "fileName": "REG_SW_DeviceInventory.reg",
+            "notes": "Device inventory data."
+        },
+        {
+            "id": "device-manageability-csp",
+            "family": "mdm",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\DeviceManageabilityCSP",
+            "fileName": "REG_SW_DeviceManageabilityCSP.reg",
+            "notes": "Device manageability CSP."
+        },
+        {
+            "id": "diagnostic-log-csp-reg",
+            "family": "mdm",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\DiagnosticLogCSP",
+            "fileName": "REG_SW_DiagnosticLogCSP.reg",
+            "notes": "DiagnosticLogCSP configuration."
+        },
+        {
+            "id": "epm-agent",
+            "family": "epm",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\EPMAgent",
+            "fileName": "REG_SW_EPMAgent.reg",
+            "notes": "Endpoint Privilege Management agent."
+        },
+        {
+            "id": "enterprise-desktop-app-mgmt",
+            "family": "mdm",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\EnterpriseDesktopAppManagement",
+            "fileName": "REG_SW_EnterpriseDesktopAppManagement.reg",
+            "notes": "Enterprise desktop app management state."
+        },
+        {
+            "id": "mdm-wins",
+            "family": "mdm",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\MDMWins",
+            "fileName": "REG_SW_MDMWins.reg",
+            "notes": "MDM Wins configuration."
+        },
+        {
+            "id": "microsoft-intune",
+            "family": "intune",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\MicrosoftIntune",
+            "fileName": "REG_SW_MicrosoftIntune.reg",
+            "notes": "Microsoft Intune registration."
+        },
+        {
+            "id": "office-csp",
+            "family": "mdm",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\OfficeCSP",
+            "fileName": "REG_SW_OfficeCSP.reg",
+            "notes": "Office CSP configuration."
+        },
+        {
+            "id": "online-management",
+            "family": "intune",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\OnlineManagement",
+            "fileName": "REG_SW_OnlineManagement.reg",
+            "notes": "Legacy online management state."
+        },
+        {
+            "id": "policy-manager-full",
+            "family": "policymanager",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\PolicyManager",
+            "fileName": "REG_SW_PolicyManager.reg",
+            "notes": "Full PolicyManager state."
+        },
+        {
+            "id": "policy-platform",
+            "family": "policymanager",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\PolicyPlatform",
+            "fileName": "REG_SW_PolicyPlatform.reg",
+            "notes": "Policy platform configuration."
+        },
+        {
+            "id": "sqm-client",
+            "family": "telemetry",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\SQMClient",
+            "fileName": "REG_SW_SQMClient.reg",
+            "notes": "Software Quality Metrics client."
+        },
+        {
+            "id": "system-certificates",
+            "family": "certificates",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\SystemCertificates\\MY\\Certificates",
+            "fileName": "REG_SW_SystemCertificates.reg",
+            "notes": "Local machine certificate store."
+        },
+        {
+            "id": "windows-nt-cv",
+            "family": "system",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
+            "fileName": "REG_SW_WindowsNT_CurrentVersion.reg",
+            "notes": "OS version and build info."
+        },
+        {
+            "id": "windows-selfhost",
+            "family": "windows-update",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\WindowsSelfHost",
+            "fileName": "REG_SW_WindowsSelfHost.reg",
+            "notes": "Windows Insider/selfhost configuration."
+        },
+        {
+            "id": "autopilot-sw",
+            "family": "autopilot",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\Autopilot",
+            "fileName": "REG_SW_Windows_Autopilot.reg",
+            "notes": "Autopilot device registration."
+        },
+        {
+            "id": "cv-authentication",
+            "family": "device-join",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Authentication",
+            "fileName": "REG_SW_CV_Authentication.reg",
+            "notes": "CurrentVersion authentication."
+        },
+        {
+            "id": "cv-mdm",
+            "family": "mdm",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\MDM",
+            "fileName": "REG_SW_CV_MDM.reg",
+            "notes": "CurrentVersion MDM state."
+        },
+        {
+            "id": "cv-policies",
+            "family": "general",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies",
+            "fileName": "REG_SW_CV_Policies.reg",
+            "notes": "CurrentVersion policies."
+        },
+        {
+            "id": "cv-uninstall",
+            "family": "general",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
+            "fileName": "REG_SW_CV_Uninstall.reg",
+            "notes": "Installed programs (uninstall registry)."
+        },
+        {
+            "id": "windows-defender",
+            "family": "security",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows Defender",
+            "fileName": "REG_SW_Windows_Defender.reg",
+            "notes": "Windows Defender configuration."
+        },
+        {
+            "id": "windows-enrollments",
+            "family": "mdm-enrollment",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\Enrollments",
+            "fileName": "REG_SW_Windows_Enrollments.reg",
+            "notes": "Windows enrollment state."
+        },
+        {
+            "id": "assigned-access-config",
+            "family": "kiosk",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\microsoft\\windows\\assignedaccessconfiguration",
+            "fileName": "REG_SW_AssignedAccessConfiguration.reg",
+            "notes": "Assigned access (kiosk) configuration."
+        },
+        {
+            "id": "assigned-access-csp",
+            "family": "kiosk",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\windows\\assignedaccesscsp",
+            "fileName": "REG_SW_AssignedAccessCSP.reg",
+            "notes": "Assigned access CSP."
+        },
+        {
+            "id": "hklm-policies",
+            "family": "general",
+            "path": "HKEY_LOCAL_MACHINE\\Software\\Policies",
+            "fileName": "REG_SW_Policies.reg",
+            "notes": "Machine-level group policies."
+        },
+        {
+            "id": "wow64-policies",
+            "family": "general",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Policies",
+            "fileName": "REG_SW_Wow6432_Policies.reg",
+            "notes": "WoW64 redirected policies."
+        },
+        {
+            "id": "hkcu-policies",
+            "family": "general",
+            "path": "HKEY_CURRENT_USER\\Software\\Policies",
+            "fileName": "REG_HKCU_Policies.reg",
+            "notes": "User-level group policies."
+        },
+        {
+            "id": "hkcu-scep",
+            "family": "certificates",
+            "path": "HKEY_CURRENT_USER\\Software\\Microsoft\\SCEP",
+            "fileName": "REG_HKCU_SCEP.reg",
+            "notes": "SCEP certificate enrollment."
+        },
+        {
+            "id": "hkcu-uninstall",
+            "family": "general",
+            "path": "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
+            "fileName": "REG_HKCU_Uninstall.reg",
+            "notes": "User-installed programs."
+        },
+        {
+            "id": "hkcu-volatile-env",
+            "family": "general",
+            "path": "HKEY_CURRENT_USER\\Volatile Environment",
+            "fileName": "REG_HKCU_VolatileEnvironment.reg",
+            "notes": "User volatile environment (session info)."
+        },
+        {
+            "id": "cryptography-mscep",
+            "family": "certificates",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Cryptography\\MSCEP",
+            "fileName": "REG_SW_Cryptography_MSCEP.reg",
+            "notes": "MSCEP/NDES cryptography config."
+        },
+        {
+            "id": "multivariant",
+            "family": "general",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\multivariant",
+            "fileName": "REG_SW_Multivariant.reg",
+            "notes": "Multivariant provisioning."
+        },
+        {
+            "id": "hvsicsp",
+            "family": "security",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\HVSICSP",
+            "fileName": "REG_SW_HVSICSP.reg",
+            "notes": "HVSI (Application Guard) CSP."
+        },
+        {
+            "id": "cv-storage-sense",
+            "family": "general",
+            "path": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\StorageSense",
+            "fileName": "REG_SW_CV_StorageSense.reg",
+            "notes": "Storage Sense configuration."
+        }
+    ],
+    "eventLogs": [
+        {
+            "id": "evtx-bits",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\*-bits-*",
+            "destinationFolder": "event-logs",
+            "notes": "BITS event logs."
+        },
+        {
+            "id": "evtx-aad",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\*AAD*.evtx",
+            "destinationFolder": "event-logs",
+            "notes": "Azure AD / Entra ID event logs."
+        },
+        {
+            "id": "evtx-appx",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\*appx*",
+            "destinationFolder": "event-logs",
+            "notes": "AppX deployment event logs."
+        },
+        {
+            "id": "evtx-bitlocker",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\*bitlocker*",
+            "destinationFolder": "event-logs",
+            "notes": "BitLocker event logs."
+        },
+        {
+            "id": "evtx-defender",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\*defender*",
+            "destinationFolder": "event-logs",
+            "notes": "Windows Defender event logs."
+        },
+        {
+            "id": "evtx-devicemanagement",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\*devicemanagement*",
+            "destinationFolder": "event-logs",
+            "notes": "Device Management event logs."
+        },
+        {
+            "id": "evtx-firewall",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\*firewall*",
+            "destinationFolder": "event-logs",
+            "notes": "Firewall event logs."
+        },
+        {
+            "id": "evtx-intune",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\*intune*",
+            "destinationFolder": "event-logs",
+            "notes": "Intune event logs."
+        },
+        {
+            "id": "evtx-ncrypt",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\*ncrypt*",
+            "destinationFolder": "event-logs",
+            "notes": "NCrypt event logs."
+        },
+        {
+            "id": "evtx-odj",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\*odj*",
+            "destinationFolder": "event-logs",
+            "notes": "Offline Domain Join event logs."
+        },
+        {
+            "id": "evtx-operations",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\*operations*",
+            "destinationFolder": "event-logs",
+            "notes": "Operational event logs."
+        },
+        {
+            "id": "evtx-pfx",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\*PFX*",
+            "destinationFolder": "event-logs",
+            "notes": "PFX certificate event logs."
+        },
+        {
+            "id": "evtx-powershell",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\*powershell*",
+            "destinationFolder": "event-logs",
+            "notes": "PowerShell event logs."
+        },
+        {
+            "id": "evtx-push-notifications",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\*PushNotifications*",
+            "destinationFolder": "event-logs",
+            "notes": "Push notification event logs."
+        },
+        {
+            "id": "evtx-twinui",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\*TWinUI*",
+            "destinationFolder": "event-logs",
+            "notes": "TWinUI event logs."
+        },
+        {
+            "id": "evtx-user-device",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\*user*device*",
+            "destinationFolder": "event-logs",
+            "notes": "User Device Registration event logs."
+        },
+        {
+            "id": "evtx-wmi",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\*WMI*",
+            "destinationFolder": "event-logs",
+            "notes": "WMI event logs."
+        },
+        {
+            "id": "evtx-workplace",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\*workplace*",
+            "destinationFolder": "event-logs",
+            "notes": "Workplace join event logs."
+        },
+        {
+            "id": "evtx-application",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\Application.evtx",
+            "destinationFolder": "event-logs",
+            "notes": "Application event log."
+        },
+        {
+            "id": "evtx-applocker",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\Microsoft-Windows-AppLocker*.evtx",
+            "destinationFolder": "event-logs",
+            "notes": "AppLocker event logs."
+        },
+        {
+            "id": "evtx-assigned-access",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\Microsoft-Windows-AssignedAccess*.evtx",
+            "destinationFolder": "event-logs",
+            "notes": "Assigned Access (kiosk) event logs."
+        },
+        {
+            "id": "evtx-auth-ui",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\Microsoft-Windows-Authentication User Interface%4Operational.evtx",
+            "destinationFolder": "event-logs",
+            "notes": "Authentication UI operational events."
+        },
+        {
+            "id": "evtx-code-integrity",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\Microsoft-Windows-CodeIntegrity*",
+            "destinationFolder": "event-logs",
+            "notes": "Code Integrity event logs."
+        },
+        {
+            "id": "evtx-device-setup-manager",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\Microsoft-Windows-DeviceSetupManager*",
+            "destinationFolder": "event-logs",
+            "notes": "Device Setup Manager event logs."
+        },
+        {
+            "id": "evtx-hello-for-business",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\Microsoft-Windows-HelloForBusiness*",
+            "destinationFolder": "event-logs",
+            "notes": "Hello for Business event logs."
+        },
+        {
+            "id": "evtx-kernel-boot",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\Microsoft-Windows-Kernel-Boot%4Operational.evtx",
+            "destinationFolder": "event-logs",
+            "notes": "Kernel boot operational events."
+        },
+        {
+            "id": "evtx-laps",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\Microsoft-Windows-LAPS*",
+            "destinationFolder": "event-logs",
+            "notes": "LAPS event logs."
+        },
+        {
+            "id": "evtx-device-guard",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\Microsoft-Windows-DeviceGuard%4Operational.evtx",
+            "destinationFolder": "event-logs",
+            "notes": "Device Guard operational events."
+        },
+        {
+            "id": "evtx-modern-deployment",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\Microsoft-Windows-ModernDeployment-*",
+            "destinationFolder": "event-logs",
+            "notes": "Modern Deployment (Autopilot/ManagementService) event logs."
+        },
+        {
+            "id": "evtx-network-profile",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\Microsoft-Windows-NetworkProfile*",
+            "destinationFolder": "event-logs",
+            "notes": "Network Profile event logs."
+        },
+        {
+            "id": "evtx-provisioning",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\Microsoft-Windows-Provisioning-*",
+            "destinationFolder": "event-logs",
+            "notes": "Provisioning event logs."
+        },
+        {
+            "id": "evtx-push-notification-platform",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\Microsoft-Windows-PushNotification-Platform*",
+            "destinationFolder": "event-logs",
+            "notes": "Push notification platform event logs."
+        },
+        {
+            "id": "evtx-remote-help",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\Microsoft-Windows-RemoteHelp*",
+            "destinationFolder": "event-logs",
+            "notes": "Remote Help event logs."
+        },
+        {
+            "id": "evtx-sense",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\Microsoft-Windows-SENSE%4Operational.evtx",
+            "destinationFolder": "event-logs",
+            "notes": "Microsoft Defender for Endpoint SENSE operational events."
+        },
+        {
+            "id": "evtx-shell-core",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\Microsoft-Windows-Shell-Core%4Operational.evtx",
+            "destinationFolder": "event-logs",
+            "notes": "Shell Core operational events."
+        },
+        {
+            "id": "evtx-store",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\Microsoft-Windows-Store*",
+            "destinationFolder": "event-logs",
+            "notes": "Microsoft Store event logs."
+        },
+        {
+            "id": "evtx-task-scheduler",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\Microsoft-Windows-TaskScheduler*",
+            "destinationFolder": "event-logs",
+            "notes": "Task Scheduler event logs."
+        },
+        {
+            "id": "evtx-telemetry",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\Microsoft-Windows-UniversalTelemetryClient%4Operational.evtx",
+            "destinationFolder": "event-logs",
+            "notes": "Universal Telemetry Client operational events."
+        },
+        {
+            "id": "evtx-wu-client",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\Microsoft-Windows-WindowsUpdateClient*",
+            "destinationFolder": "event-logs",
+            "notes": "Windows Update Client event logs."
+        },
+        {
+            "id": "evtx-security",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\Security.evtx",
+            "destinationFolder": "event-logs",
+            "notes": "Security event log."
+        },
+        {
+            "id": "evtx-setup",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\Setup.evtx",
+            "destinationFolder": "event-logs",
+            "notes": "Setup event log."
+        },
+        {
+            "id": "evtx-system",
+            "family": "curated-evtx-copy",
+            "sourcePattern": "%SystemRoot%\\system32\\winevt\\logs\\System.evtx",
+            "destinationFolder": "event-logs",
+            "notes": "System event log."
+        }
+    ],
+    "exports": [
+        {
+            "id": "autopilot-configuration-file",
+            "family": "autopilot",
+            "sourcePath": "%SystemRoot%\\Provisioning\\AutoPilot\\AutoPilotConfigurationFile.json",
+            "destinationFolder": "exports",
+            "fileName": "AutoPilotConfigurationFile.json",
+            "notes": "Classic Autopilot configuration file."
+        },
+        {
+            "id": "autopilot-dds-ztd-file",
+            "family": "autopilot",
+            "sourcePath": "%SystemRoot%\\Provisioning\\Diagnostics\\AutopilotDDSZTDFile.json",
+            "destinationFolder": "exports",
+            "fileName": "AutopilotDDSZTDFile.json",
+            "notes": "Autopilot DDS profile JSON."
+        },
+        {
+            "id": "ndes-connector-config",
+            "family": "ndes",
+            "sourcePath": "%ProgramFiles%\\Microsoft Intune\\NDESConnectorSvc\\NDESConnector.exe.config",
+            "destinationFolder": "exports/ndes",
+            "fileName": "NDESConnector.exe.config",
+            "notes": "NDES Connector service configuration file."
+        },
+        {
+            "id": "ndes-plugin-log",
+            "family": "ndes",
+            "sourcePath": "%ProgramFiles%\\Microsoft Intune\\NDESPolicyModule\\Logs\\NDESPlugin.log",
+            "destinationFolder": "exports/ndes",
+            "fileName": "NDESPlugin.log",
+            "notes": "NDES Policy Module plugin log."
+        },
+        {
+            "id": "ndes-connector-ui-log",
+            "family": "ndes",
+            "sourcePath": "%ProgramFiles%\\Microsoft Intune\\NDESConnectorUI\\NDESConnectorUI.log",
+            "destinationFolder": "exports/ndes",
+            "fileName": "NDESConnectorUI.log",
+            "notes": "NDES Connector UI log."
+        },
+        {
+            "id": "device-inventory-sqlite",
+            "family": "device-inventory",
+            "sourcePath": "%ProgramFiles%\\Microsoft Device Inventory Agent\\InventoryService\\*.sqlite",
+            "destinationFolder": "exports/device-inventory",
+            "fileName": null,
+            "notes": "Device Inventory Agent SQLite database."
+        }
+    ],
+    "commands": [
+        {
+            "id": "dsregcmd-status",
+            "family": "general",
+            "command": "dsregcmd.exe",
+            "arguments": ["/status"],
+            "fileName": "dsregcmd-status.txt",
+            "timeoutSecs": 30,
+            "notes": "Join, tenant, and registration state."
+        },
+        {
+            "id": "whoami-all",
+            "family": "general",
+            "command": "cmd.exe",
+            "arguments": ["/c", "whoami & whoami /upn & whoami /all & whoami /logonid & whoami /fqdn"],
+            "fileName": "whoami.txt",
+            "timeoutSecs": 15,
+            "notes": "Current user identity and privileges."
+        },
+        {
+            "id": "gpresult",
+            "family": "general",
+            "command": "gpresult.exe",
+            "arguments": ["/V"],
+            "fileName": "gpresult.txt",
+            "timeoutSecs": 60,
+            "notes": "Group policy resultant set."
+        },
+        {
+            "id": "schtasks-list",
+            "family": "general",
+            "command": "schtasks.exe",
+            "arguments": ["/fo", "list", "/v"],
+            "fileName": "scheduled-tasks.txt",
+            "timeoutSecs": 60,
+            "notes": "Full scheduled tasks listing."
+        },
+        {
+            "id": "proxy-settings",
+            "family": "networking",
+            "command": "netsh.exe",
+            "arguments": ["winhttp", "show", "proxy"],
+            "fileName": "proxy-settings.txt",
+            "timeoutSecs": 15,
+            "notes": "WinHTTP proxy settings."
+        },
+        {
+            "id": "firewall-settings",
+            "family": "networking",
+            "command": "netsh.exe",
+            "arguments": ["advfirewall", "show", "allprofiles"],
+            "fileName": "firewall-settings.txt",
+            "timeoutSecs": 15,
+            "notes": "Firewall profile settings."
+        },
+        {
+            "id": "hostname",
+            "family": "networking",
+            "command": "hostname.exe",
+            "arguments": [],
+            "fileName": "hostname.txt",
+            "timeoutSecs": 5,
+            "notes": "Computer hostname."
+        },
+        {
+            "id": "ipconfig",
+            "family": "networking",
+            "command": "ipconfig.exe",
+            "arguments": ["/all"],
+            "fileName": "ipconfig-all.txt",
+            "timeoutSecs": 15,
+            "notes": "Full IP configuration."
+        },
+        {
+            "id": "netsh-interfaces",
+            "family": "networking",
+            "command": "netsh.exe",
+            "arguments": ["interface", "show", "interface"],
+            "fileName": "netsh-interfaces.txt",
+            "timeoutSecs": 15,
+            "notes": "Network interface listing."
+        },
+        {
+            "id": "netsh-wlan-profiles",
+            "family": "networking",
+            "command": "netsh.exe",
+            "arguments": ["wlan", "show", "profiles"],
+            "fileName": "wlan-profiles.txt",
+            "timeoutSecs": 15,
+            "notes": "WLAN profiles."
+        },
+        {
+            "id": "route-print",
+            "family": "networking",
+            "command": "route.exe",
+            "arguments": ["print"],
+            "fileName": "route-print.txt",
+            "timeoutSecs": 15,
+            "notes": "Routing table."
+        },
+        {
+            "id": "timezone",
+            "family": "general",
+            "command": "w32tm.exe",
+            "arguments": ["/tz"],
+            "fileName": "timezone.txt",
+            "timeoutSecs": 5,
+            "notes": "Time zone settings."
+        },
+        {
+            "id": "delivery-optimization-status",
+            "family": "delivery-optimization",
+            "command": "powershell.exe",
+            "arguments": ["-NoProfile", "-Command", "Get-DeliveryOptimizationStatus | Format-List *"],
+            "fileName": "delivery-optimization-status.txt",
+            "timeoutSecs": 30,
+            "notes": "Delivery Optimization session and peer status."
+        },
+        {
+            "id": "delivery-optimization-perf-snap",
+            "family": "delivery-optimization",
+            "command": "powershell.exe",
+            "arguments": ["-NoProfile", "-Command", "Get-DeliveryOptimizationPerfSnap | Format-List *"],
+            "fileName": "delivery-optimization-perf-snap.txt",
+            "timeoutSecs": 30,
+            "notes": "Delivery Optimization performance snapshot."
+        },
+        {
+            "id": "services-list",
+            "family": "general",
+            "command": "powershell.exe",
+            "arguments": ["-NoProfile", "-Command", "Get-Service | Format-List *"],
+            "fileName": "services.txt",
+            "timeoutSecs": 30,
+            "notes": "All Windows services."
+        },
+        {
+            "id": "processes-list",
+            "family": "general",
+            "command": "powershell.exe",
+            "arguments": ["-NoProfile", "-Command", "Get-Process | Select-Object Name, FileVersion, Path, ProductVersion | Format-Table -AutoSize -Wrap"],
+            "fileName": "processes.txt",
+            "timeoutSecs": 30,
+            "notes": "Running processes with versions."
+        },
+        {
+            "id": "drivers-list",
+            "family": "general",
+            "command": "powershell.exe",
+            "arguments": ["-NoProfile", "-Command", "Get-CimInstance Win32_PnPSignedDriver | Select-Object DeviceName, DriverVersion | Format-Table -AutoSize -Wrap"],
+            "fileName": "drivers.txt",
+            "timeoutSecs": 60,
+            "notes": "Signed PnP drivers and versions."
+        },
+        {
+            "id": "installed-programs",
+            "family": "general",
+            "command": "powershell.exe",
+            "arguments": ["-NoProfile", "-Command", "Get-Package | Select-Object Name, Version, ProviderName, Source | Format-Table -AutoSize -Wrap"],
+            "fileName": "installed-programs.txt",
+            "timeoutSecs": 60,
+            "notes": "Installed programs via Get-Package."
+        },
+        {
+            "id": "windows-features",
+            "family": "general",
+            "command": "powershell.exe",
+            "arguments": ["-NoProfile", "-Command", "Get-WindowsOptionalFeature -Online | Where-Object {$_.State -eq 'Enabled'}"],
+            "fileName": "windows-features-enabled.txt",
+            "timeoutSecs": 60,
+            "notes": "Enabled optional Windows features."
+        },
+        {
+            "id": "bitlocker-tpm",
+            "family": "security",
+            "command": "powershell.exe",
+            "arguments": ["-NoProfile", "-Command", "Get-Tpm | Format-List *; Get-BitLockerVolume | Format-List *"],
+            "fileName": "bitlocker-tpm.txt",
+            "timeoutSecs": 30,
+            "notes": "TPM and BitLocker volume state."
+        },
+        {
+            "id": "defender-status",
+            "family": "security",
+            "command": "powershell.exe",
+            "arguments": ["-NoProfile", "-Command", "Get-MpComputerStatus | Format-List *"],
+            "fileName": "defender-status.txt",
+            "timeoutSecs": 30,
+            "notes": "Windows Defender/AV status."
+        },
+        {
+            "id": "bits-transfers",
+            "family": "general",
+            "command": "powershell.exe",
+            "arguments": ["-NoProfile", "-Command", "Get-BitsTransfer -AllUsers -Verbose | Format-List *"],
+            "fileName": "bits-transfers.txt",
+            "timeoutSecs": 30,
+            "notes": "Active BITS transfers."
+        },
+        {
+            "id": "local-machine-certs",
+            "family": "certificates",
+            "command": "powershell.exe",
+            "arguments": ["-NoProfile", "-Command", "Get-ChildItem Cert:\\LocalMachine\\My | Format-List *"],
+            "fileName": "certificates-localmachine.txt",
+            "timeoutSecs": 30,
+            "notes": "Local machine personal certificate store."
+        },
+        {
+            "id": "current-user-certs",
+            "family": "certificates",
+            "command": "powershell.exe",
+            "arguments": ["-NoProfile", "-Command", "Get-ChildItem Cert:\\CurrentUser\\My | Format-List *"],
+            "fileName": "certificates-currentuser.txt",
+            "timeoutSecs": 30,
+            "notes": "Current user personal certificate store."
+        },
+        {
+            "id": "certutil",
+            "family": "certificates",
+            "command": "certutil.exe",
+            "arguments": [],
+            "fileName": "certutil.txt",
+            "timeoutSecs": 30,
+            "notes": "Certificate authority configuration."
+        },
+        {
+            "id": "delivery-optimization-log",
+            "family": "delivery-optimization",
+            "command": "powershell.exe",
+            "arguments": ["-NoProfile", "-Command", "Get-DeliveryOptimizationLog"],
+            "fileName": "delivery-optimization-log.txt",
+            "timeoutSecs": 60,
+            "notes": "Full Delivery Optimization log."
+        },
+        {
+            "id": "appx-info",
+            "family": "general",
+            "command": "powershell.exe",
+            "arguments": ["-NoProfile", "-Command", "Get-AppxPackage -AllUsers | Where-Object { $_.Name -match 'CompanyPortal|IntuneCompanyPortal|Authenticator' } | Format-List Name, Version, PackageFullName, Status, SignatureKind"],
+            "fileName": "appx-intune-packages.txt",
+            "timeoutSecs": 30,
+            "notes": "Company Portal and Authenticator AppX package info."
+        },
+        {
+            "id": "mdm-diag-tool",
+            "family": "general",
+            "command": "mdmdiagnosticstool.exe",
+            "arguments": ["-area", "DeviceEnrollment;DeviceProvisioning;Autopilot", "-zip"],
+            "fileName": "mdmdiagnosticstool.txt",
+            "timeoutSecs": 120,
+            "notes": "MDM Diagnostic Tool output. The -zip argument path is appended at runtime."
+        },
+        {
+            "id": "fltmc-epm",
+            "family": "epm",
+            "command": "fltmc.exe",
+            "arguments": [],
+            "fileName": "fltmc-filters.txt",
+            "timeoutSecs": 15,
+            "notes": "File system filter manager drivers (EPM-related)."
+        },
+        {
+            "id": "basic-system-info",
+            "family": "general",
+            "command": "powershell.exe",
+            "arguments": ["-NoProfile", "-Command", "Get-CimInstance Win32_OperatingSystem | Format-List *; Get-CimInstance Win32_ComputerSystem | Format-List *; Get-CimInstance Win32_BIOS | Format-List *"],
+            "fileName": "basic-system-info.txt",
+            "timeoutSecs": 30,
+            "notes": "Basic system information (OS, hardware, BIOS)."
+        }
+    ]
+}

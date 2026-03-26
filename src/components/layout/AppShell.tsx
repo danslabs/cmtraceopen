@@ -31,6 +31,7 @@ import { useKeyboard } from "../../hooks/use-keyboard";
 import { useDragDrop } from "../../hooks/use-drag-drop";
 import { useFileAssociation } from "../../hooks/use-file-association";
 import { useFileAssociationPrompt } from "../../hooks/use-file-association-prompt";
+import { useCollectionProgressListener } from "../../hooks/use-collection-progress-listener";
 
 function buildFilterRunSignature(entries: LogEntry[], clauses: FilterClause[]): string {
   const lastId = entries.length > 0 ? entries[entries.length - 1].id : -1;
@@ -78,6 +79,9 @@ export function AppShell() {
   );
 
   const activeTabIndex = useUiStore((s) => s.activeTabIndex);
+  const collectionProgress = useUiStore((s) => s.collectionProgress);
+
+  useCollectionProgressListener();
 
   const entries = useLogStore((s) => s.entries);
   const filterClauses = useFilterStore((s) => s.clauses);
@@ -408,6 +412,52 @@ export function AppShell() {
       </div>
 
       <StatusBar />
+
+      {collectionProgress && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "rgba(0, 0, 0, 0.6)",
+            zIndex: 9999,
+            gap: "16px",
+            padding: "32px",
+          }}
+        >
+          <Spinner size="large" />
+          <div style={{ width: "100%", maxWidth: "400px" }}>
+            <ProgressBar
+              thickness="large"
+              color="brand"
+              value={collectionProgress.totalItems > 0 ? collectionProgress.completedItems / collectionProgress.totalItems : undefined}
+            />
+          </div>
+          <div
+            style={{
+              fontSize: "14px",
+              fontWeight: 600,
+              color: tokens.colorNeutralForegroundOnBrand,
+            }}
+          >
+            {collectionProgress.message}
+          </div>
+          {collectionProgress.totalItems > 0 && (
+            <div
+              style={{
+                fontSize: "12px",
+                color: tokens.colorNeutralForegroundOnBrand,
+                opacity: 0.8,
+              }}
+            >
+              {collectionProgress.completedItems} / {collectionProgress.totalItems} artifacts
+            </div>
+          )}
+        </div>
+      )}
 
       <FilterDialog
         isOpen={showFilterDialog}

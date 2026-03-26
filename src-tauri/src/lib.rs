@@ -1,3 +1,4 @@
+pub mod collector;
 mod commands;
 pub mod dsregcmd;
 pub mod macos_diag;
@@ -79,6 +80,7 @@ pub fn run() {
             commands::macos_diag::macos_query_unified_log,
             commands::macos_diag::macos_open_system_settings,
             commands::fonts::list_system_fonts,
+            commands::collector::collect_diagnostics,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -1,3 +1,4 @@
+pub mod collector;
 pub mod deployment;
 pub mod dsregcmd;
 pub mod error_lookup;

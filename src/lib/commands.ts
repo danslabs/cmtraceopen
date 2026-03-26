@@ -242,6 +242,35 @@ export async function getSystemDateTimePreferences(): Promise<SystemDateTimePref
   return invokeCommand<SystemDateTimePreferences>("get_system_date_time_preferences");
 }
 
+// --- Diagnostics Collection ---
+
+export interface CollectionResult {
+  bundlePath: string;
+  bundleId: string;
+  artifactCounts: {
+    collected: number;
+    missing: number;
+    failed: number;
+    total: number;
+  };
+  durationMs: number;
+  gaps: Array<{
+    artifactId: string;
+    category: string;
+    reason: string;
+  }>;
+}
+
+export async function collectDiagnostics(
+  requestId: string,
+  outputRoot?: string | null
+): Promise<CollectionResult> {
+  return invokeCommand<CollectionResult>("collect_diagnostics", {
+    requestId,
+    outputRoot: outputRoot ?? null,
+  });
+}
+
 // --- macOS Diagnostics ---
 
 import type {

@@ -511,13 +511,14 @@ dependencies = [
 
 [[package]]
 name = "cmtrace-open"
-version = "0.5.1"
+version = "0.6.0-pre1"
 dependencies = [
  "chrono",
  "criterion",
  "encoding_rs",
  "evtx",
  "font-kit",
+ "glob",
  "log",
  "notify",
  "once_cell",
