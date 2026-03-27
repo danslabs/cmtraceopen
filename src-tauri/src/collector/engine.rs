@@ -20,10 +20,16 @@ pub const COLLECTION_PROGRESS_EVENT: &str = "collection-progress";
 pub fn run_collection<R: Runtime>(
     request_id: String,
     output_root: Option<String>,
+    enabled_families: Option<Vec<String>>,
     app: AppHandle<R>,
 ) -> Result<CollectionResult, String> {
     let start = Instant::now();
-    let profile = CollectionProfile::embedded();
+    let mut profile = CollectionProfile::embedded();
+
+    // Filter to only requested families when specified.
+    if let Some(ref families) = enabled_families {
+        profile.filter_by_families(families);
+    }
     let total_items = profile.total_items();
 
     // Create the bundle directory.
