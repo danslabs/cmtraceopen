@@ -8,29 +8,33 @@ All notable changes to this project will be documented in this file.
 
 ### Highlights
 
-First stable release. CMTrace Open 1.0.0 adds a Diagnostics Collection workspace (Windows-only) for gathering Intune device diagnostics, deeper Windows Setup log analysis with four new structured columns, a fix for the 4-hour timestamp display offset in Intune IME logs, and a TypeScript 6.0 upgrade.
+First stable release. CMTrace Open 1.0.0 ships multi-file open and drag-drop, an inline Ctrl+F find bar with regex support, a Diagnostics Collection workspace (Windows-only), deeper Windows Setup log analysis with four new structured columns, a fix for the 4-hour timestamp display offset in Intune IME logs, and improved DSRegCmd MDM enrollment detection.
 
 ### Added
 
-- **Diagnostics Collection workspace** (Windows-only): New "Collect Diagnostics" command in the Tools menu opens a dialog with category presets (Enrollment, Win32 Apps, Policies, etc.), a full category tree for fine-grained selection, live progress tracking, and a completion summary with per-category gap detection.
-- **GUID-to-app-name registry**: Consolidated App/GUID resolution with a serializable registry exposed to the frontend for richer app name display in the Intune workspace.
-- **Panther parser — four new columns**: `result_code`, `gle_code`, `setup_phase`, and `operation_name` extracted from Windows Setup (`setupact.log` / `setuperr.log`) message text and surfaced as detail columns.
-- **Panther parser — source and thread enrichment**: `source_file` populated from `[exe]` bracketed tags and `Class::Method(line):` patterns in message text; `thread` populated from DISM `TID=` fields.
-- **InfoPane metadata row**: When a selected log entry has a result code, GLE code, setup phase, or operation name, a compact summary line is shown at the top of the detail pane.
+- **Multi-file open**: The file open dialog now supports selecting multiple log files at once. Drag-and-dropping multiple files merges them into a unified view. Launching the app from the command line with multiple paths loads all files simultaneously.
+- **Inline find bar** (Ctrl+F): A persistent find bar slides in at the bottom of the log workspace. Supports plain-text and regex search with live match highlighting. Navigate matches with F3 / Shift+F3. Invalid regex patterns display a clear inline error rather than failing silently.
+- **Diagnostics Collection workspace** (Windows-only): New "Collect Diagnostics" command in the Tools menu opens a dialog with category presets (Full, Intune + Autopilot, Networking, Security, Quick) and a granular family-level category tree. Collection runs concurrently and emits real-time progress events. A completion summary shows per-type artifact counts (logs, registry, event logs, exports, commands), total duration, and gap details. The bundle output folder can be opened directly into the log workspace from the summary dialog. The embedded profile covers 32 log patterns, 61 registry keys, 42 event log channels, and 30 command outputs across Intune, Autopilot, networking, security, BitLocker, Windows Update, ConfigMgr, and general diagnostics categories.
+- **GUID-to-app-name registry**: App/GUID resolution is now consolidated into a single ranked registry (by source confidence: ApplicationName > NameField > SetUpFilePath) and serialized to the frontend. Download stats and event tracking both draw from the same source, eliminating duplicate lookups and surfacing richer app names in the Intune workspace.
+- **Panther parser — four new columns**: `result_code`, `gle_code`, `setup_phase`, and `operation_name` are extracted from Windows Setup (`setupact.log` / `setuperr.log`) message text using targeted regex patterns and surfaced as detail columns.
+- **Panther parser — source and thread enrichment**: `source_file` is populated from `[exe.exe]` bracketed tags and `CClassName::MethodName(line):` patterns in message text. `thread` is populated from DISM `TID=` fields. `Perf`-level messages are now correctly classified as Info.
+- **InfoPane metadata row**: When a selected log entry has a result code, GLE code, setup phase, or operation name, a compact `Result | GLE | Phase | Op` summary line is shown at the top of the detail pane.
 
 ### Fixed
 
-- **IME log timestamp display** (4-hour offset): Intune IME logs omit the timezone offset from the `time=` field, causing timestamps to be stored as UTC and displayed offset by the local UTC difference (e.g., 4 hours early for EDT users). The parser now falls back to the machine's local timezone when no offset is present.
-- **CCM/SCCM log timestamp display**: Timestamps in logs that embed a timezone offset (e.g., `+240` for UTC+4) are now correctly converted to UTC before display.
+- **IME log timestamp display** (4-hour offset): Intune IME logs omit the timezone offset from the `time=` field, causing timestamps to be stored as UTC and displayed shifted by the local UTC offset (e.g., 4 hours early for EDT users). The parser now falls back to the machine's local timezone when no offset is present in the log.
+- **CCM/SCCM log timestamp display**: Timestamps in logs that embed a timezone offset (e.g., `+240` for UTC-4 in Windows bias convention) are now correctly converted to UTC before display. Extreme or malformed offsets fall back safely to UTC rather than panicking.
+- **DSRegCmd MDM enrollment detection**: The DSRegCmd workspace now cross-references scheduled tasks under `\Microsoft\Windows\EnterpriseMgmt\` against `HKLM\SOFTWARE\Microsoft\Enrollments\{GUID}` (checking `EnrollmentState=1`) to confirm active enrollment when `dsregcmd /status` output lacks MDM URLs. This eliminates false "enrollment missing" warnings on enrolled devices.
+- **Log row scroll suppression on click**: Clicking an already-visible row no longer causes an unexpected scroll jump. Scroll suppression now only activates when a click changes the selected entry, leaving keyboard and programmatic navigation unaffected.
 
 ### Changed
 
-- **TypeScript 6.0**: Frontend toolchain upgraded from TypeScript 5.9.3 to 6.0.2.
+- **TypeScript 6.0**: Frontend toolchain upgraded from TypeScript 5.9.3 to 6.0.2 with no source changes required.
 
 ### Build
 
-- Hardened Windows build prerequisites script (`Install-CMTraceOpenBuildPrereqs.ps1`) for fresh machines where Visual Studio is absent — resolves null-array crash and `vswhere.exe` not-found errors.
-- Winget package detection now queries `winget list` once and checks all packages against a cached in-memory set, eliminating N individual lookups.
+- Hardened Windows build prerequisites script (`Install-CMTraceOpenBuildPrereqs.ps1`) for fresh machines where Visual Studio is absent — resolves null-array crash and `vswhere.exe` not-found errors on clean systems.
+- Winget package detection now queries `winget list` once and checks all packages against a cached in-memory set, eliminating N individual subprocess invocations.
 
 ## [0.6.0] - 2026-03-24
 
