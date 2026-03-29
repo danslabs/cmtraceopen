@@ -200,7 +200,7 @@ pub fn parse_lines(lines: &[&str], file_path: &str) -> (Vec<LogEntry>, u32) {
             (Some(stem), None) => stem.to_string(),
             _ => "-".to_string(),
         };
-        let method_display = http_method.as_deref().unwrap_or("REQUEST");
+        let method_display = http_method.as_deref().unwrap_or("-");
         let status_display = status_code
             .map(|code| code.to_string())
             .unwrap_or_else(|| "-".to_string());
