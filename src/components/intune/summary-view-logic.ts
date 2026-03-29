@@ -19,7 +19,7 @@ import {
 } from "./intune-dashboard-utils";
 import { formatEventTypeLabel } from "./useTimeWindowFilter";
 
-type SummaryConclusionSection = "coverage" | "confidence" | "repeatedFailures" | "guidance";
+export type SummaryConclusionSection = "coverage" | "confidence" | "repeatedFailures" | "guidance";
 
 type SummaryConclusionAction =
   | {

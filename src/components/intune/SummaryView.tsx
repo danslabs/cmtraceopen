@@ -22,7 +22,7 @@ import {
   buildSummaryConclusions,
   matchesTimelineAction,
 } from "./summary-view-logic";
-import type { SummaryConclusion } from "./summary-view-logic";
+import type { SummaryConclusion, SummaryConclusionSection } from "./summary-view-logic";
 import {
   CompactFact,
   ConclusionButton,
@@ -36,8 +36,6 @@ import {
   SourceFamilyBadge,
   SummaryCard,
 } from "./SummaryViewComponents";
-
-type SummaryConclusionSection = "coverage" | "confidence" | "repeatedFailures" | "guidance";
 
 export function SummaryView({
   summary,
@@ -279,8 +277,7 @@ export function SummaryView({
             zIndex: 1,
             marginBottom: "12px",
             paddingBottom: "8px",
-            background:
-              "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.98) 78%, rgba(255,255,255,0) 100%)",
+            background: `linear-gradient(180deg, ${tokens.colorNeutralBackground1} 0%, ${tokens.colorNeutralBackground1} 78%, transparent 100%)`,
           }}
         >
           <div
@@ -414,6 +411,7 @@ export function SummaryView({
             {diagnosticsCoverage.files.length > 0 ? (
               <div>
                 <button
+                  type="button"
                   onClick={() => setShowCoverageDetails((current) => !current)}
                   style={secondaryToggleButtonStyle}
                 >
@@ -469,6 +467,7 @@ export function SummaryView({
                 </ul>
                 {(hiddenConfidenceReasonCount > 0 || diagnosticsConfidence.reasons.length > 2) && (
                   <button
+                    type="button"
                     onClick={() => setShowAllConfidenceReasons((current) => !current)}
                     style={{
                       ...secondaryToggleButtonStyle,
@@ -505,6 +504,7 @@ export function SummaryView({
               )}
               {(hiddenRepeatedFailureCount > 0 || repeatedFailures.length > 2) && (
                 <button
+                  type="button"
                   onClick={() => setShowAllRepeatedFailures((current) => !current)}
                   style={secondaryToggleButtonStyle}
                 >

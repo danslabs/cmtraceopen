@@ -192,6 +192,7 @@ export function IntuneDashboardNavBar({
             <option value="Unknown">Unknown</option>
           </select>
           <button
+            type="button"
             onClick={() => {
               setFilterEventType("All");
               setFilterStatus("All");
@@ -235,6 +236,7 @@ export function IntuneDashboardNavBar({
                 Timeline scoped to {timelineScopeFileName}
               </span>
               <button
+                type="button"
                 onClick={() => clearTimelineFileScope()}
                 disabled={isAnalyzing}
                 style={{
@@ -272,6 +274,7 @@ function CanvasTabButton({
 }) {
   return (
     <button
+      type="button"
       onClick={onClick}
       disabled={disabled}
       style={{

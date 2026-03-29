@@ -53,11 +53,14 @@ jobs:
         working-directory: src-tauri
         run: cargo clippy -- -D warnings
 
+      - name: Install cargo-deny
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-deny
+
       - name: Supply chain audit
         working-directory: src-tauri
-        run: |
-          cargo install --locked cargo-deny 2>/dev/null || true
-          cargo deny check
+        run: cargo deny check
 
   frontend:
     name: TypeScript Check

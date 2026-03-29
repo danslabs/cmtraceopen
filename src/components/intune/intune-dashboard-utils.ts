@@ -372,7 +372,6 @@ export const selectStyle: React.CSSProperties = {
   borderRadius: "3px",
   border: `1px solid ${tokens.colorNeutralStroke2}`,
   backgroundColor: tokens.colorNeutralCardBackground,
-  outline: "none",
 };
 
 export const secondaryToggleButtonStyle: React.CSSProperties = {

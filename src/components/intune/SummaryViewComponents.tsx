@@ -31,8 +31,8 @@ export function DiagnosticMetaBadge({ label, tone }: { label: string; tone: stri
         textTransform: "uppercase",
         letterSpacing: "0.06em",
         color: tone,
-        border: `1px solid ${tone}33`,
-        backgroundColor: `${tone}12`,
+        border: `1px solid color-mix(in srgb, ${tone} 20%, transparent)`,
+        backgroundColor: `color-mix(in srgb, ${tone} 7%, transparent)`,
         fontWeight: 700,
         borderRadius: "999px",
         padding: "3px 8px",
@@ -95,6 +95,7 @@ export function ConclusionButton({
 
   return (
     <button
+      type="button"
       onClick={onClick}
       style={{
         width: "100%",
