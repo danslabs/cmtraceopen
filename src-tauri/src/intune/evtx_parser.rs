@@ -146,7 +146,7 @@ pub fn parse_evtx_file(path: &Path, id_offset: u64) -> Result<Vec<EventLogEntry>
 
     for record_result in parser.records_json() {
         if entries.len() >= MAX_ENTRIES_PER_FILE {
-            eprintln!(
+            log::warn!(
                 "event=evtx_entry_cap_reached file=\"{}\" cap={}",
                 source_file, MAX_ENTRIES_PER_FILE
             );
@@ -156,7 +156,7 @@ pub fn parse_evtx_file(path: &Path, id_offset: u64) -> Result<Vec<EventLogEntry>
         let record = match record_result {
             Ok(r) => r,
             Err(e) => {
-                eprintln!(
+                log::warn!(
                     "event=evtx_record_skip file=\"{}\" error=\"{}\"",
                     source_file, e
                 );
@@ -324,7 +324,7 @@ pub fn parse_bundle_event_logs(
                 all_entries.extend(entries);
             }
             Err(e) => {
-                eprintln!(
+                log::error!(
                     "event=evtx_file_error file=\"{}\" error=\"{}\"",
                     evtx_path.display(),
                     e
@@ -388,7 +388,7 @@ pub fn parse_live_event_logs() -> Option<EventLogAnalysis> {
                     }
                 }
                 Err(error) => {
-                    eprintln!(
+                    log::error!(
                         "event=live_event_log_query_failed channel=\"{}\" error=\"{}\"",
                         channel, error
                     );
@@ -404,7 +404,7 @@ pub fn parse_live_event_logs() -> Option<EventLogAnalysis> {
                         ),
                         status: EventLogLiveQueryStatus::Failed,
                         entry_count: 0,
-                        error_message: Some(error),
+                        error_message: Some(error.to_string()),
                     });
                 }
             }
