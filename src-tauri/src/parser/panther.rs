@@ -7,7 +7,7 @@ use std::sync::OnceLock;
 fn panther_prefix_re() -> &'static Regex {
     static CELL: OnceLock<Regex> = OnceLock::new();
     CELL.get_or_init(|| {
-    Regex::new(r"^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2},").unwrap()
+    Regex::new(r"^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2},").expect("panther_prefix_re: date-time prefix pattern must compile")
 })
 }
 
@@ -15,7 +15,7 @@ fn panther_prefix_re() -> &'static Regex {
 fn exe_tag_re() -> &'static Regex {
     static CELL: OnceLock<Regex> = OnceLock::new();
     CELL.get_or_init(|| {
-    Regex::new(r"^\[([^\]]+\.[Ee][Xx][Ee])\]\s*").unwrap()
+    Regex::new(r"^\[([^\]]+\.[Ee][Xx][Ee])\]\s*").expect("exe_tag_re: bracketed executable tag pattern must compile")
 })
 }
 
@@ -23,7 +23,7 @@ fn exe_tag_re() -> &'static Regex {
 fn class_method_re() -> &'static Regex {
     static CELL: OnceLock<Regex> = OnceLock::new();
     CELL.get_or_init(|| {
-    Regex::new(r"^([A-Z][A-Za-z0-9_]*(?:::[A-Za-z_]\w*)+)(?:\(\d+\))?:\s*").unwrap()
+    Regex::new(r"^([A-Z][A-Za-z0-9_]*(?:::[A-Za-z_]\w*)+)(?:\(\d+\))?:\s*").expect("class_method_re: C++ class::method pattern must compile")
 })
 }
 
@@ -31,7 +31,7 @@ fn class_method_re() -> &'static Regex {
 fn tid_re() -> &'static Regex {
     static CELL: OnceLock<Regex> = OnceLock::new();
     CELL.get_or_init(|| {
-    Regex::new(r"TID=(\d+)").unwrap()
+    Regex::new(r"TID=(\d+)").expect("tid_re: DISM thread ID pattern must compile")
 })
 }
 
@@ -40,7 +40,7 @@ fn tid_re() -> &'static Regex {
 fn result_code_re() -> &'static Regex {
     static CELL: OnceLock<Regex> = OnceLock::new();
     CELL.get_or_init(|| {
-    Regex::new(r"(?:Result\s*=|Error:|Status:)\s*(0x[0-9A-Fa-f]+)").unwrap()
+    Regex::new(r"(?:Result\s*=|Error:|Status:)\s*(0x[0-9A-Fa-f]+)").expect("result_code_re: result/error/status hex code pattern must compile")
 })
 }
 
@@ -48,7 +48,7 @@ fn result_code_re() -> &'static Regex {
 fn gle_re() -> &'static Regex {
     static CELL: OnceLock<Regex> = OnceLock::new();
     CELL.get_or_init(|| {
-    Regex::new(r"\[gle=(0x[0-9A-Fa-f]+)\]").unwrap()
+    Regex::new(r"\[gle=(0x[0-9A-Fa-f]+)\]").expect("gle_re: GetLastError code pattern must compile")
 })
 }
 
@@ -56,7 +56,7 @@ fn gle_re() -> &'static Regex {
 fn setup_phase_re() -> &'static Regex {
     static CELL: OnceLock<Regex> = OnceLock::new();
     CELL.get_or_init(|| {
-    Regex::new(r"CurrentSetupPhase\s+\[([A-Za-z0-9]+)\]").unwrap()
+    Regex::new(r"CurrentSetupPhase\s+\[([A-Za-z0-9]+)\]").expect("setup_phase_re: setup phase pattern must compile")
 })
 }
 
@@ -66,7 +66,7 @@ fn setup_phase_re() -> &'static Regex {
 fn operation_re() -> &'static Regex {
     static CELL: OnceLock<Regex> = OnceLock::new();
     CELL.get_or_init(|| {
-    Regex::new(r"(?:Executing operation|Operation completed successfully):\s*(.+)").unwrap()
+    Regex::new(r"(?:Executing operation|Operation completed successfully):\s*(.+)").expect("operation_re: operation execution/completion pattern must compile")
 })
 }
 
@@ -76,7 +76,7 @@ fn panther_header_re() -> &'static Regex {
     Regex::new(
         r"^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2}),\s+(Info|Warning|Error|Fatal Error|Perf)\s+(?:(\[0x[0-9A-Fa-f]+\])\s+)?(?:([A-Z][A-Z0-9_.-]{1,31})\s+)?(.*)$",
     )
-    .unwrap()
+    .expect("panther_header_re: strict Panther log header pattern must compile")
 })
 }
 
@@ -86,7 +86,7 @@ fn panther_relaxed_header_re() -> &'static Regex {
     Regex::new(
         r"^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2}),\s+([A-Za-z][A-Za-z0-9_-]{1,31})\s+(?:(\[0x[0-9A-Fa-f]+\])\s+)?(?:([A-Z][A-Z0-9_.-]{1,31})\s+)?(.*)$",
     )
-    .unwrap()
+    .expect("panther_relaxed_header_re: relaxed Panther log header pattern must compile")
 })
 }
 

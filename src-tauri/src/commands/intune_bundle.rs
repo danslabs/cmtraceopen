@@ -261,6 +261,20 @@ fn collect_bundle_log_paths(
                 continue;
             }
 
+            // Guard against path traversal via malicious relativePath values
+            if let (Ok(canonical_root), Ok(canonical_candidate)) =
+                (bundle_root.canonicalize(), candidate_path.canonicalize())
+            {
+                if !canonical_candidate.starts_with(&canonical_root) {
+                    log::warn!(
+                        "event=artifact_path_traversal_blocked relative_path=\"{}\" resolved=\"{}\"",
+                        relative_path,
+                        canonical_candidate.display()
+                    );
+                    continue;
+                }
+            }
+
             if !primary_entry_points.is_empty()
                 && !primary_entry_points
                     .iter()
@@ -354,11 +368,26 @@ fn resolve_bundle_hint_path(bundle_root: &Path, raw_path: Option<&str>) -> Optio
     }
 
     let path = PathBuf::from(raw_path);
-    if path.is_absolute() {
-        Some(path)
+    let resolved = if path.is_absolute() {
+        path
     } else {
-        Some(bundle_root.join(path))
+        bundle_root.join(path)
+    };
+
+    // Canonicalize both paths to resolve symlinks and ".." components,
+    // then verify the resolved path stays within the bundle root.
+    let canonical_root = bundle_root.canonicalize().ok()?;
+    let canonical_resolved = resolved.canonicalize().ok()?;
+    if !canonical_resolved.starts_with(&canonical_root) {
+        log::warn!(
+            "event=path_traversal_blocked resolved=\"{}\" bundle_root=\"{}\"",
+            canonical_resolved.display(),
+            canonical_root.display()
+        );
+        return None;
     }
+
+    Some(resolved)
 }
 
 fn json_value_at<'a>(value: &'a Value, path: &[&str]) -> Option<&'a Value> {

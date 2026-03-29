@@ -34,13 +34,14 @@ export function getFileName(sourceFile: string): string {
 }
 
 export function formatDuration(secs: number): string {
-  if (secs < 60) return `${Math.round(secs)}s`;
-  const m = Math.floor(secs / 60);
-  const s = Math.round(secs % 60);
-  if (m < 60) return `${m}m ${s}s`;
-  const h = Math.floor(m / 60);
-  const rm = m % 60;
-  return `${h}h ${rm}m ${s}s`;
+  const totalSeconds = Math.round(secs);
+  if (totalSeconds < 60) return `${totalSeconds}s`;
+  const totalMinutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  if (totalMinutes < 60) return `${totalMinutes}m ${seconds}s`;
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return `${hours}h ${minutes}m ${seconds}s`;
 }
 
 function formatSourceLabel(sourceFile: string, lineNumber: number): string {
@@ -83,6 +84,13 @@ export const EventTimelineRow = memo(
         onClick={() => onSelect(isSelected ? null : event.id)}
         role="option"
         aria-selected={isSelected}
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onSelect(isSelected ? null : event.id);
+          }
+        }}
         style={{
           display: "flex",
           flexDirection: isSelected ? "column" : "row",
