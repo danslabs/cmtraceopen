@@ -328,6 +328,8 @@ mod tests {
                 detail: "later".to_string(),
                 source_file: "b.log".to_string(),
                 line_number: 2,
+                start_time_epoch: None,
+                end_time_epoch: None,
             },
             IntuneEvent {
                 id: 1,
@@ -342,6 +344,8 @@ mod tests {
                 detail: "earlier".to_string(),
                 source_file: "a.log".to_string(),
                 line_number: 1,
+                start_time_epoch: None,
+                end_time_epoch: None,
             },
         ])
         .expect("timestamp bounds");
@@ -366,6 +370,8 @@ mod tests {
                 detail: "later".to_string(),
                 source_file: "b.log".to_string(),
                 line_number: 2,
+                start_time_epoch: None,
+                end_time_epoch: None,
             },
             IntuneEvent {
                 id: 1,
@@ -380,6 +386,8 @@ mod tests {
                 detail: "earlier".to_string(),
                 source_file: "a.log".to_string(),
                 line_number: 1,
+                start_time_epoch: None,
+                end_time_epoch: None,
             },
         ];
 
@@ -402,6 +410,8 @@ mod tests {
                 detail: "later".to_string(),
                 source_file: "b.log".to_string(),
                 line_number: 2,
+                start_time_epoch: None,
+                end_time_epoch: None,
             },
             IntuneEvent {
                 id: 1,
@@ -416,6 +426,8 @@ mod tests {
                 detail: "earlier".to_string(),
                 source_file: "a.log".to_string(),
                 line_number: 1,
+                start_time_epoch: None,
+                end_time_epoch: None,
             },
         ]);
 
@@ -438,6 +450,8 @@ mod tests {
             detail: "same".to_string(),
             source_file: "a.log".to_string(),
             line_number: 1,
+            start_time_epoch: None,
+            end_time_epoch: None,
         };
 
         let timeline = build_timeline(vec![event.clone(), event]);
@@ -459,6 +473,8 @@ mod tests {
             detail: "Hash validation failed after staging cached content".to_string(),
             source_file: "C:/Logs/AppWorkload.log".to_string(),
             line_number: 12,
+            start_time_epoch: None,
+            end_time_epoch: None,
         };
 
         let mut rotated = event.clone();
@@ -486,6 +502,8 @@ mod tests {
                 detail: "later".to_string(),
                 source_file: "b.log".to_string(),
                 line_number: 2,
+                start_time_epoch: None,
+                end_time_epoch: None,
             },
             IntuneEvent {
                 id: 99,
@@ -500,6 +518,8 @@ mod tests {
                 detail: "earlier".to_string(),
                 source_file: "a.log".to_string(),
                 line_number: 1,
+                start_time_epoch: None,
+                end_time_epoch: None,
             },
         ]);
 

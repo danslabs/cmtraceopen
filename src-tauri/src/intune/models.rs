@@ -146,6 +146,10 @@ pub struct IntuneEvent {
     pub source_file: String,
     /// Line number in source file
     pub line_number: u32,
+    /// Start time as milliseconds since Unix epoch (pre-computed for fast frontend sorting)
+    pub start_time_epoch: Option<i64>,
+    /// End time as milliseconds since Unix epoch (pre-computed for fast frontend sorting)
+    pub end_time_epoch: Option<i64>,
 }
 
 /// Download statistics for a content download event.
@@ -168,6 +172,8 @@ pub struct DownloadStat {
     pub success: bool,
     /// Timestamp
     pub timestamp: Option<String>,
+    /// Timestamp as milliseconds since Unix epoch (pre-computed for fast frontend sorting)
+    pub timestamp_epoch: Option<i64>,
 }
 
 /// Inclusive timestamp bounds captured from analyzed content.

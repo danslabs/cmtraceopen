@@ -1028,6 +1028,7 @@ fn synthesize_downloads_from_events(events: &[IntuneEvent]) -> Vec<DownloadStat>
             duration_secs: last.duration_secs.unwrap_or(0.0),
             success,
             timestamp,
+            timestamp_epoch: None,
         });
     }
 
@@ -1419,6 +1420,8 @@ mod tests {
                 detail: "Script failed".to_string(),
                 source_file: "C:/Logs/AgentExecutor.log".to_string(),
                 line_number: 12,
+                start_time_epoch: None,
+                end_time_epoch: None,
             },
             IntuneEvent {
                 id: 2,
@@ -1433,6 +1436,8 @@ mod tests {
                 detail: "Applicability pending".to_string(),
                 source_file: "C:/Logs/AppActionProcessor.log".to_string(),
                 line_number: 18,
+                start_time_epoch: None,
+                end_time_epoch: None,
             },
             IntuneEvent {
                 id: 3,
@@ -1447,6 +1452,8 @@ mod tests {
                 detail: "Hash validation failed after staging cached content".to_string(),
                 source_file: "C:/Logs/AppWorkload.log".to_string(),
                 line_number: 22,
+                start_time_epoch: None,
+                end_time_epoch: None,
             },
             IntuneEvent {
                 id: 4,
@@ -1461,6 +1468,8 @@ mod tests {
                 detail: "Installer execution failed with error code: 0x80070005".to_string(),
                 source_file: "C:/Logs/AppWorkload.log".to_string(),
                 line_number: 28,
+                start_time_epoch: None,
+                end_time_epoch: None,
             },
         ];
         let downloads = vec![DownloadStat {
@@ -1472,6 +1481,7 @@ mod tests {
             duration_secs: 5.0,
             success: false,
             timestamp: Some("01-15-2024 10:00:00.000".to_string()),
+            timestamp_epoch: None,
         }];
         let summary = IntuneSummary {
             total_events: 4,
@@ -1546,6 +1556,8 @@ mod tests {
                 detail: "Installer execution failed with error code: 0x80070005".to_string(),
                 source_file: "C:/Logs/AppWorkload.log".to_string(),
                 line_number: 12,
+                start_time_epoch: None,
+                end_time_epoch: None,
             },
             IntuneEvent {
                 id: 2,
@@ -1560,6 +1572,8 @@ mod tests {
                 detail: "Installer execution failed with error code: 0x80070005".to_string(),
                 source_file: "C:/Logs/AppWorkload-1.log".to_string(),
                 line_number: 18,
+                start_time_epoch: None,
+                end_time_epoch: None,
             },
         ];
 
@@ -1615,6 +1629,8 @@ mod tests {
             detail: "download failed".to_string(),
             source_file: "C:/Logs/AppWorkload.log".to_string(),
             line_number: 8,
+            start_time_epoch: None,
+            end_time_epoch: None,
         }];
         let downloads = vec![DownloadStat {
             content_id: "content-1".to_string(),
@@ -1625,6 +1641,7 @@ mod tests {
             duration_secs: 5.0,
             success: false,
             timestamp: Some("01-15-2024 10:00:00.000".to_string()),
+            timestamp_epoch: None,
         }];
 
         let finalized = finalize_coverage(coverage, &events, &downloads);
@@ -1682,6 +1699,8 @@ mod tests {
                         detail: "install failed".to_string(),
                         source_file: "C:/Logs/IntuneManagementExtension.log".to_string(),
                         line_number: 12,
+                        start_time_epoch: None,
+                        end_time_epoch: None,
                     }],
                     &[],
                 ),
@@ -1706,6 +1725,8 @@ mod tests {
                 detail: "install failed".to_string(),
                 source_file: "C:/Logs/IntuneManagementExtension.log".to_string(),
                 line_number: 12,
+                start_time_epoch: None,
+                end_time_epoch: None,
             },
             IntuneEvent {
                 id: 2,
@@ -1720,6 +1741,8 @@ mod tests {
                 detail: "install in progress".to_string(),
                 source_file: "C:/Logs/IntuneManagementExtension.log".to_string(),
                 line_number: 20,
+                start_time_epoch: None,
+                end_time_epoch: None,
             },
         ];
 
@@ -1746,6 +1769,8 @@ mod tests {
             detail: "Content download stalled with no progress".to_string(),
             source_file: "C:/Logs/AppWorkload.log".to_string(),
             line_number: 15,
+            start_time_epoch: None,
+            end_time_epoch: None,
         }];
 
         let summary = build_summary(&events, &[]);
@@ -1772,6 +1797,8 @@ mod tests {
                 detail: "The client health report was sent successfully. Done.".to_string(),
                 source_file: "C:/Logs/ClientHealth.log".to_string(),
                 line_number: 10,
+                start_time_epoch: None,
+                end_time_epoch: None,
             },
             IntuneEvent {
                 id: 2,
@@ -1786,6 +1813,8 @@ mod tests {
                 detail: "Computing delta inventory...Done. Add count = 2, Modify count = 0, Delete count = 2".to_string(),
                 source_file: "C:/Logs/Win32AppInventory.log".to_string(),
                 line_number: 18,
+                start_time_epoch: None,
+                end_time_epoch: None,
             },
             IntuneEvent {
                 id: 3,
@@ -1800,6 +1829,8 @@ mod tests {
                 detail: "MDM certs found in LocalMachine count: 0".to_string(),
                 source_file: "C:/Logs/ClientCertCheck.log".to_string(),
                 line_number: 4,
+                start_time_epoch: None,
+                end_time_epoch: None,
             },
         ];
 
@@ -1826,6 +1857,8 @@ mod tests {
                 detail: "Starting content download".to_string(),
                 source_file: "C:/Logs/AppWorkload.log".to_string(),
                 line_number: 8,
+                start_time_epoch: None,
+                end_time_epoch: None,
             },
             IntuneEvent {
                 id: 2,
@@ -1840,6 +1873,8 @@ mod tests {
                 detail: "Hash validation failed after staging cached content".to_string(),
                 source_file: "C:/Logs/AppWorkload.log".to_string(),
                 line_number: 12,
+                start_time_epoch: None,
+                end_time_epoch: None,
             },
         ];
         let downloads = vec![DownloadStat {
@@ -1851,6 +1886,7 @@ mod tests {
             duration_secs: 5.0,
             success: false,
             timestamp: Some("01-15-2024 10:00:05.000".to_string()),
+            timestamp_epoch: None,
         }];
 
         let summary = build_summary(&events, &downloads);

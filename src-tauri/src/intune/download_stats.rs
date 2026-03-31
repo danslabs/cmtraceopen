@@ -219,6 +219,7 @@ pub fn extract_downloads(
                 duration_secs: partial.duration_secs.unwrap_or(0.0),
                 success: false,
                 timestamp: partial.last_timestamp.or(partial.start_time),
+                timestamp_epoch: None,
             });
         }
     }
@@ -487,6 +488,7 @@ fn finalize_download(
             .map(|value| value.to_string())
             .or(partial.last_timestamp)
             .or(partial.start_time),
+        timestamp_epoch: None,
     })
 }
 
