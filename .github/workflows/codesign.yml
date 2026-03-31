@@ -128,10 +128,11 @@ jobs:
           Open-source CMTrace log viewer with built-in Intune diagnostics.
 
           ### Windows Downloads
-          - Signed standalone EXE (x64)
-          - Signed MSI installer (x64)
-          - Signed standalone EXE (arm64)
-          - Signed MSI installer (arm64)
+          | File | Description |
+          |------|-------------|
+          | `CMTrace-Open_VERSION_ARCH.msi` | MSI installer (includes Full + Lite) |
+          | `CMTrace-Open_VERSION_ARCH.exe` | Standalone full edition |
+          | `CMTrace-Open-Lite_VERSION_ARCH.exe` | Standalone lite edition |
           "@
 
           $releaseExists = $false
@@ -195,60 +196,117 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
-      - name: Build Windows MSI and standalone EXE
+      # ── Build application binaries (compile only, no bundling yet) ──
+      - name: Build full edition EXE (compile only)
+        run: npx tauri build --target ${{ matrix.rust_target }} --no-bundle
+
+      - name: Build lite edition EXE (compile only)
+        run: npx tauri build --target ${{ matrix.rust_target }} --no-bundle --config src-tauri/tauri.lite.conf.json -- --no-default-features
+
+      # ── Sign application binaries BEFORE bundling ──
+      # This ensures the EXEs inside NSIS and MSI installers are signed,
+      # not just the outer installer packages. Fixes issue #74 where
+      # ASR rules block unsigned binaries after installation.
+      - name: Collect app binaries for code signing
+        id: collect_binaries
+        shell: pwsh
+        run: |
+          $releaseDir = Join-Path $PWD "src-tauri\target\${{ matrix.rust_target }}\release"
+          $signDir = Join-Path $PWD "sign-prebundle"
+          New-Item -ItemType Directory -Force -Path $signDir | Out-Null
+          Copy-Item (Join-Path $releaseDir "CMTrace Open.exe") $signDir -Force
+          Copy-Item (Join-Path $releaseDir "CMTrace Open Lite.exe") $signDir -Force
+          "sign_dir=$signDir" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Sign application binaries
+        uses: azure/trusted-signing-action@v0
+        with:
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          endpoint: ${{ secrets.SIGNING_ENDPOINT }}
+          trusted-signing-account-name: ${{ secrets.SIGNING_ACCOUNT_NAME }}
+          certificate-profile-name: ${{ secrets.SIGNING_PROFILE_NAME }}
+          files-folder: ${{ steps.collect_binaries.outputs.sign_dir }}
+          files-folder-filter: exe
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+
+      - name: Replace binaries with signed versions
+        shell: pwsh
+        run: |
+          $releaseDir = Join-Path $PWD "src-tauri\target\${{ matrix.rust_target }}\release"
+          $signDir = "${{ steps.collect_binaries.outputs.sign_dir }}"
+          Copy-Item (Join-Path $signDir "CMTrace Open.exe") $releaseDir -Force
+          Copy-Item (Join-Path $signDir "CMTrace Open Lite.exe") $releaseDir -Force
+
+      # ── Build NSIS installer (bundles the already-signed binary) ──
+      - name: Build NSIS installer
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-        run: npm run app:build:release -- --target ${{ matrix.rust_target }} --bundles msi,nsis
+        run: npx tauri build --target ${{ matrix.rust_target }} --bundles nsis
 
-      - name: Stage Windows release artifacts
+      # ── Stage all release artifacts ──
+      - name: Stage release artifacts
         id: stage_artifacts
         shell: pwsh
         run: |
           $releaseDir = Join-Path $PWD "src-tauri\target\${{ matrix.rust_target }}\release"
-          $bundleMsiDir = Join-Path $releaseDir "bundle\msi"
           $bundleNsisDir = Join-Path $releaseDir "bundle\nsis"
           $artifactDir = Join-Path $PWD "release-artifacts"
 
           New-Item -ItemType Directory -Force -Path $artifactDir | Out-Null
 
-          $appExeCandidates = Get-ChildItem -Path $releaseDir -Filter *.exe -File |
-            Where-Object {
-              $_.DirectoryName -eq $releaseDir -and
-              $_.Name -notmatch '(?i)(setup|updater|uninstall|nsis)'
-            }
-
-          if ($appExeCandidates.Count -ne 1) {
-            $names = ($appExeCandidates | ForEach-Object { $_.FullName }) -join ", "
-            throw "Expected exactly one standalone app EXE in $releaseDir. Found: $names"
+          # Find the full edition EXE
+          $fullExeCandidates = Get-ChildItem -Path $releaseDir -Filter "CMTrace Open.exe" -File
+          if ($fullExeCandidates.Count -eq 0) {
+            $fullExeCandidates = Get-ChildItem -Path $releaseDir -Filter *.exe -File |
+              Where-Object {
+                $_.DirectoryName -eq $releaseDir -and
+                $_.Name -notmatch '(?i)(setup|updater|uninstall|nsis|lite)'
+              }
+          }
+          if ($fullExeCandidates.Count -lt 1) {
+            throw "Could not find full edition EXE in $releaseDir"
           }
 
-          $msiCandidates = Get-ChildItem -Path $bundleMsiDir -Filter *.msi -File -Recurse
-          if ($msiCandidates.Count -ne 1) {
-            $names = ($msiCandidates | ForEach-Object { $_.FullName }) -join ", "
-            throw "Expected exactly one MSI in $bundleMsiDir. Found: $names"
+          # Find the lite edition EXE
+          $liteExeCandidates = Get-ChildItem -Path $releaseDir -Filter "CMTrace Open Lite.exe" -File
+          if ($liteExeCandidates.Count -eq 0) {
+            $liteExeCandidates = Get-ChildItem -Path $releaseDir -Filter *.exe -File |
+              Where-Object {
+                $_.DirectoryName -eq $releaseDir -and
+                $_.Name -match '(?i)lite'
+              }
+          }
+          if ($liteExeCandidates.Count -lt 1) {
+            throw "Could not find lite edition EXE in $releaseDir"
           }
 
-          # Find NSIS setup installer for auto-updater
+          # Find NSIS setup installer
           $nsisCandidates = Get-ChildItem -Path $bundleNsisDir -Filter *-setup.exe -File -Recurse
           if ($nsisCandidates.Count -ne 1) {
             $names = ($nsisCandidates | ForEach-Object { $_.FullName }) -join ", "
             throw "Expected exactly one NSIS setup EXE in $bundleNsisDir. Found: $names"
           }
 
-          $stagedExe = Join-Path $artifactDir "CMTrace-Open_$($env:VERSION)_${{ matrix.artifact_suffix }}.exe"
-          $stagedMsi = Join-Path $artifactDir "CMTrace-Open_$($env:VERSION)_${{ matrix.artifact_suffix }}.msi"
+          # Stage with release naming
+          $stagedFullExe = Join-Path $artifactDir "CMTrace-Open_$($env:VERSION)_${{ matrix.artifact_suffix }}.exe"
+          $stagedLiteExe = Join-Path $artifactDir "CMTrace-Open-Lite_$($env:VERSION)_${{ matrix.artifact_suffix }}.exe"
           $stagedNsis = Join-Path $artifactDir "CMTrace-Open_$($env:VERSION)_${{ matrix.artifact_suffix }}-setup.exe"
 
-          Copy-Item $appExeCandidates[0].FullName $stagedExe -Force
-          Copy-Item $msiCandidates[0].FullName $stagedMsi -Force
+          Copy-Item $fullExeCandidates[0].FullName $stagedFullExe -Force
+          Copy-Item $liteExeCandidates[0].FullName $stagedLiteExe -Force
           Copy-Item $nsisCandidates[0].FullName $stagedNsis -Force
 
-          "signed_exe_path=$stagedExe" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-          "signed_msi_path=$stagedMsi" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-          "signed_nsis_path=$stagedNsis" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "full_exe_path=$stagedFullExe" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "lite_exe_path=$stagedLiteExe" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "nsis_path=$stagedNsis" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
-      - name: Sign standalone EXE
+      # ── Sign NSIS outer installer ──
+      - name: Sign NSIS installer
         uses: azure/trusted-signing-action@v0
         with:
           azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -263,63 +321,90 @@ jobs:
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
           timestamp-digest: SHA256
 
-      - name: Sign MSI
-        uses: azure/trusted-signing-action@v0
-        with:
-          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
-          endpoint: ${{ secrets.SIGNING_ENDPOINT }}
-          trusted-signing-account-name: ${{ secrets.SIGNING_ACCOUNT_NAME }}
-          certificate-profile-name: ${{ secrets.SIGNING_PROFILE_NAME }}
-          files-folder: ${{ github.workspace }}\release-artifacts
-          files-folder-filter: msi
-          file-digest: SHA256
-          timestamp-rfc3161: http://timestamp.acs.microsoft.com
-          timestamp-digest: SHA256
+      # ── Build MSI via Master Packager Dev (bundles signed full + lite EXEs) ──
+      - name: Install Master Packager Dev
+        shell: pwsh
+        run: |
+          $installer = "$env:TEMP\mpdev.msi"
+          Invoke-WebRequest -Uri "https://cdn.masterpackager.com/installer/dev/2.1.1/mpdev_self_contained_x64_2.1.1.msi" -OutFile $installer
+          Start-Process msiexec.exe -ArgumentList "/i `"$installer`" /quiet /norestart" -Wait
+          "C:\Program Files\Master Packager Ltd\Master Packager Dev" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
+      - name: Build MSI with mpdev
+        shell: pwsh
+        env:
+          FULL_EXE_PATH: ${{ steps.stage_artifacts.outputs.full_exe_path }}
+          LITE_EXE_PATH: ${{ steps.stage_artifacts.outputs.lite_exe_path }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          SIGNING_ENDPOINT: ${{ secrets.SIGNING_ENDPOINT }}
+          SIGNING_ACCOUNT_NAME: ${{ secrets.SIGNING_ACCOUNT_NAME }}
+          SIGNING_PROFILE_NAME: ${{ secrets.SIGNING_PROFILE_NAME }}
+        run: |
+          mpdev build src-tauri\installer\package.signed.json `
+            --working-dir "${{ github.workspace }}" `
+            --properties `
+              "$.version=$env:VERSION" `
+              "$.outputFileName=CMTrace-Open_$($env:VERSION)_${{ matrix.artifact_suffix }}" `
+              "$.platform=${{ matrix.artifact_suffix }}"
+
+      - name: Verify MSI output
+        id: verify_msi
+        shell: pwsh
+        run: |
+          $msiPath = Join-Path $PWD "release-artifacts\CMTrace-Open_$($env:VERSION)_${{ matrix.artifact_suffix }}.msi"
+          if (-not (Test-Path $msiPath)) {
+            throw "Expected MSI not found at $msiPath"
+          }
+          "msi_path=$msiPath" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      # ── Generate updater signature for NSIS installer ──
       - name: Generate updater signature for NSIS installer
         shell: pwsh
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-          SIGNED_NSIS_PATH: ${{ steps.stage_artifacts.outputs.signed_nsis_path }}
+          NSIS_PATH: ${{ steps.stage_artifacts.outputs.nsis_path }}
         run: |
-          npx tauri signer sign "$env:SIGNED_NSIS_PATH"
-          $sigPath = "$env:SIGNED_NSIS_PATH.sig"
+          npx tauri signer sign "$env:NSIS_PATH"
+          $sigPath = "$env:NSIS_PATH.sig"
           if (-not (Test-Path $sigPath)) {
             throw "Updater signature file was not generated at $sigPath"
           }
           Write-Host "Generated updater signature: $sigPath"
 
+      # ── Upload artifacts ──
       - name: Upload signed workflow artifacts
         uses: actions/upload-artifact@v4
         with:
           name: cmtrace-open-windows-signed-${{ matrix.artifact_suffix }}-${{ env.VERSION }}
           path: |
-            ${{ steps.stage_artifacts.outputs.signed_exe_path }}
-            ${{ steps.stage_artifacts.outputs.signed_msi_path }}
-            ${{ steps.stage_artifacts.outputs.signed_nsis_path }}
+            ${{ steps.stage_artifacts.outputs.full_exe_path }}
+            ${{ steps.stage_artifacts.outputs.lite_exe_path }}
+            ${{ steps.verify_msi.outputs.msi_path }}
+            ${{ steps.stage_artifacts.outputs.nsis_path }}
           if-no-files-found: error
 
       - name: Publish signed Windows assets to GitHub Release
         shell: pwsh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SIGNED_EXE_PATH: ${{ steps.stage_artifacts.outputs.signed_exe_path }}
-          SIGNED_MSI_PATH: ${{ steps.stage_artifacts.outputs.signed_msi_path }}
-          SIGNED_NSIS_PATH: ${{ steps.stage_artifacts.outputs.signed_nsis_path }}
+          FULL_EXE_PATH: ${{ steps.stage_artifacts.outputs.full_exe_path }}
+          LITE_EXE_PATH: ${{ steps.stage_artifacts.outputs.lite_exe_path }}
+          MSI_PATH: ${{ steps.verify_msi.outputs.msi_path }}
+          NSIS_PATH: ${{ steps.stage_artifacts.outputs.nsis_path }}
         run: |
-          gh release upload $env:TAG_NAME $env:SIGNED_EXE_PATH $env:SIGNED_MSI_PATH $env:SIGNED_NSIS_PATH --clobber
+          gh release upload $env:TAG_NAME $env:FULL_EXE_PATH $env:LITE_EXE_PATH $env:MSI_PATH $env:NSIS_PATH --clobber
 
       - name: Update latest.json with Windows platform entry
         shell: pwsh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SIGNED_NSIS_PATH: ${{ steps.stage_artifacts.outputs.signed_nsis_path }}
+          NSIS_PATH: ${{ steps.stage_artifacts.outputs.nsis_path }}
         run: |
-          $nsisFileName = Split-Path $env:SIGNED_NSIS_PATH -Leaf
-          $sigContent = Get-Content "$env:SIGNED_NSIS_PATH.sig" -Raw
+          $nsisFileName = Split-Path $env:NSIS_PATH -Leaf
+          $sigContent = Get-Content "$env:NSIS_PATH.sig" -Raw
           $downloadUrl = "https://github.com/${{ github.repository }}/releases/download/$env:TAG_NAME/$nsisFileName"
 
           # Map artifact suffix to Tauri platform key

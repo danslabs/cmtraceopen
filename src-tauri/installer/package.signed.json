@@ -1,0 +1,48 @@
+{
+  "$schema": "https://www.masterpackager.com/support-master-packager-dev/mpdev-schema.json",
+  "outputTypes": ["msi"],
+  "outputDirectory": "release-artifacts",
+  "outputFileName": "CMTrace-Open_$.version_$.arch",
+  "packageName": "CMTrace Open",
+  "publisher": "CN=Adam Gell",
+  "version": "1.0.0",
+  "platform": "x64",
+  "installDir": "%ProgramFiles%\\CMTrace Open",
+  "icon": "src-tauri\\icons\\icon.ico",
+  "fileSystemEntries": [
+    {
+      "sourcePath": "%FULL_EXE_PATH%",
+      "targetPath": "$.installDir\\CMTraceOpen.exe"
+    },
+    {
+      "sourcePath": "%LITE_EXE_PATH%",
+      "targetPath": "$.installDir\\CMTraceOpenLite.exe"
+    }
+  ],
+  "shortcuts": [
+    {
+      "target": "$.installDir\\CMTraceOpen.exe",
+      "name": "CMTrace Open",
+      "location": "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs"
+    },
+    {
+      "target": "$.installDir\\CMTraceOpenLite.exe",
+      "name": "CMTrace Open Lite",
+      "location": "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs"
+    }
+  ],
+  "msi": {
+    "upgradeCode": "{E8F1A3B7-5C2D-4F6E-9A8B-1D3E5F7A9C2B}",
+    "installDialog": {
+      "packageDescription": "Open-source CMTrace log viewer with built-in Intune diagnostics. Includes both the full and lite editions.",
+      "publisherUrl": "https://github.com/adamgell/cmtraceopen"
+    }
+  },
+  "digitalSignature": {
+    "signWith": "AzureTrustedSigning",
+    "endpoint": "%SIGNING_ENDPOINT%",
+    "codeSigningAccountName": "%SIGNING_ACCOUNT_NAME%",
+    "certificateProfileName": "%SIGNING_PROFILE_NAME%",
+    "timestampServer": "http://timestamp.acs.microsoft.com"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "productName": "CMTrace Open Lite",
+  "bundle": {
+    "icon": [
+      "icons-lite/32x32.png",
+      "icons-lite/128x128.png",
+      "icons-lite/128x128@2x.png",
+      "icons-lite/icon.icns",
+      "icons-lite/icon.ico",
+      "icons-lite/icon.png"
+    ]
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "CMTrace Open Lite",
+        "width": 1200,
+        "height": 800,
+        "minWidth": 800,
+        "minHeight": 500,
+        "resizable": true,
+        "fullscreen": false,
+        "dragDropEnabled": true
+      }
+    ]
+  }
+}
