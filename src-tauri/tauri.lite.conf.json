@@ -1,5 +1,15 @@
 {
   "productName": "CMTrace Open Lite",
+  "bundle": {
+    "icon": [
+      "icons-lite/32x32.png",
+      "icons-lite/128x128.png",
+      "icons-lite/128x128@2x.png",
+      "icons-lite/icon.icns",
+      "icons-lite/icon.ico",
+      "icons-lite/icon.png"
+    ]
+  },
   "app": {
     "windows": [
       {
