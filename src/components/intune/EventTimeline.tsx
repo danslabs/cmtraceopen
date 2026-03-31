@@ -10,6 +10,15 @@ import type { IntuneEvent } from "../../types/intune";
 import { useIntuneStore } from "../../stores/intune-store";
 import { EventTimelineRow, getFileName } from "./EventTimelineRow";
 
+const STATUS_RANK: Record<string, number> = {
+  Failed: 0,
+  Timeout: 1,
+  InProgress: 2,
+  Pending: 3,
+  Success: 4,
+  Unknown: 5,
+};
+
 interface EventTimelineProps {
   events: IntuneEvent[];
 }
@@ -50,47 +59,39 @@ export function EventTimeline({ events }: EventTimelineProps) {
   }, [events, filterEventType, filterStatus, timelineScope.filePath]);
 
   const sortedEvents = useMemo(() => {
-    const statusRank: Record<string, number> = {
-      Failed: 0,
-      Timeout: 1,
-      InProgress: 2,
-      Pending: 3,
-      Success: 4,
-      Unknown: 5,
-    };
-
     return [...filteredEvents].sort((a, b) => {
-      let cmp = 0;
       switch (sortField) {
         case "time": {
           const aTime = a.startTimeEpoch;
           const bTime = b.startTimeEpoch;
-          if (aTime == null && bTime == null) cmp = 0;
-          else if (aTime == null) cmp = 1;
-          else if (bTime == null) cmp = -1;
-          else cmp = aTime - bTime;
-          break;
+          if (aTime == null && bTime != null) return 1;
+          if (aTime != null && bTime == null) return -1;
+          if (aTime == null && bTime == null) return 0;
+          return sortDirection === "asc" ? aTime! - bTime! : bTime! - aTime!;
         }
-        case "name":
-          cmp = a.name.localeCompare(b.name);
-          break;
-        case "type":
-          cmp = a.eventType.localeCompare(b.eventType);
-          break;
-        case "status":
-          cmp = (statusRank[a.status] ?? 5) - (statusRank[b.status] ?? 5);
-          break;
+        case "name": {
+          const cmp = a.name.localeCompare(b.name);
+          return sortDirection === "asc" ? cmp : -cmp;
+        }
+        case "type": {
+          const cmp = a.eventType.localeCompare(b.eventType);
+          return sortDirection === "asc" ? cmp : -cmp;
+        }
+        case "status": {
+          const cmp = (STATUS_RANK[a.status] ?? 5) - (STATUS_RANK[b.status] ?? 5);
+          return sortDirection === "asc" ? cmp : -cmp;
+        }
         case "duration": {
           const aDur = a.durationSecs;
           const bDur = b.durationSecs;
-          if (aDur == null && bDur == null) cmp = 0;
-          else if (aDur == null) cmp = 1;
-          else if (bDur == null) cmp = -1;
-          else cmp = aDur - bDur;
-          break;
+          if (aDur == null && bDur != null) return 1;
+          if (aDur != null && bDur == null) return -1;
+          if (aDur == null && bDur == null) return 0;
+          return sortDirection === "asc" ? aDur! - bDur! : bDur! - aDur!;
         }
+        default:
+          return 0;
       }
-      return sortDirection === "asc" ? cmp : -cmp;
     });
   }, [filteredEvents, sortField, sortDirection]);
 

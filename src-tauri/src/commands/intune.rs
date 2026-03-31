@@ -1028,7 +1028,7 @@ fn synthesize_downloads_from_events(events: &[IntuneEvent]) -> Vec<DownloadStat>
             duration_secs: last.duration_secs.unwrap_or(0.0),
             success,
             timestamp,
-            timestamp_epoch: None,
+            timestamp_epoch: last.start_time_epoch.or(last.end_time_epoch),
         });
     }
 

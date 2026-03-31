@@ -35,34 +35,38 @@ export function DownloadStats({ downloads }: DownloadStatsProps) {
 
   const sortedDownloads = useMemo(() => {
     return [...downloads].sort((a, b) => {
-      let cmp = 0;
       switch (downloadSortField) {
-        case "name":
-          cmp = a.name.localeCompare(b.name);
-          break;
-        case "size":
-          cmp = a.sizeBytes - b.sizeBytes;
-          break;
-        case "speed":
-          cmp = a.speedBps - b.speedBps;
-          break;
-        case "doPercentage":
-          cmp = a.doPercentage - b.doPercentage;
-          break;
-        case "duration":
-          cmp = a.durationSecs - b.durationSecs;
-          break;
+        case "name": {
+          const cmp = a.name.localeCompare(b.name);
+          return downloadSortDirection === "asc" ? cmp : -cmp;
+        }
+        case "size": {
+          const cmp = a.sizeBytes - b.sizeBytes;
+          return downloadSortDirection === "asc" ? cmp : -cmp;
+        }
+        case "speed": {
+          const cmp = a.speedBps - b.speedBps;
+          return downloadSortDirection === "asc" ? cmp : -cmp;
+        }
+        case "doPercentage": {
+          const cmp = a.doPercentage - b.doPercentage;
+          return downloadSortDirection === "asc" ? cmp : -cmp;
+        }
+        case "duration": {
+          const cmp = a.durationSecs - b.durationSecs;
+          return downloadSortDirection === "asc" ? cmp : -cmp;
+        }
         case "timestamp": {
           const aTime = a.timestampEpoch;
           const bTime = b.timestampEpoch;
-          if (aTime == null && bTime == null) cmp = 0;
-          else if (aTime == null) cmp = 1;
-          else if (bTime == null) cmp = -1;
-          else cmp = aTime - bTime;
-          break;
+          if (aTime == null && bTime != null) return 1;
+          if (aTime != null && bTime == null) return -1;
+          if (aTime == null && bTime == null) return 0;
+          return downloadSortDirection === "asc" ? aTime! - bTime! : bTime! - aTime!;
         }
+        default:
+          return 0;
       }
-      return downloadSortDirection === "asc" ? cmp : -cmp;
     });
   }, [downloads, downloadSortField, downloadSortDirection]);
 
