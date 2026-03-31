@@ -30,6 +30,9 @@ import type {
 } from "../types/intune";
 
 export type IntuneWorkspaceTab = "timeline" | "downloads" | "summary";
+export type IntuneSortField = "time" | "name" | "type" | "status" | "duration";
+export type DownloadSortField = "name" | "size" | "speed" | "doPercentage" | "duration" | "timestamp";
+export type SortDirection = "asc" | "desc";
 
 function buildSourceContext(
   sourceFile: string | null,
@@ -180,6 +183,10 @@ interface IntuneState {
   eventLogFilterChannel: EventLogChannel | "All";
   eventLogFilterSeverity: EventLogSeverity | "All";
   activeTab: IntuneWorkspaceTab;
+  sortField: IntuneSortField;
+  sortDirection: SortDirection;
+  downloadSortField: DownloadSortField;
+  downloadSortDirection: SortDirection;
   resultRevision: number;
 
   beginAnalysis: (
@@ -208,6 +215,10 @@ interface IntuneState {
   setEventLogFilterSeverity: (severity: EventLogSeverity | "All") => void;
   selectEventLogEntry: (id: number | null) => void;
   setActiveTab: (tab: IntuneWorkspaceTab) => void;
+  setSortField: (field: IntuneSortField) => void;
+  toggleSortDirection: () => void;
+  setDownloadSortField: (field: DownloadSortField) => void;
+  toggleDownloadSortDirection: () => void;
   clear: () => void;
 }
 
@@ -220,6 +231,10 @@ const defaultInteractionState = {
   eventLogFilterChannel: "All" as EventLogChannel | "All",
   eventLogFilterSeverity: "All" as EventLogSeverity | "All",
   activeTab: "timeline" as const,
+  sortField: "time" as IntuneSortField,
+  sortDirection: "asc" as SortDirection,
+  downloadSortField: "timestamp" as DownloadSortField,
+  downloadSortDirection: "asc" as SortDirection,
 };
 
 export const useIntuneStore = create<IntuneState>((set) => ({
@@ -430,6 +445,12 @@ export const useIntuneStore = create<IntuneState>((set) => ({
   setEventLogFilterSeverity: (severity) => set({ eventLogFilterSeverity: severity }),
   selectEventLogEntry: (id) => set({ selectedEventLogEntryId: id }),
   setActiveTab: (tab) => set({ activeTab: tab }),
+  setSortField: (field) => set({ sortField: field }),
+  toggleSortDirection: () =>
+    set((state) => ({ sortDirection: state.sortDirection === "asc" ? "desc" : "asc" })),
+  setDownloadSortField: (field) => set({ downloadSortField: field }),
+  toggleDownloadSortDirection: () =>
+    set((state) => ({ downloadSortDirection: state.downloadSortDirection === "asc" ? "desc" : "asc" })),
 
   clear: () =>
     set({
