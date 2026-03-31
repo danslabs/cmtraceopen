@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-03-31
+
 ### Added
 
 - **IIS W3C log parser** (PR #69): Dedicated parser for IIS W3C Extended log format (`C:\inetpub\logs\LogFiles\W3SVC*`). Auto-detects from the `#Software: Microsoft Internet Information Services` header and dynamically maps fields from the `#Fields:` directive. Surfaces structured columns: Method, URI, Status, Client IP, Server IP, Time (ms), and User Agent. Derives row severity from HTTP status class (4xx → warning, 5xx → error). Added IIS Logs to Windows known sources.
