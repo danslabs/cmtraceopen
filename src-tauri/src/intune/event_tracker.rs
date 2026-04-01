@@ -609,8 +609,14 @@ fn build_appworkload_name(
     }
 }
 
+// When AppWorkload failures do not have clean subgraph markers nearby, fall back to a
+// compact local window so the row still shows useful surrounding evidence.
 const APPWORKLOAD_CONTEXT_RADIUS: usize = 10;
+// Search a wider neighborhood for same-GUID lines because AppWorkload often emits
+// reporting state or policy payload records well before the failure line itself.
 const APPWORKLOAD_CONTEXT_LOOKAROUND: usize = 120;
+// Cap the rendered context bundle so failed rows stay readable and the copied payload
+// remains shareable without dragging in the entire file.
 const APPWORKLOAD_CONTEXT_MAX_LINES: usize = 48;
 
 fn build_appworkload_detail(
@@ -656,7 +662,7 @@ fn collect_appworkload_context(lines: &[ImeLine], index: usize, guid: Option<&st
 
     if selected.is_empty() {
         let fallback_start = index.saturating_sub(APPWORKLOAD_CONTEXT_RADIUS);
-        let fallback_end = (index + APPWORKLOAD_CONTEXT_RADIUS).min(lines.len() - 1);
+        let fallback_end = (index + APPWORKLOAD_CONTEXT_RADIUS).min(lines.len().saturating_sub(1));
         for selected_index in fallback_start..=fallback_end {
             selected.insert(selected_index);
         }
@@ -666,6 +672,9 @@ fn collect_appworkload_context(lines: &[ImeLine], index: usize, guid: Option<&st
     indices.sort_unstable();
 
     if indices.len() > APPWORKLOAD_CONTEXT_MAX_LINES {
+        // Keep the lines closest to the failure first so trimmed bundles preserve the
+        // immediate error context before more distant same-GUID references. For equally
+        // distant lines, the lower line number wins so the final output stays chronological.
         indices.sort_by_key(|selected_index| (selected_index.abs_diff(index), *selected_index));
         indices.truncate(APPWORKLOAD_CONTEXT_MAX_LINES);
         indices.sort_unstable();
@@ -697,7 +706,8 @@ fn find_appworkload_subgraph_bounds(lines: &[ImeLine], index: usize) -> (usize, 
         return (0, 0);
     }
 
-    let mut start = index.min(lines.len() - 1);
+    let safe_index = index.min(lines.len() - 1);
+    let mut start = safe_index;
     while start > 0 {
         let candidate = start - 1;
         let message = lines[candidate].message.as_str();
@@ -710,7 +720,7 @@ fn find_appworkload_subgraph_bounds(lines: &[ImeLine], index: usize) -> (usize, 
         }
     }
 
-    let mut end = index.min(lines.len() - 1);
+    let mut end = safe_index;
     while end + 1 < lines.len() {
         let candidate = end + 1;
         let message = lines[candidate].message.as_str();

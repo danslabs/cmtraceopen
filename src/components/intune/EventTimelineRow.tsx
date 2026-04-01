@@ -67,7 +67,7 @@ function buildClipboardText(event: IntuneEvent): string {
     event.detail,
   ];
 
-  return details.filter((line): line is string => line != null).join("\n");
+  return details.filter((line): line is string => line !== null).join("\n");
 }
 
 export interface EventTimelineRowProps {
@@ -289,6 +289,7 @@ export const EventTimelineRow = memo(
                   color: tokens.colorNeutralForeground1,
                   fontFamily: LOG_MONOSPACE_FONT_FAMILY,
                   whiteSpace: "pre-wrap",
+                  wordBreak: "break-all",
                   overflowWrap: "anywhere",
                   maxHeight:
                     event.status === "Failed" || event.status === "Timeout"
