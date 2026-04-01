@@ -6,6 +6,7 @@ import {
 } from "@tauri-apps/api/menu";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { useFilterStore } from "../stores/filter-store";
+import { useLogStore } from "../stores/log-store";
 import { useUiStore } from "../stores/ui-store";
 import type { LogEntry } from "../types/log";
 
@@ -84,6 +85,26 @@ export function useContextMenu() {
           text: `Exclude: "${messagePreview}"`,
           action: () => {
             addQuickFilter("Message", entry.message, "NotContains");
+          },
+        })
+      );
+
+      items.push(
+        await MenuItem.new({
+          id: "jump-to-line",
+          text: "Jump to Line\u2026",
+          action: () => {
+            const input = window.prompt("Jump to line:");
+            if (!input) return;
+            const targetLine = parseInt(input, 10);
+            if (isNaN(targetLine)) return;
+            const logState = useLogStore.getState();
+            const entries = logState.entries;
+            const target = entries.find((e) => e.lineNumber >= targetLine)
+              ?? entries[entries.length - 1];
+            if (target) {
+              logState.selectEntry(target.id);
+            }
           },
         })
       );
