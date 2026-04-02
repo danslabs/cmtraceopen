@@ -5,6 +5,7 @@ import { useUiStore } from "../../../stores/ui-store";
 export function ColumnsTab() {
   const hiddenColumns = useUiStore((state) => state.hiddenColumns);
   const toggleColumnVisibility = useUiStore((state) => state.toggleColumnVisibility);
+  const resetColumns = useUiStore((state) => state.resetColumns);
 
   return (
     <div>
@@ -56,6 +57,23 @@ export function ColumnsTab() {
             </label>
           );
         })}
+      </div>
+
+      <div style={{ marginTop: "16px", display: "flex", justifyContent: "flex-end" }}>
+        <button
+          onClick={resetColumns}
+          style={{
+            padding: "4px 12px",
+            fontSize: "12px",
+            border: `1px solid ${tokens.colorNeutralStroke1}`,
+            borderRadius: "4px",
+            background: tokens.colorNeutralBackground3,
+            color: tokens.colorNeutralForeground1,
+            cursor: "pointer",
+          }}
+        >
+          Reset Columns
+        </button>
       </div>
     </div>
   );

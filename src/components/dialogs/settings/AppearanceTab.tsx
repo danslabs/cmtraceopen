@@ -11,7 +11,7 @@ import {
   LOG_MONOSPACE_FONT_FAMILY,
 } from "../../../lib/log-accessibility";
 import { useUiStore } from "../../../stores/ui-store";
-import { getThemeById } from "../../../lib/themes";
+import { getThemeById, getAllThemes, type ThemeId } from "../../../lib/themes";
 
 interface SystemFontList {
   families: string[];
@@ -27,6 +27,7 @@ export function AppearanceTab() {
     (state) => state.setLogDetailsFontSize
   );
   const setFontFamily = useUiStore((state) => state.setFontFamily);
+  const setThemeId = useUiStore((state) => state.setThemeId);
   const resetLogAccessibilityPreferences = useUiStore(
     (state) => state.resetLogAccessibilityPreferences
   );
@@ -56,10 +57,41 @@ export function AppearanceTab() {
     return systemFonts.filter((f) => f.toLowerCase().includes(lower));
   }, [systemFonts, fontFilter]);
 
+  const allThemes = useMemo(() => getAllThemes(), []);
   const palette = getThemeById(themeId).severityPalette;
 
   return (
     <div>
+      <section style={{ marginBottom: "14px" }}>
+        <div style={{ fontSize: "13px", fontWeight: 700, marginBottom: "6px" }}>
+          Theme
+        </div>
+        <div style={{ fontSize: "11px", color: tokens.colorNeutralForeground3, marginBottom: "6px" }}>
+          Select the application color theme. Changes apply immediately.
+        </div>
+        <select
+          value={themeId}
+          onChange={(e) => setThemeId(e.target.value as ThemeId)}
+          style={{
+            width: "100%",
+            padding: "4px 8px",
+            fontSize: "12px",
+            border: `1px solid ${tokens.colorNeutralStroke1}`,
+            borderRadius: "4px",
+            background: tokens.colorNeutralBackground1,
+            color: tokens.colorNeutralForeground1,
+            cursor: "pointer",
+          }}
+          aria-label="Select application theme"
+        >
+          {allThemes.map((theme) => (
+            <option key={theme.id} value={theme.id}>
+              {theme.label}
+            </option>
+          ))}
+        </select>
+      </section>
+
       <div style={{ fontSize: "12px", color: tokens.colorNeutralForeground3, marginBottom: "14px", lineHeight: 1.5 }}>
         Adjust log-reading text sizes independently and choose whether severity rows use classic CMTrace colors or a more accessible palette.
       </div>

@@ -506,7 +506,7 @@ export const useUiStore = create<UiState>()(
       resetColumnOrder: () => set({ columnOrder: null }),
       toggleSidebar: () =>
         set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
-      resetColumns: () => set({ columnWidths: {}, columnOrder: null }),
+      resetColumns: () => set({ columnWidths: {}, columnOrder: null, hiddenColumns: [] }),
 
       openTab: (filePath, fileName, sourceContext, fileKind) => {
         if (!filePath) {
