@@ -22,6 +22,7 @@ import { NewIntuneWorkspace } from "../intune/NewIntuneWorkspace";
 import { DsregcmdWorkspace } from "../dsregcmd/DsregcmdWorkspace";
 import { MacosDiagWorkspace } from "../macos-diag/MacosDiagWorkspace";
 import { DeploymentWorkspace } from "../deployment/DeploymentWorkspace";
+import { EventLogWorkspace } from "../event-log-workspace/EventLogWorkspace";
 import { RegistryViewer } from "../registry-view/RegistryViewer";
 import type { FilterClause } from "../dialogs/FilterDialog";
 import type { LogEntry } from "../../types/log";
@@ -360,6 +361,14 @@ export function AppShell() {
       return (
         <div style={{ flex: 1, overflow: "hidden" }}>
           <DeploymentWorkspace />
+        </div>
+      );
+    }
+
+    if (activeView === "event-log") {
+      return (
+        <div style={{ flex: 1, overflow: "hidden", display: "flex" }}>
+          <EventLogWorkspace />
         </div>
       );
     }
