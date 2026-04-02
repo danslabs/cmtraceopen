@@ -112,6 +112,12 @@ pub fn run() {
             commands::macos_diag::macos_open_system_settings,
             #[cfg(feature = "collector")]
             commands::collector::collect_diagnostics,
+            #[cfg(feature = "event-log")]
+            event_log::commands::evtx_parse_files,
+            #[cfg(feature = "event-log")]
+            event_log::commands::evtx_enumerate_channels,
+            #[cfg(feature = "event-log")]
+            event_log::commands::evtx_query_channels,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
