@@ -200,6 +200,7 @@ interface UiState {
   defaultShowInfoPane: boolean;
   confirmTabClose: boolean;
   showUpdateDialog: boolean;
+  graphApiEnabled: boolean;
 
   setActiveWorkspace: (workspace: WorkspaceId) => void;
   setCurrentPlatform: (platform: PlatformId) => void;
@@ -258,6 +259,7 @@ interface UiState {
   setCollectionResult: (result: CollectionResult | null) => void;
   setShowCollectDiagnosticsDialog: (show: boolean) => void;
   setShowUpdateDialog: (show: boolean) => void;
+  setGraphApiEnabled: (enabled: boolean) => void;
 }
 
 const DEFAULT_WORKSPACE: WorkspaceId = "log";
@@ -336,6 +338,7 @@ export const useUiStore = create<UiState>()(
       collectionResult: null,
       showCollectDiagnosticsDialog: false,
       showUpdateDialog: false,
+      graphApiEnabled: false,
 
       setCurrentPlatform: (platform) => set({ currentPlatform: platform }),
       setEnabledWorkspaces: (workspaces) => {
@@ -598,6 +601,7 @@ export const useUiStore = create<UiState>()(
       setCollectionResult: (result) => set({ collectionResult: result }),
       setShowCollectDiagnosticsDialog: (show) => set({ showCollectDiagnosticsDialog: show }),
       setShowUpdateDialog: (show) => set({ showUpdateDialog: show }),
+      setGraphApiEnabled: (enabled) => set({ graphApiEnabled: enabled }),
     }),
     {
       name: "cmtraceopen-ui-preferences",
@@ -612,6 +616,7 @@ export const useUiStore = create<UiState>()(
         autoUpdateEnabled: state.autoUpdateEnabled,
         defaultShowInfoPane: state.defaultShowInfoPane,
         confirmTabClose: state.confirmTabClose,
+        graphApiEnabled: state.graphApiEnabled,
       }),
       merge: (persistedState, currentState) => {
         const raw = persistedState as Partial<UiState> & {
