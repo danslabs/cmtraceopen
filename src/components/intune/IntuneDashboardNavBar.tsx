@@ -398,9 +398,9 @@ function ViewModeToggle({
       </button>
       <button
         type="button"
-        onClick={() => onChange("gantt")}
+        onClick={() => onChange("activity")}
         disabled={disabled}
-        style={{ ...buttonStyle(mode === "gantt"), borderRadius: "0 3px 3px 0" }}
+        style={{ ...buttonStyle(mode === "activity"), borderRadius: "0 3px 3px 0" }}
       >
         Activity
       </button>

@@ -31,7 +31,7 @@ import type {
 } from "../types/intune";
 
 export type IntuneWorkspaceTab = "timeline" | "downloads" | "summary";
-export type IntuneTimelineViewMode = "list" | "gantt";
+export type IntuneTimelineViewMode = "list" | "activity";
 export type IntuneSortField = "time" | "name" | "type" | "status" | "duration";
 export type DownloadSortField = "name" | "size" | "speed" | "doPercentage" | "duration" | "timestamp";
 export type SortDirection = "asc" | "desc";
@@ -237,7 +237,7 @@ const defaultInteractionState = {
   eventLogFilterChannel: "All" as EventLogChannel | "All",
   eventLogFilterSeverity: "All" as EventLogSeverity | "All",
   activeTab: "timeline" as const,
-  timelineViewMode: "list" as IntuneTimelineViewMode,
+  timelineViewMode: "list" as const,
   sortField: "time" as IntuneSortField,
   sortDirection: "asc" as SortDirection,
   downloadSortField: "timestamp" as DownloadSortField,

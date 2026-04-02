@@ -116,7 +116,7 @@ export function EventTimeline({ events }: EventTimelineProps) {
     );
   }
 
-  if (timelineViewMode === "gantt") {
+  if (timelineViewMode === "activity") {
     return <EventActivityView events={filteredEvents} />;
   }
 

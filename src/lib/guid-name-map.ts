@@ -78,7 +78,7 @@ export function mergeGuidNameMap(
   const additions = buildGuidNameMap(newEntries);
   if (Object.keys(additions).length === 0) return existing;
 
-  return { ...existing, ...additions };
+  return { ...additions, ...existing };
 }
 
 /**

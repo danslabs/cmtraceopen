@@ -83,12 +83,13 @@ function groupKey(
   event: IntuneEvent,
   registry?: Record<string, GuidRegistryEntry>
 ): string {
-  // 1. Resolved app name from event name (after " — ")
+  const guidSuffix = event.guid ? `:${event.guid.toLowerCase()}` : "";
+  // 1. Resolved app name from event name (after " — "), with GUID tiebreaker
   const appFromName = extractAppName(event.name);
-  if (appFromName) return `name:${appFromName.toLowerCase()}`;
+  if (appFromName) return `name:${appFromName.toLowerCase()}${guidSuffix}`;
   // 2. App name from detail text (resolves GUIDs via registry)
   const appFromDetail = extractAppNameFromDetail(event.detail, registry);
-  if (appFromDetail) return `name:${appFromDetail.toLowerCase()}`;
+  if (appFromDetail) return `name:${appFromDetail.toLowerCase()}${guidSuffix}`;
   // 3. GUID (only if no name found)
   if (event.guid) return `guid:${event.guid.toLowerCase()}`;
   // 4. Solo fallback

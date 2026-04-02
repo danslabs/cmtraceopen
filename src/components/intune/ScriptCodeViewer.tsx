@@ -240,6 +240,7 @@ export const ScriptCodeViewer = memo(function ScriptCodeViewer({
       }}
     >
       <button
+        type="button"
         onClick={(e) => {
           e.stopPropagation();
           handleCopy();

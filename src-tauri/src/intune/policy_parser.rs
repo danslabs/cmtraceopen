@@ -50,26 +50,25 @@ pub fn extract_policy_metadata(lines: &[ImeLine]) -> HashMap<String, AppPolicyMe
 /// with unescaped backslashes like `\Package` or `\norestart`).
 fn sanitize_json(input: &str) -> String {
     let mut out = String::with_capacity(input.len());
-    let bytes = input.as_bytes();
-    let len = bytes.len();
-    let mut i = 0;
+    let mut chars = input.chars().peekable();
 
-    while i < len {
-        if bytes[i] == b'\\' && i + 1 < len {
-            let next = bytes[i + 1];
-            // Valid JSON escape chars: " \ / b f n r t u
-            if matches!(next, b'"' | b'\\' | b'/' | b'b' | b'f' | b'n' | b'r' | b't' | b'u') {
-                out.push('\\');
-                out.push(next as char);
-                i += 2;
+    while let Some(ch) = chars.next() {
+        if ch == '\\' {
+            if let Some(&next) = chars.peek() {
+                // Valid JSON escape chars: " \ / b f n r t u
+                if matches!(next, '"' | '\\' | '/' | 'b' | 'f' | 'n' | 'r' | 't' | 'u') {
+                    out.push('\\');
+                    out.push(next);
+                    chars.next(); // consume the valid escape char
+                } else {
+                    // Invalid escape — double the backslash to make it literal
+                    out.push_str("\\\\");
+                }
             } else {
-                // Invalid escape — double the backslash to make it literal
-                out.push_str("\\\\");
-                i += 1;
+                out.push('\\');
             }
         } else {
-            out.push(bytes[i] as char);
-            i += 1;
+            out.push(ch);
         }
     }
     out
@@ -201,12 +200,10 @@ fn decode_script_body(encoded: &str) -> Option<String> {
         return None;
     }
     let bytes = STANDARD.decode(encoded).ok()?;
-    String::from_utf8(bytes)
-        .ok()
-        .or_else(|| {
-            // Fallback: try lossy conversion for non-UTF8 scripts
-            Some(String::from_utf8_lossy(&STANDARD.decode(encoded).ok()?).into_owned())
-        })
+    Some(match String::from_utf8(bytes) {
+        Ok(s) => s,
+        Err(e) => String::from_utf8_lossy(e.as_bytes()).into_owned(),
+    })
 }
 
 /// Parse the ReturnCodes JSON string.
