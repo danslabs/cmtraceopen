@@ -1,0 +1,47 @@
+name: "CMTrace Open: Publish to winget"
+
+on:
+  release:
+    types: [published]
+
+permissions: {}
+
+jobs:
+  winget:
+    name: Update winget package
+    runs-on: windows-latest
+    permissions: {}
+    steps:
+      - name: Install wingetcreate
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri "https://aka.ms/wingetcreate/latest" -OutFile wingetcreate.exe
+
+      - name: Derive version and URLs
+        id: release
+        shell: pwsh
+        env:
+          TAG_NAME: ${{ github.event.release.tag_name }}
+        run: |
+          $version = $env:TAG_NAME -replace '^v', ''
+          $base = "https://github.com/${{ github.repository }}/releases/download/$env:TAG_NAME"
+
+          "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "url_x64_exe=$base/CMTrace-Open_${version}_x64.exe" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "url_arm64_exe=$base/CMTrace-Open_${version}_arm64.exe" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "url_x64_msi=$base/CMTrace-Open_${version}_x64.msi" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "url_arm64_msi=$base/CMTrace-Open_${version}_arm64.msi" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Submit to winget-pkgs
+        shell: pwsh
+        env:
+          WINGET_PAT: ${{ secrets.WINGET_PAT }}
+        run: |
+          .\wingetcreate.exe update AdamGell.CMTraceOpen `
+            --version ${{ steps.release.outputs.version }} `
+            --urls ${{ steps.release.outputs.url_x64_exe }} `
+                   ${{ steps.release.outputs.url_arm64_exe }} `
+                   ${{ steps.release.outputs.url_x64_msi }} `
+                   ${{ steps.release.outputs.url_arm64_msi }} `
+            --token $env:WINGET_PAT `
+            --submit
