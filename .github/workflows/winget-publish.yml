@@ -1,0 +1,55 @@
+name: "CMTrace Open: Publish to winget"
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to test (e.g. v1.5.0)"
+        required: true
+
+permissions: {}
+
+jobs:
+  winget:
+    name: Update winget package
+    runs-on: windows-latest
+    environment: release
+    permissions: {}
+    steps:
+      - name: Install komac
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/russellbanks/Komac/releases/latest/download/komac-setup-2.10.0-x86_64.exe" -OutFile komac-setup.exe
+          Start-Process -FilePath .\komac-setup.exe -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART" -Wait
+          $env:PATH = "C:\Users\runneradmin\AppData\Local\Programs\Komac;$env:PATH"
+          "C:\Users\runneradmin\AppData\Local\Programs\Komac" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Derive version and URLs
+        id: release
+        shell: pwsh
+        env:
+          TAG_NAME: ${{ github.event.release.tag_name || inputs.tag }}
+        run: |
+          $version = $env:TAG_NAME -replace '^v', ''
+          $base = "https://github.com/${{ github.repository }}/releases/download/$env:TAG_NAME"
+
+          "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "url_x64_exe=$base/CMTrace-Open_${version}_x64.exe" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "url_arm64_exe=$base/CMTrace-Open_${version}_arm64.exe" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "url_x64_msi=$base/CMTrace-Open_${version}_x64.msi" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "url_arm64_msi=$base/CMTrace-Open_${version}_arm64.msi" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Submit to winget-pkgs
+        shell: pwsh
+        env:
+          KOMAC_TOKEN: ${{ secrets.WINGET_PAT }}
+        run: |
+          komac update AdamGell.CMTraceOpen `
+            --version ${{ steps.release.outputs.version }} `
+            --urls ${{ steps.release.outputs.url_x64_exe }} `
+                   ${{ steps.release.outputs.url_arm64_exe }} `
+                   ${{ steps.release.outputs.url_x64_msi }} `
+                   ${{ steps.release.outputs.url_arm64_msi }} `
+            --submit
