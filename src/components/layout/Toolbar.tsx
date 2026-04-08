@@ -37,12 +37,14 @@ import { getWorkspace } from "../../workspaces/registry";
 import { ThemePicker } from "./ThemePicker";
 import {
   getKnownSourceMetadataById,
+  loadFilesAsLogSource,
   loadLogSource,
   loadPathAsLogSource,
   refreshKnownLogSources,
   resolveKnownSourceIdFromCatalogAction,
   type KnownSourceCatalogActionIds,
 } from "../../lib/log-source";
+import { listLogFolder } from "../../lib/commands";
 import type { LogSource } from "../../types/log";
 
 function normalizeDialogSelection(
@@ -71,6 +73,19 @@ function resolveRefreshSource(
 }
 
 const LIVE_SYSMON_SOURCE_ID = "windows-sysmon-live-events";
+
+/** Check if a filename matches any glob pattern (supports *.ext wildcards). */
+function matchesAnyPattern(name: string, patterns: string[]): boolean {
+  if (patterns.length === 0) return true;
+  const lower = name.toLowerCase();
+  return patterns.some((p) => {
+    if (p === "*") return true;
+    if (p.startsWith("*.")) {
+      return lower.endsWith(p.slice(1).toLowerCase());
+    }
+    return lower === p.toLowerCase();
+  });
+}
 
 async function inferPathKind(path: string): Promise<"file" | "folder" | "unknown"> {
   try {
@@ -627,6 +642,50 @@ export function Toolbar() {
 
   const canMergeTabs = activeWorkspace === "log" && openTabs.length >= 2;
 
+  const openAllKnownSourcesInFamily = useCallback(
+    async (familyId: string) => {
+      const families = useLogStore.getState().knownSourceToolbarFamilies;
+      const family = families.find((f) => f.id === familyId);
+      if (!family) return;
+
+      const folderSources: Array<{ path: string; patterns: string[] }> = [];
+      for (const group of family.groups) {
+        for (const source of group.sources) {
+          if (source.source.kind === "known" && source.source.pathKind === "folder") {
+            folderSources.push({
+              path: source.source.defaultPath,
+              patterns: source.filePatterns ?? [],
+            });
+          }
+        }
+      }
+
+      if (folderSources.length === 0) return;
+
+      useUiStore.getState().ensureLogViewVisible("toolbar.open-all-family");
+      useFilterStore.getState().clearFilter();
+
+      const allFilePaths = new Set<string>();
+      for (const { path: folderPath, patterns } of folderSources) {
+        try {
+          const listing = await listLogFolder(folderPath);
+          for (const entry of listing.entries) {
+            if (entry.isDir) continue;
+            if (patterns.length > 0 && !matchesAnyPattern(entry.name, patterns)) continue;
+            allFilePaths.add(entry.path);
+          }
+        } catch {
+          console.warn("[toolbar] skipping unavailable folder", folderPath);
+        }
+      }
+
+      if (allFilePaths.size === 0) return;
+
+      await loadFilesAsLogSource([...allFilePaths]);
+    },
+    []
+  );
+
   const {
     commandState,
     openSourceFileDialog,
@@ -762,6 +821,17 @@ export function Toolbar() {
                 </MenuTrigger>
                 <MenuPopover>
                   <MenuList>
+                    <MenuItem
+                      onClick={() =>
+                        void openAllKnownSourcesInFamily(family.id).catch((err) =>
+                          console.error("Failed to open all sources in family", err)
+                        )
+                      }
+                      style={{ fontWeight: 500 }}
+                    >
+                      Open All {family.label}
+                    </MenuItem>
+                    <Divider />
                     {family.groups.map((group) => (
                       <Menu key={group.id}>
                         <MenuTrigger disableButtonEnhancement>
