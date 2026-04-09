@@ -25,6 +25,12 @@ import {
   type ColumnId,
   type ColumnDefinition,
 } from "../../lib/column-config";
+import {
+  ArrowSortDownRegular,
+  ArrowSortUpRegular,
+} from "@fluentui/react-icons";
+
+type SortDir = "asc" | "desc";
 import { getThemeById } from "../../lib/themes";
 import {
   getLogListMetrics,
@@ -64,6 +70,21 @@ export function LogListView() {
   const [hasKeyboardFocus, setHasKeyboardFocus] = useState(false);
   const [scrollbarWidth, setScrollbarWidth] = useState(0);
 
+  // Column sort state
+  const [sortColumn, setSortColumn] = useState<ColumnId | null>(null);
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
+
+  const handleColumnSort = useCallback((colId: ColumnId) => {
+    setSortColumn((prev) => {
+      if (prev === colId) {
+        setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+        return colId;
+      }
+      setSortDir(colId === "dateTime" || colId === "lineNumber" ? "asc" : "asc");
+      return colId;
+    });
+  }, []);
+
   const findMatchSet = useMemo(
     () => new Set(findMatchIds),
     [findMatchIds]
@@ -75,9 +96,38 @@ export function LogListView() {
   );
 
   const displayEntries = useMemo(() => {
-    if (!filteredIds) return entries;
-    return entries.filter((entry) => filteredIds.has(entry.id));
-  }, [entries, filteredIds]);
+    let result = entries;
+    if (filteredIds) {
+      result = entries.filter((entry) => filteredIds.has(entry.id));
+    }
+    if (sortColumn) {
+      const col = getColumnDef(sortColumn);
+      const sorted = [...result].sort((a, b) => {
+        let cmp: number;
+        if (sortColumn === "dateTime") {
+          cmp = (a.timestamp ?? 0) - (b.timestamp ?? 0);
+        } else if (sortColumn === "lineNumber") {
+          cmp = a.lineNumber - b.lineNumber;
+        } else if (sortColumn === "severity") {
+          const order: Record<string, number> = { Error: 0, Warning: 1, Info: 2 };
+          cmp = (order[a.severity] ?? 3) - (order[b.severity] ?? 3);
+        } else if (col) {
+          const aVal = col.accessor(a);
+          const bVal = col.accessor(b);
+          if (typeof aVal === "number" && typeof bVal === "number") {
+            cmp = aVal - bVal;
+          } else {
+            cmp = String(aVal ?? "").localeCompare(String(bVal ?? ""));
+          }
+        } else {
+          cmp = 0;
+        }
+        return sortDir === "asc" ? cmp : -cmp;
+      });
+      return sorted;
+    }
+    return result;
+  }, [entries, filteredIds, sortColumn, sortDir]);
 
   const selectedEntryIndex = useMemo(
     () => displayEntries.findIndex((entry) => entry.id === selectedId),
@@ -372,6 +422,9 @@ export function LogListView() {
             onDragEnd={onDragEnd}
             onDoubleClick={handleHeaderDoubleClick}
             onFitAll={col.id === "severity" ? handleFitAllColumns : undefined}
+            sortColumn={sortColumn}
+            sortDir={sortDir}
+            onSort={handleColumnSort}
           />
         ))}
       </div>
@@ -461,6 +514,9 @@ interface HeaderCellProps {
   onDragEnd: () => void;
   onDoubleClick: (colId: ColumnId) => void;
   onFitAll?: () => void;
+  sortColumn: ColumnId | null;
+  sortDir: SortDir;
+  onSort: (colId: ColumnId) => void;
 }
 
 function HeaderCell({
@@ -476,9 +532,13 @@ function HeaderCell({
   onDragEnd,
   onDoubleClick,
   onFitAll,
+  sortColumn,
+  sortDir,
+  onSort,
 }: HeaderCellProps) {
   const [resizeHover, setResizeHover] = useState(false);
   const [fitAllHover, setFitAllHover] = useState(false);
+  const isSorted = sortColumn === col.id;
 
   return (
     <div
@@ -532,7 +592,36 @@ function HeaderCell({
           <ArrowBidirectionalLeftRightRegular style={{ fontSize: 12 }} />
         </div>
       ) : (
-        col.label
+        <span style={{ display: "inline-flex", alignItems: "center", gap: "2px" }}>
+          {col.label}
+          {col.label && (
+            <button
+              type="button"
+              title={`Sort by ${col.label}`}
+              onClick={(e) => { e.stopPropagation(); e.preventDefault(); onSort(col.id); }}
+              onMouseDown={(e) => e.stopPropagation()}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "1px 2px",
+                border: `1px solid ${isSorted ? tokens.colorBrandStroke1 : tokens.colorNeutralStroke1}`,
+                borderRadius: "3px",
+                background: isSorted ? tokens.colorBrandBackground2 : tokens.colorNeutralBackground3,
+                cursor: "pointer",
+                color: isSorted ? tokens.colorBrandForeground1 : tokens.colorNeutralForeground2,
+                fontSize: "10px",
+                lineHeight: 1,
+                marginLeft: "2px",
+                flexShrink: 0,
+              }}
+            >
+              {isSorted
+                ? (sortDir === "asc" ? <ArrowSortUpRegular style={{ fontSize: "10px" }} /> : <ArrowSortDownRegular style={{ fontSize: "10px" }} />)
+                : <ArrowSortDownRegular style={{ fontSize: "10px" }} />}
+            </button>
+          )}
+        </span>
       )}
 
       {/* Resize handle in upper-right corner */}

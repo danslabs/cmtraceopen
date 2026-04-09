@@ -1,8 +1,18 @@
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { Badge, Text, tokens } from "@fluentui/react-components";
-import { ChevronDownRegular, ChevronUpRegular } from "@fluentui/react-icons";
+import {
+  ArrowSortDownRegular,
+  ArrowSortUpRegular,
+  ChevronDownRegular,
+  ChevronUpRegular,
+} from "@fluentui/react-icons";
 import { useQuickStats } from "../../hooks/use-quick-stats";
+
+type SortKey = "hex" | "description" | "category" | "count";
+type SortDir = "asc" | "desc";
 import { useUiStore } from "../../stores/ui-store";
+import { useFilterStore } from "../../stores/filter-store";
+import { useLogStore } from "../../stores/log-store";
 import { StatCard } from "./quick-stats/StatCard";
 import { getCategoryColor } from "../../lib/error-categories";
 import { LOG_MONOSPACE_FONT_FAMILY } from "../../lib/log-accessibility";
@@ -23,6 +33,81 @@ export const QuickStatsPanel = memo(function QuickStatsPanel({
 
   const setShowErrorLookupDialog = useUiStore((s) => s.setShowErrorLookupDialog);
   const setLookupErrorCode = useUiStore((s) => s.setLookupErrorCode);
+
+  const setFilteredIds = useFilterStore((s) => s.setFilteredIds);
+  const clearFilter = useFilterStore((s) => s.clearFilter);
+  const entries = useLogStore((s) => s.entries);
+
+  // Track which severity is actively filtered via stat cards (local state,
+  // kept separate from the clause-based filter system to avoid the heavy IPC path).
+  const [activeSeverity, setActiveSeverity] = useState<string | null>(null);
+
+  // Clear local severity state when an external action clears all filters
+  const hasActiveFilter = useFilterStore((s) => s.hasActiveFilter);
+  useEffect(() => {
+    if (!hasActiveFilter() && activeSeverity !== null) {
+      setActiveSeverity(null);
+    }
+  }, [hasActiveFilter, activeSeverity]);
+
+  const handleSeverityClick = useCallback(
+    (severity: string) => {
+      if (activeSeverity === severity) {
+        // Toggle off
+        setActiveSeverity(null);
+        clearFilter();
+      } else {
+        // Compute filtered IDs directly on the frontend — no IPC needed
+        const ids = new Set<number>();
+        for (const entry of entries) {
+          if (entry.severity === severity) {
+            ids.add(entry.id);
+          }
+        }
+        setActiveSeverity(severity);
+        setFilteredIds(ids);
+      }
+    },
+    [activeSeverity, entries, clearFilter, setFilteredIds]
+  );
+
+  // Error code table sorting
+  const [sortKey, setSortKey] = useState<SortKey>("count");
+  const [sortDir, setSortDir] = useState<SortDir>("desc");
+
+  const handleSort = useCallback((key: SortKey) => {
+    setSortKey((prev) => {
+      if (prev === key) {
+        setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+        return key;
+      }
+      setSortDir(key === "count" ? "desc" : "asc");
+      return key;
+    });
+  }, []);
+
+  const sortedErrorCodes = useMemo(() => {
+    const codes = [...stats.errorCodes];
+    codes.sort((a, b) => {
+      let cmp: number;
+      switch (sortKey) {
+        case "hex":
+          cmp = a.hex.localeCompare(b.hex);
+          break;
+        case "description":
+          cmp = (a.description || "").localeCompare(b.description || "");
+          break;
+        case "category":
+          cmp = (a.category || "").localeCompare(b.category || "");
+          break;
+        case "count":
+          cmp = a.count - b.count;
+          break;
+      }
+      return sortDir === "asc" ? cmp : -cmp;
+    });
+    return codes;
+  }, [stats.errorCodes, sortKey, sortDir]);
 
   const handleToggle = useCallback(() => {
     const newExpanded = !isExpanded;
@@ -122,7 +207,7 @@ export const QuickStatsPanel = memo(function QuickStatsPanel({
           <div
             style={{
               display: "flex",
-              gap: "12px",
+              gap: "8px",
               flexWrap: "wrap",
             }}
           >
@@ -130,6 +215,8 @@ export const QuickStatsPanel = memo(function QuickStatsPanel({
               label="Errors"
               value={stats.bySeverity.error}
               color="error"
+              active={activeSeverity === "Error"}
+              onClick={() => handleSeverityClick("Error")}
               subtitle={
                 stats.filteredLineCount > 0
                   ? `${((stats.bySeverity.error / stats.filteredLineCount) * 100).toFixed(1)}%`
@@ -140,6 +227,8 @@ export const QuickStatsPanel = memo(function QuickStatsPanel({
               label="Warnings"
               value={stats.bySeverity.warning}
               color="warning"
+              active={activeSeverity === "Warning"}
+              onClick={() => handleSeverityClick("Warning")}
               subtitle={
                 stats.filteredLineCount > 0
                   ? `${((stats.bySeverity.warning / stats.filteredLineCount) * 100).toFixed(1)}%`
@@ -150,6 +239,8 @@ export const QuickStatsPanel = memo(function QuickStatsPanel({
               label="Info"
               value={stats.bySeverity.info}
               color="info"
+              active={activeSeverity === "Info"}
+              onClick={() => handleSeverityClick("Info")}
               subtitle={
                 stats.filteredLineCount > 0
                   ? `${((stats.bySeverity.info / stats.filteredLineCount) * 100).toFixed(1)}%`
@@ -188,14 +279,14 @@ export const QuickStatsPanel = memo(function QuickStatsPanel({
                         zIndex: 1,
                       }}
                     >
-                      <th style={{ ...thStyle, width: "120px" }}>Code</th>
-                      <th style={thStyle}>Description</th>
-                      <th style={{ ...thStyle, width: "130px" }}>Category</th>
-                      <th style={{ ...thStyle, width: "70px", textAlign: "right" }}>Count</th>
+                      <SortableTh sortKey="hex" currentKey={sortKey} dir={sortDir} onClick={handleSort} style={{ width: "120px" }}>Code</SortableTh>
+                      <SortableTh sortKey="description" currentKey={sortKey} dir={sortDir} onClick={handleSort}>Description</SortableTh>
+                      <SortableTh sortKey="category" currentKey={sortKey} dir={sortDir} onClick={handleSort} style={{ width: "130px" }}>Category</SortableTh>
+                      <SortableTh sortKey="count" currentKey={sortKey} dir={sortDir} onClick={handleSort} style={{ width: "70px", textAlign: "right" }}>Count</SortableTh>
                     </tr>
                   </thead>
                   <tbody>
-                    {stats.errorCodes.map((err) => (
+                    {sortedErrorCodes.map((err) => (
                       <tr
                         key={err.hex}
                         role="button"
@@ -276,14 +367,67 @@ export const QuickStatsPanel = memo(function QuickStatsPanel({
   );
 });
 
-const thStyle: React.CSSProperties = {
-  padding: "6px 10px",
-  textAlign: "left",
-  fontWeight: 600,
-  color: tokens.colorNeutralForeground2,
-  borderBottom: `1px solid ${tokens.colorNeutralStroke1}`,
-  whiteSpace: "nowrap",
-};
+function SortableTh({
+  sortKey: key,
+  currentKey,
+  dir,
+  onClick,
+  style,
+  children,
+}: {
+  sortKey: SortKey;
+  currentKey: SortKey;
+  dir: SortDir;
+  onClick: (key: SortKey) => void;
+  style?: React.CSSProperties;
+  children: React.ReactNode;
+}) {
+  const isActive = currentKey === key;
+  return (
+    <th
+      onClick={(e) => { e.stopPropagation(); onClick(key); }}
+      style={{
+        padding: "6px 10px",
+        textAlign: "left",
+        fontWeight: 600,
+        color: isActive ? tokens.colorNeutralForeground1 : tokens.colorNeutralForeground2,
+        borderBottom: `1px solid ${tokens.colorNeutralStroke1}`,
+        whiteSpace: "nowrap",
+        cursor: "default",
+        userSelect: "none",
+        position: "relative",
+        zIndex: 2,
+        ...style,
+      }}
+    >
+      <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+        {children}
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onClick(key); }}
+          title={`Sort by ${typeof children === "string" ? children : key}`}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "1px 2px",
+            border: `1px solid ${isActive ? tokens.colorNeutralStroke1 : tokens.colorNeutralStroke2}`,
+            borderRadius: "3px",
+            background: isActive ? tokens.colorNeutralBackground1 : "transparent",
+            cursor: "pointer",
+            color: isActive ? tokens.colorNeutralForeground1 : tokens.colorNeutralForeground3,
+            fontSize: "10px",
+            lineHeight: 1,
+          }}
+        >
+          {isActive
+            ? (dir === "asc" ? <ArrowSortUpRegular style={{ fontSize: "10px" }} /> : <ArrowSortDownRegular style={{ fontSize: "10px" }} />)
+            : <ArrowSortDownRegular style={{ fontSize: "10px" }} />}
+        </button>
+      </span>
+    </th>
+  );
+}
 
 const tdStyle: React.CSSProperties = {
   padding: "5px 10px",

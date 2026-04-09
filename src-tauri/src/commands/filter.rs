@@ -21,6 +21,7 @@ pub enum FilterField {
     Component,
     Thread,
     Timestamp,
+    Severity,
 }
 
 /// A single filter clause.
@@ -67,6 +68,14 @@ fn matches_clause(entry: &LogEntry, clause: &FilterClause) -> bool {
         FilterField::Timestamp => {
             let ts = entry.timestamp.unwrap_or(0);
             match_timestamp(ts, &clause.op, &clause.value)
+        }
+        FilterField::Severity => {
+            let sev_str = match &entry.severity {
+                crate::models::log_entry::Severity::Error => "Error",
+                crate::models::log_entry::Severity::Warning => "Warning",
+                crate::models::log_entry::Severity::Info => "Info",
+            };
+            match_string(sev_str, &clause.op, &clause.value)
         }
     }
 }

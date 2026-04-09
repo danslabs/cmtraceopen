@@ -6,6 +6,8 @@ export interface StatCardProps {
   value: number;
   color?: "neutral" | "error" | "warning" | "info";
   subtitle?: string;
+  active?: boolean;
+  onClick?: () => void;
 }
 
 export const StatCard = memo(function StatCard({
@@ -13,6 +15,8 @@ export const StatCard = memo(function StatCard({
   value,
   color = "neutral",
   subtitle,
+  active,
+  onClick,
 }: StatCardProps) {
   const colorStyles = {
     neutral: {
@@ -42,44 +46,50 @@ export const StatCard = memo(function StatCard({
   return (
     <Card
       appearance="filled-alternative"
+      role={onClick ? "button" : undefined}
+      onClick={onClick}
       style={{
         backgroundColor: styles.backgroundColor,
-        border: `1px solid ${styles.borderColor}`,
-        borderRadius: "6px",
-        padding: "12px 16px",
-        minWidth: "100px",
-        maxWidth: "140px",
+        border: active
+          ? `2px solid ${styles.valueColor}`
+          : `1px solid ${styles.borderColor}`,
+        borderRadius: "4px",
+        padding: "4px 8px",
+        minWidth: "52px",
+        cursor: onClick ? "pointer" : undefined,
+        outline: active ? `1px solid ${styles.valueColor}` : undefined,
+        outlineOffset: "1px",
       }}
     >
-      <Text
-        size={200}
-        style={{
-          color: tokens.colorNeutralForeground3,
-          display: "block",
-          marginBottom: "4px",
-          textTransform: "uppercase",
-          letterSpacing: "0.5px",
-        }}
-      >
-        {label}
-      </Text>
-      <Text
-        size={600}
-        style={{
-          color: styles.valueColor,
-          fontWeight: 600,
-          display: "block",
-          marginBottom: subtitle ? "4px" : 0,
-        }}
-      >
-        {value.toLocaleString()}
-      </Text>
+      <div style={{ display: "flex", alignItems: "baseline", gap: "4px" }}>
+        <Text
+          size={300}
+          style={{
+            color: styles.valueColor,
+            fontWeight: 600,
+          }}
+        >
+          {value.toLocaleString()}
+        </Text>
+        <Text
+          size={100}
+          style={{
+            color: tokens.colorNeutralForeground3,
+            textTransform: "uppercase",
+            letterSpacing: "0.3px",
+            fontSize: "10px",
+          }}
+        >
+          {label}
+        </Text>
+      </div>
       {subtitle && (
         <Text
-          size={200}
           style={{
             color: tokens.colorNeutralForeground3,
             display: "block",
+            fontSize: "9px",
+            lineHeight: "12px",
           }}
         >
           {subtitle}

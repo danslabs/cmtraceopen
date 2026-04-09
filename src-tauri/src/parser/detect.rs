@@ -64,7 +64,7 @@ impl ResolvedParser {
             ParserImplementation::Ccm,
             ParserProvenance::Dedicated,
             ParseQuality::Structured,
-            RecordFraming::PhysicalLine,
+            RecordFraming::LogicalRecord,
             DateOrder::default(),
             None,
         )
