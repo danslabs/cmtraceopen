@@ -358,6 +358,10 @@ export function calcAutoFitWidth(
 ): number {
   if (col.id === "severity") return col.defaultWidth;
 
+  // The message column contains arbitrarily long content (JSON blobs, stack traces, etc.).
+  // Auto-fitting it just pushes everything off-screen — keep its current/default width.
+  if (col.id === "message") return col.defaultWidth;
+
   if (col.id === "dateTime") {
     // Representative sample matching the widest output of formatLogEntryTimestamp().
     // Update this if the display format changes (see src/lib/date-time-format.ts).
