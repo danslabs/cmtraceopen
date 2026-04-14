@@ -15,6 +15,8 @@ import { LogRow } from "./LogRow";
 import { SectionDividerRow } from "./SectionDividerRow";
 import { MergeLegendBar } from "./MergeLegendBar";
 import type { ErrorCodeSpan } from "../../types/log";
+import type { Marker } from "../../types/markers";
+import { useMarkerStore } from "../../stores/marker-store";
 import { useContextMenu } from "../../hooks/use-context-menu";
 import { ArrowBidirectionalLeftRightRegular } from "@fluentui/react-icons";
 import {
@@ -52,6 +54,7 @@ export function LogListView() {
   const sourceOpenMode = useLogStore((s) => s.sourceOpenMode);
   const mergedTabState = useLogStore((s) => s.mergedTabState);
   const correlatedEntries = useLogStore((s) => s.correlatedEntries);
+  const openFilePath = useLogStore((s) => s.openFilePath);
 
   const logListFontSize = useUiStore((s) => s.logListFontSize);
   const themeId = useUiStore((s) => s.themeId);
@@ -184,6 +187,54 @@ export function LogListView() {
     return map;
   }, [displayEntries, SECTION_PALETTE]);
 
+  // ── Marker store wiring ───────────────────────────────────────────────
+  const markersByFile = useMarkerStore((s) => s.markersByFile);
+  const loadMarkers = useMarkerStore((s) => s.loadMarkers);
+  const saveMarkers = useMarkerStore((s) => s.saveMarkers);
+  const toggleMarker = useMarkerStore((s) => s.toggleMarker);
+  const setMarkerCategory = useMarkerStore((s) => s.setMarkerCategory);
+  const markerCategories = useMarkerStore((s) => s.categories);
+
+  const activeFilePath = openFilePath ?? "";
+  const fileMarkers: Map<number, Marker> = useMemo(
+    () => markersByFile.get(activeFilePath) ?? new Map(),
+    [markersByFile, activeFilePath]
+  );
+
+  // Load markers when tab changes
+  useEffect(() => {
+    if (activeFilePath) {
+      loadMarkers(activeFilePath);
+    }
+  }, [activeFilePath, loadMarkers]);
+
+  // Auto-save markers on changes with 1-second debounce
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (!activeFilePath) return;
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => {
+      saveMarkers(activeFilePath);
+    }, 1000);
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    };
+  }, [fileMarkers, activeFilePath, saveMarkers]);
+
+  const handleToggleMarker = useCallback(
+    (lineId: number) => {
+      if (activeFilePath) toggleMarker(activeFilePath, lineId);
+    },
+    [activeFilePath, toggleMarker]
+  );
+
+  const handleSetMarkerCategory = useCallback(
+    (lineId: number, category: string) => {
+      if (activeFilePath) setMarkerCategory(activeFilePath, lineId, category);
+    },
+    [activeFilePath, setMarkerCategory]
+  );
+
   const { showContextMenu } = useContextMenu();
 
   const handleErrorCodeClick = useCallback((span: ErrorCodeSpan) => {
@@ -247,7 +298,6 @@ export function LogListView() {
 
   // ── Consume pending scroll target from deployment workspace ────────
   const pendingScrollTarget = useLogStore((s) => s.pendingScrollTarget);
-  const openFilePath = useLogStore((s) => s.openFilePath);
 
   useEffect(() => {
     if (!pendingScrollTarget) return;
@@ -414,7 +464,7 @@ export function LogListView() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns,
+          gridTemplateColumns: `20px ${gridTemplateColumns}`,
           backgroundColor: tokens.colorNeutralBackground4,
           borderBottom: `2px solid ${tokens.colorNeutralStroke2}`,
           fontSize: `${listMetrics.headerFontSize}px`,
@@ -427,6 +477,8 @@ export function LogListView() {
           paddingRight: `${scrollbarWidth}px`,
         }}
       >
+        {/* Gutter header spacer */}
+        <div style={{ width: 20 }} />
         {visibleColumns.map((col, i) => (
           <HeaderCell
             key={col.id}
@@ -466,6 +518,15 @@ export function LogListView() {
         onFocus={() => setHasKeyboardFocus(true)}
         onBlur={() => setHasKeyboardFocus(false)}
         onMouseDown={() => parentRef.current?.focus()}
+        onKeyDown={(e) => {
+          // Ctrl+M / Cmd+M: toggle marker on selected row
+          if ((e.ctrlKey || e.metaKey) && e.key === "m") {
+            e.preventDefault();
+            if (selectedId !== null) {
+              handleToggleMarker(selectedId);
+            }
+          }
+        }}
         style={{
           flex: 1,
           overflow: "auto",
@@ -535,6 +596,10 @@ export function LogListView() {
                     isCorrelated={sourceOpenMode === "merged" && correlatedIdSet.has(entry.id)}
                     correlationColor={sourceOpenMode === "merged" ? mergedTabState?.colorAssignments[entry.filePath] ?? null : null}
                     sectionBandColor={sectionBandColor}
+                    marker={fileMarkers.get(entry.id) ?? null}
+                    onToggleMarker={handleToggleMarker}
+                    onSetMarkerCategory={handleSetMarkerCategory}
+                    markerCategories={markerCategories}
                   />
                 )}
               </div>
