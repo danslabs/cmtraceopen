@@ -190,6 +190,7 @@ export function LogListView() {
   }, [displayEntries, SECTION_PALETTE]);
 
   // ── Marker store wiring ───────────────────────────────────────────────
+  const isMerged = sourceOpenMode === "merged";
   const markersByFile = useMarkerStore((s) => s.markersByFile);
   const loadMarkers = useMarkerStore((s) => s.loadMarkers);
   const saveMarkers = useMarkerStore((s) => s.saveMarkers);
@@ -200,47 +201,74 @@ export function LogListView() {
   // Use openFilePath if set, otherwise derive from the first entry's filePath
   const activeFilePath = openFilePath ?? (entries.length > 0 ? entries[0].filePath : "");
   const fileMarkers: Map<number, Marker> = useMemo(
-    () => markersByFile.get(activeFilePath) ?? new Map(),
-    [markersByFile, activeFilePath]
+    () => isMerged ? new Map() : (markersByFile.get(activeFilePath) ?? new Map()),
+    [markersByFile, activeFilePath, isMerged]
   );
 
-  // Load markers when tab changes
+  // Load markers when tab changes (skip in merged mode)
   useEffect(() => {
+    if (isMerged) return;
     if (activeFilePath) {
       loadMarkers(activeFilePath);
     }
-  }, [activeFilePath, loadMarkers]);
+  }, [activeFilePath, loadMarkers, isMerged]);
 
-  // Auto-save markers on changes with 1-second debounce
+  // Auto-save markers on changes with 1-second debounce.
+  // markersDirtyRef prevents save from firing after loadMarkers hydrates state.
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const markersDirtyRef = useRef(false);
   useEffect(() => {
+    if (isMerged) return;
     if (!activeFilePath) return;
+    if (!markersDirtyRef.current) return;
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(() => {
       saveMarkers(activeFilePath);
+      markersDirtyRef.current = false;
     }, 1000);
     return () => {
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     };
-  }, [fileMarkers, activeFilePath, saveMarkers]);
+  }, [fileMarkers, activeFilePath, saveMarkers, isMerged]);
 
   const handleToggleMarker = useCallback(
     (lineId: number) => {
-      if (activeFilePath) toggleMarker(activeFilePath, lineId);
+      if (isMerged) return;
+      if (activeFilePath) {
+        markersDirtyRef.current = true;
+        toggleMarker(activeFilePath, lineId);
+      }
     },
-    [activeFilePath, toggleMarker]
+    [activeFilePath, toggleMarker, isMerged]
   );
 
   const handleSetMarkerCategory = useCallback(
     (lineId: number, category: string) => {
-      if (activeFilePath) setMarkerCategory(activeFilePath, lineId, category);
+      if (isMerged) return;
+      if (activeFilePath) {
+        markersDirtyRef.current = true;
+        setMarkerCategory(activeFilePath, lineId, category);
+      }
     },
-    [activeFilePath, setMarkerCategory]
+    [activeFilePath, setMarkerCategory, isMerged]
   );
 
   // ── Multi-select state ─────────────────────────────────────────────
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const lastClickedIdRef = useRef<number | null>(null);
+  /** Tracks whether the last selection change came from a mouse interaction. */
+  const mouseSelectRef = useRef(false);
+
+  // Sync selectedIds when selectedId changes from keyboard navigation
+  useEffect(() => {
+    if (mouseSelectRef.current) {
+      mouseSelectRef.current = false;
+      return;
+    }
+    if (selectedId !== null) {
+      setSelectedIds(new Set([selectedId]));
+    }
+  }, [selectedId]);
 
   const handleRowClick = useCallback(
     (id: number, event: React.MouseEvent) => {
@@ -280,6 +308,9 @@ export function LogListView() {
         lastClickedIdRef.current = id;
       }
 
+      // Mark as mouse-driven so the selectedId sync effect skips
+      mouseSelectRef.current = true;
+
       // Always update the details pane via the store's single-selection
       if (id !== selectedId) {
         suppressScrollRef.current = true;
@@ -310,25 +341,6 @@ export function LogListView() {
     }
     writeText(text).catch(console.error);
   }, [selectedIds, displayEntries]);
-
-  const handleCopyByCategory = useCallback(
-    (categoryId: string) => {
-      const markerMap = fileMarkers;
-      const messages = displayEntries
-        .filter((e) => {
-          const m = markerMap.get(e.id);
-          return m && m.category === categoryId;
-        })
-        .map((e) => e.message);
-      if (messages.length > 0) {
-        writeText(messages.join("\n")).catch(console.error);
-      }
-    },
-    [displayEntries, fileMarkers]
-  );
-
-  // Keep selectedIds unused variable from being stale; suppress ESLint warning
-  void handleCopyByCategory;
 
   const { showContextMenu } = useContextMenu();
 
@@ -703,10 +715,10 @@ export function LogListView() {
                     isCorrelated={sourceOpenMode === "merged" && correlatedIdSet.has(entry.id)}
                     correlationColor={sourceOpenMode === "merged" ? mergedTabState?.colorAssignments[entry.filePath] ?? null : null}
                     sectionBandColor={sectionBandColor}
-                    marker={fileMarkers.get(entry.id) ?? null}
+                    marker={isMerged ? null : (fileMarkers.get(entry.id) ?? null)}
                     onToggleMarker={handleToggleMarker}
                     onSetMarkerCategory={handleSetMarkerCategory}
-                    markerCategories={markerCategories}
+                    markerCategories={isMerged ? [] : markerCategories}
                   />
                 )}
               </div>

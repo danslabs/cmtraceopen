@@ -35,7 +35,7 @@ pub enum LogFormat {
     DnsDebug,
     /// Windows DNS Server analytical/audit EVTX log
     DnsAudit,
-    /// CmtLog structured JSON log format (.cmtlog)
+    /// CCM-style text lines with extended attributes (.cmtlog)
     CmtLog,
 }
 

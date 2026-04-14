@@ -4,14 +4,16 @@
 //! (`__HEADER__`, `__SECTION__`, `__ITERATION__`) and optional extended attributes
 //! (`section`, `tag`, `whatif`, `iteration`, `color`).
 //!
-//! Delegates core CCM line parsing to `ccm::parse_lines`, then post-processes
-//! entries to extract extended attributes and classify by component name.
+//! Uses a relaxed CCM regex that allows trailing key="value" attributes after the
+//! standard `file=""` field, then post-processes entries to extract extended
+//! attributes and classify by component name.
 
 use regex::Regex;
 use std::sync::OnceLock;
 
 use super::ccm;
-use crate::models::log_entry::{EntryKind, LogEntry, LogFormat};
+use super::severity::detect_severity_from_text;
+use crate::models::log_entry::{EntryKind, LogEntry, LogFormat, Severity};
 
 /// Reserved component names that signal CmtLog structured entries.
 const HEADER_COMPONENT: &str = "__HEADER__";
@@ -24,12 +26,38 @@ fn attr_re() -> &'static Regex {
     CELL.get_or_init(|| Regex::new(r#"(\w+)="([^"]*)""#).expect("attr regex must compile"))
 }
 
-/// Returns true if the line contains any CmtLog reserved component name,
+/// Relaxed CCM regex that allows arbitrary trailing attributes after `file=""`.
+///
+/// Standard CCM regex requires `>` immediately after the optional `file` field.
+/// CmtLog lines contain additional key="value" pairs (script, version, color,
+/// section, etc.) between `file=""` and `>`.  This regex uses `[^>]*>` to
+/// tolerate those extra attributes.
+fn cmtlog_re() -> &'static Regex {
+    static CELL: OnceLock<Regex> = OnceLock::new();
+    CELL.get_or_init(|| {
+        Regex::new(concat!(
+            r#"<!\[LOG\[(?P<msg>[\s\S]*?)\]LOG\]!>"#,
+            r#"<time="(?P<h>\d{1,2}):(?P<m>\d{1,2}):(?P<s>\d{1,2})\.(?P<ms>\d+)(?P<tz>[+-]*\d+)""#,
+            r#"\s+date="(?P<mon>\d{1,2})-(?P<day>\d{1,2})-(?P<yr>\d{4})""#,
+            r#"\s+component="(?P<comp>[^"]*)""#,
+            r#"\s+context="[^"]*""#,
+            r#"\s+type="(?P<typ>\d)""#,
+            r#"\s+thread="(?P<thr>\d+)""#,
+            r#"[^>]*>"#,
+        ))
+        .expect("CmtLog regex must compile")
+    })
+}
+
+/// Returns true if the line contains a CmtLog reserved `component="..."` attribute,
 /// indicating the file uses the CmtLog format rather than plain CCM.
+///
+/// Checks for exact attribute syntax to avoid false positives when reserved
+/// names appear in log message text.
 pub fn matches_cmtlog_record(line: &str) -> bool {
-    line.contains(HEADER_COMPONENT)
-        || line.contains(SECTION_COMPONENT)
-        || line.contains(ITERATION_COMPONENT)
+    line.contains(&format!("component=\"{}\"", HEADER_COMPONENT))
+        || line.contains(&format!("component=\"{}\"", SECTION_COMPONENT))
+        || line.contains(&format!("component=\"{}\"", ITERATION_COMPONENT))
 }
 
 /// Extract extended attributes from a raw CmtLog line.
@@ -62,33 +90,202 @@ struct ExtractedAttrs {
     iteration: Option<String>,
 }
 
+/// Parse a single CmtLog line using the relaxed regex.
+fn parse_cmtlog_line(line: &str) -> Option<CmtLogParsed> {
+    let caps = cmtlog_re().captures(line)?;
+
+    let message = caps.name("msg").map(|m| m.as_str().to_string())?;
+    let component_str = caps.name("comp").map(|m| m.as_str().to_string());
+    let severity_type = caps
+        .name("typ")
+        .and_then(|m| m.as_str().parse::<u32>().ok());
+    let severity = ccm::severity_from_type_field(severity_type, &message);
+
+    let thread = caps
+        .name("thr")
+        .and_then(|m| m.as_str().parse::<u32>().ok())
+        .unwrap_or(0);
+    let thread_display = Some(ccm::format_thread_display(thread));
+
+    let h: u32 = caps.name("h").and_then(|m| m.as_str().parse().ok()).unwrap_or(0);
+    let min: u32 = caps.name("m").and_then(|m| m.as_str().parse().ok()).unwrap_or(0);
+    let s: u32 = caps.name("s").and_then(|m| m.as_str().parse().ok()).unwrap_or(0);
+    let ms: u32 = caps.name("ms").and_then(|m| m.as_str().parse().ok()).unwrap_or(0);
+    let tz_str = caps.name("tz").map(|m| m.as_str()).unwrap_or("0");
+    let tz_offset: i32 = tz_str.replace("+-", "-").parse().unwrap_or(0);
+    let mon: u32 = caps.name("mon").and_then(|m| m.as_str().parse().ok()).unwrap_or(1);
+    let day: u32 = caps.name("day").and_then(|m| m.as_str().parse().ok()).unwrap_or(1);
+    let yr: i32 = caps.name("yr").and_then(|m| m.as_str().parse().ok()).unwrap_or(2000);
+
+    let (timestamp, timestamp_display) =
+        ccm::build_timestamp(mon, day, yr, h, min, s, ms, Some(tz_offset));
+
+    Some(CmtLogParsed {
+        message,
+        component: component_str,
+        timestamp,
+        timestamp_display,
+        severity,
+        thread,
+        thread_display,
+        timezone_offset: tz_offset,
+    })
+}
+
+struct CmtLogParsed {
+    message: String,
+    component: Option<String>,
+    timestamp: Option<i64>,
+    timestamp_display: Option<String>,
+    severity: Severity,
+    thread: u32,
+    thread_display: Option<String>,
+    timezone_offset: i32,
+}
+
 /// Parse all lines as CmtLog format.
 ///
-/// Delegates to `ccm::parse_lines` for base parsing, then post-processes each
-/// entry to extract CmtLog-specific attributes and classify by component name.
+/// Uses a relaxed CCM regex that tolerates extra key="value" attributes, then
+/// post-processes entries to extract CmtLog-specific attributes and classify
+/// by component name.
 ///
 /// Returns `(entries, parse_error_count)`.
 pub fn parse_lines(lines: &[&str], file_path: &str) -> (Vec<LogEntry>, u32) {
-    let (mut entries, parse_errors) = ccm::parse_lines(lines, file_path);
+    let mut entries = Vec::with_capacity(lines.len());
+    let mut errors = 0u32;
+    let mut id_counter = 0u64;
 
     // Track current section context for propagation to child entries.
     let mut current_section_name: Option<String> = None;
     let mut current_section_color: Option<String> = None;
 
-    for (entry, raw_line) in entries.iter_mut().zip(lines.iter()) {
-        // Override format to CmtLog for all entries.
-        entry.format = LogFormat::CmtLog;
+    for (i, line) in lines.iter().enumerate() {
+        if line.trim().is_empty() {
+            continue;
+        }
 
-        let attrs = extract_attrs(raw_line);
-        let component = entry.component.as_deref().unwrap_or("");
+        let attrs = extract_attrs(line);
 
-        match component {
+        let (base_entry, component_str) = match parse_cmtlog_line(line) {
+            Some(parsed) => {
+                let comp = parsed.component.clone();
+                let entry = LogEntry {
+                    id: id_counter,
+                    line_number: (i + 1) as u32,
+                    message: parsed.message,
+                    component: parsed.component,
+                    timestamp: parsed.timestamp,
+                    timestamp_display: parsed.timestamp_display,
+                    severity: parsed.severity,
+                    thread: Some(parsed.thread),
+                    thread_display: parsed.thread_display,
+                    source_file: None,
+                    format: LogFormat::CmtLog,
+                    file_path: file_path.to_string(),
+                    timezone_offset: Some(parsed.timezone_offset),
+                    error_code_spans: Vec::new(),
+                    ip_address: None,
+                    host_name: None,
+                    mac_address: None,
+                    result_code: None,
+                    gle_code: None,
+                    setup_phase: None,
+                    operation_name: None,
+                    http_method: None,
+                    uri_stem: None,
+                    uri_query: None,
+                    status_code: None,
+                    sub_status: None,
+                    time_taken_ms: None,
+                    client_ip: None,
+                    server_ip: None,
+                    user_agent: None,
+                    server_port: None,
+                    username: None,
+                    win32_status: None,
+                    query_name: None,
+                    query_type: None,
+                    response_code: None,
+                    dns_direction: None,
+                    dns_protocol: None,
+                    source_ip: None,
+                    dns_flags: None,
+                    dns_event_id: None,
+                    zone_name: None,
+                    entry_kind: None,
+                    whatif: None,
+                    section_name: None,
+                    section_color: None,
+                    iteration: None,
+                    tags: None,
+                };
+                (entry, comp.unwrap_or_default())
+            }
+            None => {
+                errors += 1;
+                let entry = LogEntry {
+                    id: id_counter,
+                    line_number: (i + 1) as u32,
+                    message: line.to_string(),
+                    component: None,
+                    timestamp: None,
+                    timestamp_display: None,
+                    severity: detect_severity_from_text(line),
+                    thread: None,
+                    thread_display: None,
+                    source_file: None,
+                    format: LogFormat::CmtLog,
+                    file_path: file_path.to_string(),
+                    timezone_offset: None,
+                    error_code_spans: Vec::new(),
+                    ip_address: None,
+                    host_name: None,
+                    mac_address: None,
+                    result_code: None,
+                    gle_code: None,
+                    setup_phase: None,
+                    operation_name: None,
+                    http_method: None,
+                    uri_stem: None,
+                    uri_query: None,
+                    status_code: None,
+                    sub_status: None,
+                    time_taken_ms: None,
+                    client_ip: None,
+                    server_ip: None,
+                    user_agent: None,
+                    server_port: None,
+                    username: None,
+                    win32_status: None,
+                    query_name: None,
+                    query_type: None,
+                    response_code: None,
+                    dns_direction: None,
+                    dns_protocol: None,
+                    source_ip: None,
+                    dns_flags: None,
+                    dns_event_id: None,
+                    zone_name: None,
+                    entry_kind: None,
+                    whatif: None,
+                    section_name: None,
+                    section_color: None,
+                    iteration: None,
+                    tags: None,
+                };
+                (entry, String::new())
+            }
+        };
+
+        let mut entry = base_entry;
+
+        // Classify by component name and extract CmtLog-specific attributes
+        match component_str.as_str() {
             HEADER_COMPONENT => {
                 entry.entry_kind = Some(EntryKind::Header);
             }
             SECTION_COMPONENT => {
                 entry.entry_kind = Some(EntryKind::Section);
-                // The message IS the section name.
                 current_section_name = Some(entry.message.clone());
                 current_section_color = attrs.color.clone();
                 entry.section_name = Some(entry.message.clone());
@@ -97,12 +294,10 @@ pub fn parse_lines(lines: &[&str], file_path: &str) -> (Vec<LogEntry>, u32) {
             ITERATION_COMPONENT => {
                 entry.entry_kind = Some(EntryKind::Iteration);
                 entry.iteration = attrs.iteration;
-                // Inherit parent section color if no explicit color.
                 entry.section_color = attrs.color.or_else(|| current_section_color.clone());
                 entry.section_name = current_section_name.clone();
             }
             _ => {
-                // Regular log entry — propagate section context.
                 entry.entry_kind = Some(EntryKind::Log);
                 entry.section_name = attrs
                     .section
@@ -118,9 +313,12 @@ pub fn parse_lines(lines: &[&str], file_path: &str) -> (Vec<LogEntry>, u32) {
                 });
             }
         }
+
+        entries.push(entry);
+        id_counter += 1;
     }
 
-    (entries, parse_errors)
+    (entries, errors)
 }
 
 #[cfg(test)]

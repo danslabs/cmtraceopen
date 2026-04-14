@@ -340,7 +340,6 @@ impl ResolvedParser {
             ParserImplementation::SecureBootLog => LogFormat::Timestamped,
             ParserImplementation::DnsDebug => LogFormat::DnsDebug,
             ParserImplementation::DnsAudit => LogFormat::DnsAudit,
-            ParserImplementation::SecureBootLog => LogFormat::Plain,
             ParserImplementation::CmtLog => LogFormat::CmtLog,
         }
     }

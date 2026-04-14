@@ -18,6 +18,8 @@ interface MarkerState {
   activeCategory: string;
   /** File paths currently being loaded from the backend. */
   loadingFiles: Set<string>;
+  /** Preserved `created` timestamps per file path (from loaded marker files). */
+  createdTimestamps: Map<string, string>;
 
   // ── Async backend actions ─────────────────────────────────────────────────
   loadMarkers: (filePath: string) => Promise<void>;
@@ -45,6 +47,7 @@ export const useMarkerStore = create<MarkerState>((set, get) => ({
   categories: [...DEFAULT_CATEGORIES],
   activeCategory: "bug",
   loadingFiles: new Set(),
+  createdTimestamps: new Map(),
 
   // ── loadMarkers ─────────────────────────────────────────────────────────
 
@@ -72,7 +75,24 @@ export const useMarkerStore = create<MarkerState>((set, get) => ({
         set((state) => {
           const next = new Map(state.markersByFile);
           next.set(filePath, fileMap);
-          return { markersByFile: next };
+
+          // Preserve the original created timestamp for later saves
+          const nextCreated = new Map(state.createdTimestamps);
+          if (result.created) {
+            nextCreated.set(filePath, result.created);
+          }
+
+          // Restore saved categories if the file provided them
+          const nextCategories =
+            result.categories && result.categories.length > 0
+              ? result.categories
+              : state.categories;
+
+          return {
+            markersByFile: next,
+            createdTimestamps: nextCreated,
+            categories: nextCategories,
+          };
         });
       } else {
         // Ensure the file has an empty map so callers can safely query it.
@@ -98,7 +118,7 @@ export const useMarkerStore = create<MarkerState>((set, get) => ({
   // ── saveMarkers ─────────────────────────────────────────────────────────
 
   saveMarkers: async (filePath) => {
-    const { markersByFile, categories } = get();
+    const { markersByFile, categories, createdTimestamps } = get();
     const fileMap = markersByFile.get(filePath);
 
     if (!fileMap || fileMap.size === 0) {
@@ -112,11 +132,12 @@ export const useMarkerStore = create<MarkerState>((set, get) => ({
     }
 
     const now = new Date().toISOString();
+    const created = createdTimestamps.get(filePath) ?? now;
     const markerFile: MarkerFile = {
       version: 1,
       sourcePath: filePath,
       sourceSize: 0,
-      created: now,
+      created,
       modified: now,
       markers: Array.from(fileMap.values()),
       categories,

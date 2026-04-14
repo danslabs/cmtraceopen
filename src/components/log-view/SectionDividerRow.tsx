@@ -27,6 +27,7 @@ export const SectionDividerRow = memo(function SectionDividerRow({
 
   return (
     <div
+      id={`log-list-row-${entry.id}`}
       role="option"
       aria-selected={false}
       className="section-divider-row"
