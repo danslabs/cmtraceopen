@@ -24,7 +24,7 @@ fn ccm_re() -> &'static Regex {
     CELL.get_or_init(|| {
     Regex::new(concat!(
         r#"<!\[LOG\[(?P<msg>[\s\S]*?)\]LOG\]!>"#,
-        r#"<time="(?P<h>\d{1,2}):(?P<m>\d{1,2}):(?P<s>\d{1,2})\.(?P<ms>\d+)(?P<tz>[+-]?\d+)""#,
+        r#"<time="(?P<h>\d{1,2}):(?P<m>\d{1,2}):(?P<s>\d{1,2})\.(?P<ms>\d+)(?P<tz>[+-]*\d+)""#,
         r#"\s+date="(?P<mon>\d{1,2})-(?P<day>\d{1,2})-(?P<yr>\d{4})""#,
         r#"\s+component="(?P<comp>[^"]*)""#,
         r#"\s+context="[^"]*""#,
