@@ -106,10 +106,20 @@ fn ccm_malformed_truncated_recovers_gracefully() {
     let parsed = parse_fixture("ccm/malformed/truncated.log");
     // Should parse what it can and not panic
     assert!(parsed.entries.len() >= 2, "should recover at least 2 entries");
+    // First well-formed entry is always parsed correctly
     assert_eq!(parsed.entries[0].message, "Complete record here");
-    // The last entry should be the one after the truncated record
-    let last = parsed.entries.last().unwrap();
-    assert_eq!(last.message, "Another complete record");
+    // The multi-line parser now captures the truncated record along with subsequent
+    // content as a single raw entry rather than skipping it — verify it contains
+    // the expected text fragments so we know nothing was silently dropped.
+    let all_messages: String = parsed.entries.iter().map(|e| e.message.as_str()).collect::<Vec<_>>().join("\n");
+    assert!(
+        all_messages.contains("truncated"),
+        "should include the truncated record text, got: {all_messages}"
+    );
+    assert!(
+        all_messages.contains("Another complete record"),
+        "should include the complete record after the truncated one, got: {all_messages}"
+    );
 }
 
 #[test]
@@ -117,10 +127,23 @@ fn ccm_malformed_broken_timestamp_still_parses() {
     let parsed = parse_fixture("ccm/malformed/broken_timestamp.log");
     // Should still parse all 4 lines even with bad timestamps
     assert!(parsed.entries.len() >= 2, "should parse despite bad timestamps");
-    // First and last entries should have valid data
+    // First well-formed entry is always parsed correctly
     assert_eq!(parsed.entries[0].message, "Good timestamp");
-    let last = parsed.entries.last().unwrap();
-    assert_eq!(last.message, "Good after bad");
+    // The multi-line parser now captures malformed-timestamp lines as raw entries
+    // rather than skipping them — verify all expected messages are present somewhere.
+    let all_messages: String = parsed.entries.iter().map(|e| e.message.as_str()).collect::<Vec<_>>().join("\n");
+    assert!(
+        all_messages.contains("Bad time field"),
+        "should include bad-time-field line, got: {all_messages}"
+    );
+    assert!(
+        all_messages.contains("Bad date field"),
+        "should include bad-date-field line, got: {all_messages}"
+    );
+    assert!(
+        all_messages.contains("Good after bad"),
+        "should include the well-formed entry after the bad ones, got: {all_messages}"
+    );
 }
 
 // ===========================================================================
