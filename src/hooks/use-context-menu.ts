@@ -43,11 +43,10 @@ export function useContextMenu() {
       const errorCode = findErrorCode(entry);
       const messagePreview = truncate(entry.message, 40);
 
-      // Marker state — use openFilePath from log-store as the canonical key,
-      // matching what LogListView uses for marker lookups.
+      // Marker state — check if entry is already marked
       const markerState = useMarkerStore.getState();
-      const filePath = useLogStore.getState().openFilePath || "";
-      const fileMarkers = markerState.markersByFile.get(filePath);
+      const currentFilePath = useLogStore.getState().openFilePath || "";
+      const fileMarkers = markerState.markersByFile.get(currentFilePath);
       const existingMarker = fileMarkers?.get(entry.id);
 
       const items: (MenuItem | PredefinedMenuItem)[] = [
@@ -123,7 +122,8 @@ export function useContextMenu() {
       items.push(await PredefinedMenuItem.new({ item: "Separator" }));
 
       // ── Marker actions ──
-      if (filePath) {
+      // Always show marker items — actions read filePath at click time.
+      {
         const categories = markerState.categories;
         if (existingMarker) {
           // Show current category and option to remove
