@@ -5,6 +5,10 @@ pub mod ccm;
 pub mod detect;
 pub mod dhcp;
 pub mod dism;
+#[cfg(feature = "event-log")]
+pub mod dns_audit;
+pub mod dns_debug;
+pub mod dns_types;
 pub mod iis_w3c;
 pub mod intune_macos;
 pub mod msi;
@@ -44,6 +48,51 @@ pub struct ParsedChunk {
 /// Returns the parse result and the backend-owned parser selection used for it.
 pub fn parse_file(path: &str) -> Result<(ParseResult, ResolvedParser), String> {
     let path_obj = Path::new(path);
+
+    // Binary file detection by extension — intercept before text decoding
+    if let Some(ext) = path_obj.extension().and_then(|e| e.to_str()) {
+        let ext_lower = ext.to_ascii_lowercase();
+
+        if ext_lower == "etl" {
+            #[cfg(target_os = "windows")]
+            return Err(
+                "ETL analytical logs are not yet supported. Convert to XML with: \
+                 tracerpt \"<file>\" -of XML -o output.xml — then open the XML file."
+                    .to_string(),
+            );
+            #[cfg(not(target_os = "windows"))]
+            return Err(
+                "ETL files contain binary Windows event traces that require the Windows \
+                 tracerpt tool to convert. Export to XML on a Windows machine first, \
+                 then open the XML file here."
+                    .to_string(),
+            );
+        }
+
+        if ext_lower == "evtx" {
+            #[cfg(feature = "event-log")]
+            {
+                if dns_audit::is_dns_evtx(path_obj) {
+                    let result = dns_audit::parse_evtx(path)?;
+                    let selection = ResolvedParser::dns_audit();
+                    return Ok((result, selection));
+                }
+                // Not a DNS EVTX — return an error since we have no other EVTX handler in the log pipeline.
+                return Err(
+                    "This EVTX file does not contain DNS audit events. \
+                     Try opening it in the Sysmon workspace instead."
+                        .to_string(),
+                );
+            }
+            #[cfg(not(feature = "event-log"))]
+            return Err(
+                "EVTX event log files require the 'event-log' feature. \
+                 This build does not include EVTX support."
+                    .to_string(),
+            );
+        }
+    }
+
     let content = read_file_content(path)?;
     let file_size = std::fs::metadata(path).map(|m| m.len()).unwrap_or(0);
 
@@ -111,6 +160,13 @@ pub fn parse_lines_with_selection(
         }
         crate::models::log_entry::ParserImplementation::SecureBootLog => {
             secureboot_log::parse_lines(lines, file_path)
+        }
+        crate::models::log_entry::ParserImplementation::DnsDebug => {
+            dns_debug::parse_lines(lines, file_path, selection.date_order)
+        }
+        crate::models::log_entry::ParserImplementation::DnsAudit => {
+            // EVTX files are parsed via the binary path in parse_file(), not the line-based pipeline.
+            (vec![], 0)
         }
         crate::models::log_entry::ParserImplementation::GenericTimestamped => match selection.parser {
             crate::models::log_entry::ParserKind::Cbs => cbs::parse_lines(lines, file_path),
@@ -430,5 +486,21 @@ mod tests {
         assert_eq!(parsed.entries.len(), 1);
         assert!(!parsed.entries[0].error_code_spans.is_empty());
         assert_eq!(parsed.entries[0].error_code_spans[0].code_hex, "0x80070005");
+    }
+
+    #[test]
+    fn test_parse_lines_with_dns_debug_selection() {
+        let selection = ResolvedParser::dns_debug(DateOrder::MonthFirst);
+        let lines = [
+            "4/11/2026 3:29:17 PM 0294 PACKET  000002DAEC36D650 UDP Rcv 127.0.0.1       d07e   Q [0001   D   NOERROR] SOA    (4)home(4)gell(3)one(0)",
+            "4/11/2026 3:29:17 PM 0294 PACKET  000002DAEC36D650 UDP Snd 127.0.0.1       d07e R Q [8085 A DR  NOERROR] SOA    (4)home(4)gell(3)one(0)",
+        ];
+
+        let (entries, parse_errors) = parse_lines_with_selection(&lines, "dns.log", &selection);
+
+        assert_eq!(parse_errors, 0);
+        assert_eq!(entries.len(), 2);
+        assert_eq!(entries[0].query_name.as_deref(), Some("home.gell.one"));
+        assert_eq!(entries[0].format, crate::models::log_entry::LogFormat::DnsDebug);
     }
 }

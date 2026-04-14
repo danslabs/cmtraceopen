@@ -1,7 +1,7 @@
 import type { EvidenceBundleMetadata } from "./evidence";
 
 export type Severity = "Info" | "Warning" | "Error";
-export type LogFormat = "Ccm" | "Simple" | "Plain" | "Timestamped";
+export type LogFormat = "Ccm" | "Simple" | "Plain" | "Timestamped" | "DnsDebug" | "DnsAudit";
 export type ParserKind =
   | "ccm"
   | "simple"
@@ -18,7 +18,10 @@ export type ParserKind =
   | "dhcp"
   | "burn"
   | "patchMyPcDetection"
-  | "registry";
+  | "registry"
+  | "secureBootLog"
+  | "dnsDebug"
+  | "dnsAudit";
 export type ParserImplementation =
   | "ccm"
   | "simple"
@@ -32,7 +35,10 @@ export type ParserImplementation =
   | "dhcp"
   | "burn"
   | "patchMyPcDetection"
-  | "registry";
+  | "registry"
+  | "secureBootLog"
+  | "dnsDebug"
+  | "dnsAudit";
 export type ParserProvenance = "dedicated" | "heuristic" | "fallback";
 export type ParseQuality = "structured" | "semiStructured" | "textFallback";
 export type RecordFraming = "physicalLine" | "logicalRecord";
@@ -174,6 +180,15 @@ export interface LogEntry {
   serverPort?: number | null;
   username?: string | null;
   win32Status?: number | null;
+  queryName?: string | null;
+  queryType?: string | null;
+  responseCode?: string | null;
+  dnsDirection?: string | null;
+  dnsProtocol?: string | null;
+  sourceIp?: string | null;
+  dnsFlags?: string | null;
+  dnsEventId?: number | null;
+  zoneName?: string | null;
 }
 
 export interface ParserSelectionInfo {
