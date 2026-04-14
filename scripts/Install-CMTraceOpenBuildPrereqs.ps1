@@ -290,9 +290,24 @@ function Install-VisualStudioTools {
     $workload = 'Microsoft.VisualStudio.Workload.VCTools'
     $vcComponent = 'Microsoft.VisualStudio.Component.VC.Tools.x86.x64'
     $sdk = 'Microsoft.VisualStudio.Component.Windows11SDK.26100'
-    $override = "--passive --add $workload --add $vcComponent --add $sdk --includeRecommended"
 
-    $compliantInstallPath = Get-VisualStudioInstallationPath -ProductRequirement $productRequirement -Requires @($vcComponent)
+    # On ARM64 hosts, also install ARM64 build tools so native compilation works.
+    $isArm64 = $env:PROCESSOR_ARCHITECTURE -eq 'ARM64'
+    $vcArm64Component = 'Microsoft.VisualStudio.Component.VC.Tools.ARM64'
+
+    $components = @($workload, $vcComponent, $sdk)
+    if ($isArm64) {
+        $components += $vcArm64Component
+        Write-Step 'ARM64 host detected — will include ARM64 C++ build tools.'
+    }
+
+    $overrideParts = @('--passive') + ($components | ForEach-Object { "--add $_" }) + @('--includeRecommended')
+    $override = $overrideParts -join ' '
+
+    $requiredComponents = @($vcComponent)
+    if ($isArm64) { $requiredComponents += $vcArm64Component }
+
+    $compliantInstallPath = Get-VisualStudioInstallationPath -ProductRequirement $productRequirement -Requires $requiredComponents
     if ($compliantInstallPath) {
         Write-Step "Skipping $packageId because the required C++ build tools are already installed at '$compliantInstallPath'."
         return
@@ -302,16 +317,15 @@ function Install-VisualStudioTools {
     if ($existingInstallPath) {
         $installerPath = Resolve-VisualStudioInstallerPath
         Write-Step "Updating Visual Studio at '$existingInstallPath' to add the C++ workload and Windows SDK."
-        Invoke-CheckedProcess -FilePath $installerPath -ArgumentList @(
+        $modifyArgs = @(
             'modify',
-            '--installPath', $existingInstallPath,
-            '--add', $workload,
-            '--add', $vcComponent,
-            '--add', $sdk,
-            '--includeRecommended',
-            '--passive',
-            '--norestart'
+            '--installPath', $existingInstallPath
         )
+        foreach ($c in $components) {
+            $modifyArgs += @('--add', $c)
+        }
+        $modifyArgs += @('--includeRecommended', '--passive', '--norestart')
+        Invoke-CheckedProcess -FilePath $installerPath -ArgumentList $modifyArgs
         return
     }
 
@@ -322,20 +336,19 @@ function Install-VisualStudioTools {
     # the installation to add the required components if they are still missing.
     $postInstallPath = Get-VisualStudioInstallationPath -ProductRequirement $productRequirement
     if ($postInstallPath) {
-        $postCompliantPath = Get-VisualStudioInstallationPath -ProductRequirement $productRequirement -Requires @($vcComponent)
+        $postCompliantPath = Get-VisualStudioInstallationPath -ProductRequirement $productRequirement -Requires $requiredComponents
         if (-not $postCompliantPath) {
             $installerPath = Resolve-VisualStudioInstallerPath
             Write-Step "Adding the C++ workload and Windows SDK to the installation at '$postInstallPath'."
-            Invoke-CheckedProcess -FilePath $installerPath -ArgumentList @(
+            $modifyArgs = @(
                 'modify',
-                '--installPath', $postInstallPath,
-                '--add', $workload,
-                '--add', $vcComponent,
-                '--add', $sdk,
-                '--includeRecommended',
-                '--passive',
-                '--norestart'
+                '--installPath', $postInstallPath
             )
+            foreach ($c in $components) {
+                $modifyArgs += @('--add', $c)
+            }
+            $modifyArgs += @('--includeRecommended', '--passive', '--norestart')
+            Invoke-CheckedProcess -FilePath $installerPath -ArgumentList $modifyArgs
         }
     }
 }
@@ -386,10 +399,17 @@ function Enable-VsDeveloperPowerShell {
     }
 
     Import-Module $devShellModule -Force
-    # Use amd64 tools explicitly — works on both x64 (native) and ARM64
-    # (via emulation). The default without -Arch is x86 which causes
-    # linker architecture mismatches with Rust's target.
-    Enter-VsDevShell -VsInstallPath $vsInstallPath -SkipAutomaticLocation -Arch amd64 -HostArch amd64 | Out-Null
+    # Default -Arch is x86 which causes linker mismatches with Rust targets.
+    # On ARM64 hosts with ARM64 tools installed, use native arm64 compilation.
+    # Otherwise use amd64 which works on x64 (native) and ARM64 (emulated).
+    $arch = 'amd64'
+    if ($env:PROCESSOR_ARCHITECTURE -eq 'ARM64') {
+        $arm64Libs = Join-Path $vsInstallPath 'VC\Tools\MSVC\*\lib\arm64'
+        if (Test-Path $arm64Libs) {
+            $arch = 'arm64'
+        }
+    }
+    Enter-VsDevShell -VsInstallPath $vsInstallPath -SkipAutomaticLocation -Arch $arch -HostArch amd64 | Out-Null
 
     return $vsInstallPath
 }
