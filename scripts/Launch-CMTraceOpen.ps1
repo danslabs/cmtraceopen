@@ -96,11 +96,13 @@ function Enable-VsDeveloperPowerShell {
         throw "Could not find Microsoft.VisualStudio.DevShell.dll at '$devShellModule'."
     }
 
-    $hostArch = Get-HostArchitecture
-    Write-Step "Detected host architecture: $hostArch"
+    $targetArch = Get-HostArchitecture
+    # -HostArch only accepts x86, amd64, or Default — use amd64 for ARM64 hosts
+    $hostToolArch = if ($targetArch -eq 'arm64') { 'amd64' } else { $targetArch }
+    Write-Step "Target architecture: $targetArch (host tools: $hostToolArch)"
 
     Import-Module $devShellModule
-    Enter-VsDevShell -VsInstallPath $vsInstallPath -SkipAutomaticLocation -Arch $hostArch -HostArch $hostArch | Out-Null
+    Enter-VsDevShell -VsInstallPath $vsInstallPath -SkipAutomaticLocation -Arch $targetArch -HostArch $hostToolArch | Out-Null
 
     return $vsInstallPath
 }
