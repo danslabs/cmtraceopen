@@ -208,6 +208,15 @@ fn parse_content_multiline(content: &str, file_path: &str) -> (Vec<LogEntry>, u3
                 server_port: None,
                 username: None,
                 win32_status: None,
+                query_name: None,
+                query_type: None,
+                response_code: None,
+                dns_direction: None,
+                dns_protocol: None,
+                source_ip: None,
+                dns_flags: None,
+                dns_event_id: None,
+                zone_name: None,
             });
             id_counter += 1;
         } else {
@@ -346,6 +355,15 @@ fn push_unmatched_plain(
                 server_port: None,
                 username: None,
                 win32_status: None,
+                query_name: None,
+                query_type: None,
+                response_code: None,
+                dns_direction: None,
+                dns_protocol: None,
+                source_ip: None,
+                dns_flags: None,
+                dns_event_id: None,
+                zone_name: None,
             });
             *id_counter += 1;
             *errors += 1;
