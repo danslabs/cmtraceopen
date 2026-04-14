@@ -43,11 +43,10 @@ export function useContextMenu() {
       const errorCode = findErrorCode(entry);
       const messagePreview = truncate(entry.message, 40);
 
-      // Marker state — read directly from store to get current state
+      // Marker state — use openFilePath from log-store as the canonical key,
+      // matching what LogListView uses for marker lookups.
       const markerState = useMarkerStore.getState();
-      const uiState = useUiStore.getState();
-      const activeTab = uiState.openTabs[uiState.activeTabIndex];
-      const filePath = activeTab?.filePath ?? "";
+      const filePath = useLogStore.getState().openFilePath || "";
       const fileMarkers = markerState.markersByFile.get(filePath);
       const existingMarker = fileMarkers?.get(entry.id);
 
@@ -134,21 +133,26 @@ export function useContextMenu() {
               id: "marker-remove",
               text: `Remove Marker (${currentCat?.label ?? existingMarker.category})`,
               action: () => {
-                useMarkerStore.getState().toggleMarker(filePath, entry.id);
-                useMarkerStore.getState().saveMarkers(filePath);
+                const fp = useLogStore.getState().openFilePath || "";
+                if (!fp) return;
+                useMarkerStore.getState().toggleMarker(fp, entry.id);
+                useMarkerStore.getState().saveMarkers(fp);
               },
             })
           );
           // Show category options to change
           for (const cat of categories) {
             if (cat.id === existingMarker.category) continue;
+            const catId = cat.id;
             items.push(
               await MenuItem.new({
-                id: `marker-set-${cat.id}`,
+                id: `marker-set-${catId}`,
                 text: `Change to ${cat.label}`,
                 action: () => {
-                  useMarkerStore.getState().setMarkerCategory(filePath, entry.id, cat.id);
-                  useMarkerStore.getState().saveMarkers(filePath);
+                  const fp = useLogStore.getState().openFilePath || "";
+                  if (!fp) return;
+                  useMarkerStore.getState().setMarkerCategory(fp, entry.id, catId);
+                  useMarkerStore.getState().saveMarkers(fp);
                 },
               })
             );
@@ -156,15 +160,20 @@ export function useContextMenu() {
         } else {
           // Show options to mark with each category
           for (const cat of categories) {
+            // Capture cat.id in a local const so the closure gets the right value
+            const catId = cat.id;
             items.push(
               await MenuItem.new({
-                id: `marker-add-${cat.id}`,
+                id: `marker-add-${catId}`,
                 text: `Mark as ${cat.label}`,
                 action: () => {
+                  // Read fresh state at action time — not from the closure
+                  const fp = useLogStore.getState().openFilePath || "";
+                  if (!fp) return;
                   const store = useMarkerStore.getState();
-                  store.setActiveCategory(cat.id);
-                  store.toggleMarker(filePath, entry.id);
-                  store.saveMarkers(filePath);
+                  store.setActiveCategory(catId);
+                  store.toggleMarker(fp, entry.id);
+                  store.saveMarkers(fp);
                 },
               })
             );
