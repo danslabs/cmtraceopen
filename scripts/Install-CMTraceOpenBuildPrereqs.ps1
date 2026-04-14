@@ -386,7 +386,10 @@ function Enable-VsDeveloperPowerShell {
     }
 
     Import-Module $devShellModule -Force
-    Enter-VsDevShell -VsInstallPath $vsInstallPath -SkipAutomaticLocation | Out-Null
+    # Use amd64 tools explicitly — works on both x64 (native) and ARM64
+    # (via emulation). The default without -Arch is x86 which causes
+    # linker architecture mismatches with Rust's target.
+    Enter-VsDevShell -VsInstallPath $vsInstallPath -SkipAutomaticLocation -Arch amd64 -HostArch amd64 | Out-Null
 
     return $vsInstallPath
 }
