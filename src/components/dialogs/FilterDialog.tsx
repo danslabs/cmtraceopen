@@ -10,7 +10,7 @@ export type FilterOp =
   | "Before"
   | "After";
 
-export type FilterField = "Message" | "Component" | "Thread" | "Timestamp";
+export type FilterField = "Message" | "Component" | "Thread" | "Timestamp" | "Severity";
 
 export interface FilterClause {
   field: FilterField;
@@ -30,6 +30,7 @@ const FIELDS: { label: string; value: FilterField }[] = [
   { label: "Component", value: "Component" },
   { label: "Thread", value: "Thread" },
   { label: "Date/Time", value: "Timestamp" },
+  { label: "Severity", value: "Severity" },
 ];
 
 const OPS: { label: string; value: FilterOp }[] = [

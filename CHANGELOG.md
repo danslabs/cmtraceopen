@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **Quick Stats panel**: New collapsible summary bar above the log viewer showing total vs. filtered line counts, severity breakdown cards, detected error code aggregates with one-click Error Lookup, and the visible log time range.
 - **Settings dialog** (replaces Accessibility dialog): Full settings UI with tabs for Appearance (themes, font size), Columns (visibility, ordering), Behavior (confirm tab close), Updates (auto-update toggle), and File Associations (Windows-only). Accessible via `Ctrl+,` or Window menu.
 - **Context menu**: Right-click any log row for Copy Line, Copy Message, Jump to Line, Quick Filter by severity/component, Reveal in File Manager, and Error Lookup. Uses native Tauri menu popup for OS-native feel.
 - **Event Log workspace** (Windows, feature-gated): Parse `.evtx` files and query live Windows Event Log channels. Supports file-based EVTX parsing with channel grouping, severity filtering, and correlation linking. Frontend workspace with channel sidebar, severity badges, and detail pane. Live queries use Win32 Event Log API (`EvtQuery`, `EvtRender`, `EvtFormatMessage`). "This Computer" auto-loads Application, System, Security, and Setup channels in parallel with progressive UI updates. Event Viewer-style nested tree sidebar (split on `-` and `/`) with resizable drag handle. Arrow key navigation, resizable detail pane, per-channel load/refresh buttons, and loading spinner with elapsed time in the status bar.
@@ -35,6 +36,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- **Settings dialog sizing**: The Settings dialog now uses a consistent fixed-height layout so all tabs render at the same usable height instead of resizing per tab.
 - **PR #82 review fixes**: Resolved merged-tab ID collisions by prefixing entry IDs with source file index. Session restore now persists recent sessions to `localStorage` on save. Correlation refresh no longer stalls when switching merged tabs. Diff view properly cleans up state on close.
 - **Intune cross-file sorting** (PR #78): Unified timeline sorting across multiple Intune log files now sorts by datetime consistently, fixing out-of-order entries when merging rotated log files.
 - **Code review fixes** (PR #81): Scroll sync no longer fights user interaction. Session restore validates file paths before loading. Merge entry deduplication uses stable sort. UTF-8 safety enforced in merge filename display. GUID casing normalized to lowercase for consistent lookups.
@@ -51,6 +53,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- **Tauri plugin alignment**: Updated `@tauri-apps/plugin-dialog` and `@tauri-apps/plugin-fs` to match the Tauri v2 dependency set and eliminate plugin version mismatches.
 - **Columns determined by parser**: Active columns are now derived from the detected parser format, not user toggles. Removed `hiddenColumns` from UI state.
 
 ### Security
