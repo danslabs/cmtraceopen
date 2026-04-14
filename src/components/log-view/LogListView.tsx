@@ -298,6 +298,7 @@ export function LogListView() {
   // ── Auto-fit column width ────────────────────────────────────────────────
   const handleHeaderDoubleClick = useCallback(
     (colId: ColumnId) => {
+      if (colId === "message") return;
       const def = getColumnDef(colId);
       if (!def) return;
       // Use a rendered row element so the font-family is fully resolved (no CSS variables)
@@ -315,6 +316,7 @@ export function LogListView() {
     const headerFont = getCanvasFont(listMetrics.headerFontSize, true, rowEl);
     const updates: Record<string, number> = {};
     for (const col of visibleColumns) {
+      if (col.id === "message") continue;
       updates[col.id] = calcAutoFitWidth(col, displayEntries, contentFont, headerFont);
     }
     setColumnWidths(updates);
@@ -510,6 +512,8 @@ function HeaderCell({
           role="button"
           aria-label="Auto-fit all columns to content width"
           title="Auto-fit all columns to content width"
+          draggable={false}
+          onDragStart={(e) => { e.preventDefault(); e.stopPropagation(); }}
           onClick={(e) => { e.stopPropagation(); onFitAll(); }}
           onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onFitAll(); } }}
           tabIndex={0}
