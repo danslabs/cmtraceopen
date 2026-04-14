@@ -485,6 +485,11 @@ Install-VisualStudioTools -Sku $VisualStudioSku
 Install-WingetPackage -PackageId 'Microsoft.EdgeWebView2Runtime'
 Install-WingetPackage -PackageId 'Rustlang.Rustup'
 
+# The ring crate requires clang for ARM64 assembly compilation.
+if ($env:PROCESSOR_ARCHITECTURE -eq 'ARM64') {
+    Install-WingetPackage -PackageId 'LLVM.LLVM'
+}
+
 if ($EnableVbScript) {
     Enable-VbScriptFeature
 }

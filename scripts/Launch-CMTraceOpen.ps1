@@ -182,6 +182,9 @@ $nodeModulesPath = Join-Path $appRoot 'node_modules'
 Write-Step 'Ensuring Rust toolchain is available on PATH'
 Add-RustToolchainToPath
 
+# ring crate needs clang on ARM64 - add LLVM to PATH if installed
+Add-PathEntryIfExists -PathEntry 'C:\Program Files\LLVM\bin'
+
 Write-Step 'Entering Visual Studio Developer PowerShell'
 $vsInstallPath = Enable-VsDeveloperPowerShell
 Write-Host "Using Visual Studio at $vsInstallPath" -ForegroundColor DarkGray
