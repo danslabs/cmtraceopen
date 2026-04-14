@@ -122,7 +122,7 @@ export function useContextMenu() {
       items.push(await PredefinedMenuItem.new({ item: "Separator" }));
 
       // ── Marker actions ──
-      // Always show marker items — actions read filePath at click time.
+      // Always show marker items — actions use entry.filePath directly.
       {
         const categories = markerState.categories;
         if (existingMarker) {
@@ -149,7 +149,7 @@ export function useContextMenu() {
                 id: `marker-set-${catId}`,
                 text: `Change to ${cat.label}`,
                 action: () => {
-                  const fp = useLogStore.getState().openFilePath || "";
+                  const fp = entry.filePath;
                   if (!fp) return;
                   useMarkerStore.getState().setMarkerCategory(fp, entry.id, catId);
                   useMarkerStore.getState().saveMarkers(fp);
@@ -167,8 +167,7 @@ export function useContextMenu() {
                 id: `marker-add-${catId}`,
                 text: `Mark as ${cat.label}`,
                 action: () => {
-                  // Read fresh state at action time — not from the closure
-                  const fp = useLogStore.getState().openFilePath || "";
+                  const fp = entry.filePath;
                   if (!fp) return;
                   const store = useMarkerStore.getState();
                   store.setActiveCategory(catId);
