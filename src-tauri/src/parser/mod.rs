@@ -166,6 +166,11 @@ pub fn parse_lines_with_selection(
         }
         crate::models::log_entry::ParserImplementation::DnsAudit => {
             // EVTX files are parsed via the binary path in parse_file(), not the line-based pipeline.
+            // SecureBootLog has its own dedicated IPC command; not routed through this pipeline.
+            (vec![], 0)
+        }
+        crate::models::log_entry::ParserImplementation::CmtLog => {
+            // CmtLog parser is not yet implemented; placeholder for Task 2.
             (vec![], 0)
         }
         crate::models::log_entry::ParserImplementation::GenericTimestamped => match selection.parser {
