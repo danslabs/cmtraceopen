@@ -98,6 +98,8 @@ Color-coded categories with:
 - **Row tint** — subtle background highlight in the category color
 - **Left border** — 3px colored left border on marked rows
 
+**Visual precedence:** When a marked line is also inside a section (both marker left-border and section left-edge band apply), the marker color takes priority on the left border since it represents user intent. The section band shifts to a secondary indicator (e.g., a thin 2px band outside the marker border, or the row tint carries the section color while the border carries the marker color).
+
 ### Default Categories
 
 | ID | Label | Color |
