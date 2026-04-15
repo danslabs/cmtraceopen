@@ -89,7 +89,9 @@ jobs:
 
       - name: Generate Rust SBOM
         working-directory: src-tauri
-        run: cargo cyclonedx --format json --output-file ../sbom-rust.cdx.json
+        run: |
+          cargo cyclonedx --format json --override-filename sbom-rust
+          mv sbom-rust.json ../sbom-rust.cdx.json
 
       - name: Generate npm SBOM
         run: npm sbom --sbom-format cyclonedx > sbom-npm.cdx.json
