@@ -66,6 +66,20 @@ Pull requests must pass:
 2. `npx tsc --noEmit` (Node 20)
 3. Tauri build on macOS-arm64, Windows-x64, Linux-x64
 
+## MCP Servers (optional)
+
+The repo ships an `.mcp.json` with three dev/debug MCP servers that MCP-aware clients (Claude Code, Cursor, VS Code with Copilot) pick up automatically:
+
+| Server | Purpose | Prerequisites |
+|--------|---------|---------------|
+| `github` | PRs, issues, CI logs via the official GitHub MCP (remote, OAuth) | Browser sign-in on first use |
+| `chrome-devtools` | Inspect DOM, console, and network on `http://localhost:1420` | Chrome Stable installed locally; Node ≥ 20.19 |
+| `playwright` | Scripted headless browser for UI repros and smoke checks | Triggers a ~150 MB Chromium download on first run; pre-run `npx playwright install chromium` to avoid the wait |
+
+Both browser servers drive real Chrome over CDP — they can debug the **Vite dev server** (`npm run frontend:dev`) but cannot attach to the running Tauri app (which uses WebView2 on Windows and WKWebView on macOS). Use them for pure-frontend UI debugging.
+
+Opting out: delete `.mcp.json` locally (do not commit), or disable individual servers in your client's MCP settings.
+
 ## Architecture
 
 ### Two-Process Model (Tauri v2)
