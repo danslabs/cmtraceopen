@@ -133,12 +133,15 @@ pub fn parse_files_batch(
     let batch_start = std::time::Instant::now();
     let completed = AtomicU32::new(0);
 
-    // Parse all files in parallel on Rayon's thread pool (lock-free)
+    // Parse all files in parallel on Rayon's thread pool (lock-free).
+    // Per-file failures are logged + emitted as progress inside the closure
+    // (where `path` is in scope) so the UI's progress counter still advances
+    // when files are skipped, and the warn log includes the offending path.
     let results: Vec<Result<(ParseResult, crate::parser::ResolvedParser, String), crate::error::AppError>> = paths
         .par_iter()
         .map(|path| {
             let file_start = std::time::Instant::now();
-            let (result, parser_selection) = parser::parse_file(path)?;
+            let parse_outcome = parser::parse_file(path);
             let file_ms = file_start.elapsed().as_millis() as u64;
 
             let done = completed.fetch_add(1, AtomicOrdering::Relaxed) + 1;
@@ -147,28 +150,53 @@ pub fn parse_files_batch(
                 .map(|n| n.to_string_lossy().to_string())
                 .unwrap_or_default();
 
-            log::info!(
-                "  event=parse_file_done [{done}/{total}] path=\"{path}\" entries={} lines={} size={} ms={file_ms}",
-                result.entries.len(),
-                result.total_lines,
-                result.file_size,
-            );
+            match parse_outcome {
+                Ok((result, parser_selection)) => {
+                    log::info!(
+                        "  event=parse_file_done [{done}/{total}] path=\"{path}\" entries={} lines={} size={} ms={file_ms}",
+                        result.entries.len(),
+                        result.total_lines,
+                        result.file_size,
+                    );
 
-            // Fire-and-forget progress event to the frontend
-            let _ = app.emit(
-                "parse-progress",
-                ParseProgressPayload {
-                    file_path: path.clone(),
-                    file_name,
-                    completed: done,
-                    total,
-                    entries: result.entries.len() as u32,
-                    file_size: result.file_size,
-                    parse_ms: file_ms,
-                },
-            );
+                    let _ = app.emit(
+                        "parse-progress",
+                        ParseProgressPayload {
+                            file_path: path.clone(),
+                            file_name,
+                            completed: done,
+                            total,
+                            entries: result.entries.len() as u32,
+                            file_size: result.file_size,
+                            parse_ms: file_ms,
+                        },
+                    );
 
-            Ok((result, parser_selection, path.clone()))
+                    Ok((result, parser_selection, path.clone()))
+                }
+                Err(error) => {
+                    log::warn!(
+                        "  event=parse_file_skip [{done}/{total}] path=\"{path}\" error=\"{error}\""
+                    );
+
+                    // Emit progress for the skip so the UI counter still
+                    // advances and doesn't stall below `total`.
+                    let _ = app.emit(
+                        "parse-progress",
+                        ParseProgressPayload {
+                            file_path: path.clone(),
+                            file_name,
+                            completed: done,
+                            total,
+                            entries: 0,
+                            file_size: 0,
+                            parse_ms: file_ms,
+                        },
+                    );
+
+                    Err(crate::error::AppError::from(error))
+                }
+            }
         })
         .collect();
 
@@ -179,8 +207,6 @@ pub fn parse_files_batch(
     );
 
     // Collect successes and store parser state (requires lock, done sequentially).
-    // Per-file failures are logged and skipped so the rest of the batch still loads
-    // (e.g. one inaccessible file in a folder must not abort the whole open).
     let mut parse_results = Vec::with_capacity(results.len());
     let mut skipped = 0u32;
     let mut open_files = state.open_files.lock().map_err(|e| crate::error::AppError::State(e.to_string()))?;
@@ -199,9 +225,8 @@ pub fn parse_files_batch(
                 );
                 parse_results.push(result);
             }
-            Err(error) => {
+            Err(_) => {
                 skipped = skipped.saturating_add(1);
-                log::warn!("event=parse_files_batch_skip error=\"{error}\"");
             }
         }
     }

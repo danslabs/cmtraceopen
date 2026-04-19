@@ -20,10 +20,23 @@ export function FileAssociationsTab() {
       return;
     }
     try {
-      const result = await invoke<FileAssociationPromptStatus>(
-        "get_file_association_prompt_status"
-      );
-      setIsAssociated(result.isAssociated);
+      const result = await invoke("get_file_association_prompt_status");
+      // Defensive shape check — the dev ipc_bridge stub used to return a
+      // plain string ("dismissed"), and other transports could change too.
+      if (
+        typeof result === "object" &&
+        result !== null &&
+        "isAssociated" in result &&
+        typeof (result as FileAssociationPromptStatus).isAssociated === "boolean"
+      ) {
+        setIsAssociated((result as FileAssociationPromptStatus).isAssociated);
+      } else {
+        console.warn(
+          "[file-associations] unexpected association status shape",
+          result
+        );
+        setIsAssociated(null);
+      }
     } catch (err) {
       console.warn("[file-associations] failed to read association status", err);
       setIsAssociated(null);
