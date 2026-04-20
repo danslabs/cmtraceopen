@@ -90,7 +90,7 @@ pub fn scan_log_directory(dir: &str) -> Vec<MacosLogFileEntry> {
     }
 
     // Sort newest first
-    entries.sort_by(|a, b| b.modified_unix_ms.cmp(&a.modified_unix_ms));
+    entries.sort_by_key(|e| std::cmp::Reverse(e.modified_unix_ms));
     entries
 }
 

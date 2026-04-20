@@ -42,6 +42,9 @@ export function useContextMenu() {
 
       const errorCode = findErrorCode(entry);
       const messagePreview = truncate(entry.message, 40);
+      // Capture selected text BEFORE the menu opens, since popping the native
+      // menu can clear the document selection on some platforms.
+      const selectedText = window.getSelection()?.toString().trim() ?? "";
 
       // Marker state — use entry.filePath as the canonical key
       const markerState = useMarkerStore.getState();
@@ -79,6 +82,26 @@ export function useContextMenu() {
       }
 
       items.push(await PredefinedMenuItem.new({ item: "Separator" }));
+
+      if (selectedText.length > 0 && selectedText !== entry.message) {
+        const selectionPreview = truncate(selectedText, 40);
+        items.push(
+          await MenuItem.new({
+            id: "include-filter-selection",
+            text: `Include lines containing: "${selectionPreview}"`,
+            action: () => {
+              addQuickFilter("Message", selectedText, "Contains");
+            },
+          }),
+          await MenuItem.new({
+            id: "exclude-filter-selection",
+            text: `Exclude lines containing: "${selectionPreview}"`,
+            action: () => {
+              addQuickFilter("Message", selectedText, "NotContains");
+            },
+          })
+        );
+      }
 
       items.push(
         await MenuItem.new({

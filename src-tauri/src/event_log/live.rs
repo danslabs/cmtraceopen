@@ -103,7 +103,7 @@ pub fn enumerate_channels() -> Result<Vec<EvtxChannelInfo>, String> {
 
     unsafe { let _ = EvtClose(EVT_HANDLE(raw_handle)); }
 
-    channels.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
+    channels.sort_by_key(|c| c.name.to_lowercase());
     Ok(channels)
 }
 

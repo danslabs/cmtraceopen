@@ -1,36 +1,37 @@
-mod constants;
 #[cfg(feature = "collector")]
 pub mod collector;
 mod commands;
-#[cfg(debug_assertions)]
-mod ipc_bridge;
+mod constants;
 #[cfg(feature = "dsregcmd")]
 pub mod dsregcmd;
 pub mod error;
 pub mod error_db;
+#[cfg(feature = "event-log")]
+pub mod event_log;
 #[cfg(target_os = "windows")]
 pub mod graph_api;
 pub mod intune;
-#[cfg(feature = "event-log")]
-pub mod event_log;
+#[cfg(debug_assertions)]
+mod ipc_bridge;
 #[cfg(feature = "macos-diag")]
 pub mod macos_diag;
 mod menu;
 mod models;
 pub mod parser;
+pub mod process_util;
 #[cfg(feature = "secureboot")]
 pub mod secureboot;
+mod state;
 #[cfg(feature = "sysmon")]
 pub mod sysmon;
-mod state;
 mod watcher;
 
 use state::app_state::AppState;
 
 #[cfg(target_os = "windows")]
-use tauri::Manager;
-#[cfg(target_os = "windows")]
 use graph_api::GraphAuthState;
+#[cfg(target_os = "windows")]
+use tauri::Manager;
 
 /// Returns all non-flag CLI arguments as potential file paths.
 ///
@@ -58,7 +59,9 @@ pub fn run() {
         .plugin(tauri_plugin_process::init())
         .setup(|app| {
             #[cfg(desktop)]
-            app.handle().plugin(tauri_plugin_updater::Builder::new().build())?;
+            app.handle()
+                .plugin(tauri_plugin_updater::Builder::new().build())?;
+
             let native_menu = menu::build_app_menu(app.handle())?;
             app.set_menu(native_menu)?;
 

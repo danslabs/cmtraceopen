@@ -41,6 +41,11 @@ function Add-RustToolchainToPath {
     Add-PathEntryIfExists -PathEntry $cargoBin
 }
 
+function Add-NodeToolchainToPath {
+    Add-PathEntryIfExists -PathEntry 'C:\Program Files\nodejs'
+    Add-PathEntryIfExists -PathEntry (Join-Path $env:USERPROFILE 'AppData\Local\Programs\nodejs')
+}
+
 function Assert-CommandAvailable {
     param(
         [Parameter(Mandatory = $true)]
@@ -179,8 +184,26 @@ $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $appRoot = Split-Path -Parent $scriptRoot
 $nodeModulesPath = Join-Path $appRoot 'node_modules'
 
+# Kill any stale cmtrace-open processes and free port 1420 before starting a dev session.
+# This prevents the "address already in use" error on rapid restarts.
+if ($Mode -eq 'Dev' -or $Mode -eq 'BuildAndRun') {
+    $staleProcs = Get-Process 'cmtrace-open' -ErrorAction SilentlyContinue
+    if ($staleProcs) {
+        Write-Step 'Stopping stale cmtrace-open process(es)'
+        $staleProcs | Stop-Process -Force -ErrorAction SilentlyContinue
+    }
+    $portListeners = Get-NetTCPConnection -LocalPort 1420 -State Listen -ErrorAction SilentlyContinue
+    if ($portListeners) {
+        Write-Step 'Freeing port 1420 held by stale process(es)'
+        $portListeners |
+            Select-Object -ExpandProperty OwningProcess -Unique |
+            ForEach-Object { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue }
+    }
+}
+
 Write-Step 'Ensuring Rust toolchain is available on PATH'
 Add-RustToolchainToPath
+Add-NodeToolchainToPath
 
 # ring crate needs clang on ARM64 - add LLVM to PATH if installed
 Add-PathEntryIfExists -PathEntry 'C:\Program Files\LLVM\bin'
@@ -190,7 +213,9 @@ $vsInstallPath = Enable-VsDeveloperPowerShell
 Write-Host "Using Visual Studio at $vsInstallPath" -ForegroundColor DarkGray
 
 Add-RustToolchainToPath
+Add-NodeToolchainToPath
 Assert-CommandAvailable -CommandName 'cargo.exe' -ErrorMessage 'Could not find cargo.exe on PATH. Install Rust via rustup or run scripts/Install-CMTraceOpenBuildPrereqs.ps1, then open a new terminal and retry.'
+Assert-CommandAvailable -CommandName 'npm.cmd' -ErrorMessage 'Could not find npm.cmd on PATH. Install Node.js or run scripts/Install-CMTraceOpenBuildPrereqs.ps1, then open a new terminal and retry.'
 
 Set-Location $appRoot
 

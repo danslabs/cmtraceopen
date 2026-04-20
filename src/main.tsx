@@ -29,6 +29,10 @@ function AppRoot() {
   }, []);
 
   useEffect(() => {
+    void initializeDateTimeFormatting();
+  }, []);
+
+  useEffect(() => {
     let unlisten: (() => void) | undefined;
     getCurrentWindow()
       .onFocusChanged(({ payload: focused }) => {
@@ -99,8 +103,6 @@ style.textContent = `
 document.head.appendChild(style);
 
 async function bootstrap() {
-  await initializeDateTimeFormatting();
-
   ReactDOM.createRoot(document.getElementById("root")!).render(
     <RootWrapper>
       <ThemedApp />

@@ -65,7 +65,7 @@ pub fn evaluate_all(
     rule_windows_10_eol(state, &mut findings);
 
     // Sort: errors first, then warnings, then info.
-    findings.sort_by(|a, b| b.severity.cmp(&a.severity));
+    findings.sort_by_key(|f| std::cmp::Reverse(f.severity));
     findings
 }
 
