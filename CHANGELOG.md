@@ -6,31 +6,48 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- **Unified multi-file timeline workspace**: New workspace merges entries from multiple log files into a single time-sorted view with overlap-based incident detection for correlating events across sources.
-- **DNS/DHCP cross-origin workspace**: Dedicated workspace combining DNS debug log parser, DNS audit EVTX parser, and DHCP server log analysis with server management capabilities.
-- **Cross-platform CI restored**: macOS, Linux, and Windows builds re-enabled in the CI matrix, ensuring all three platforms are tested on every PR.
-- **Filter toggle button**: Quick toggle to enable/disable active filters without clearing them.
-- **"Open All" for known log source families**: One-click action to open all log files in a known source family (e.g., all DNS logs).
-- **Search/filter result count in status bar**: Live count of matching entries displayed in the status bar when search or filter is active.
+- **Unified multi-file timeline workspace** (#169): Open a folder of log files and get a unified time-sorted view. Includes swim lane visualization (per-file lanes with time-bucketed aggregation), overlap-based incident detection with sliding-window signal clustering, GUID correlation heuristics, confidence scoring, incident detail panel with signal breakdown, brush selection, solo/mute toggles, and full IPC layer with paginated queries. Criterion benchmarks for incidents and bucket aggregation. 3 integration tests.
+- **DNS/DHCP cross-origin workspace** (#170): Dedicated workspace for Windows DNS Server troubleshooting. DNS debug log parser with structured query/response analysis (267 DNS record types, rcodes, opcodes). DNS audit EVTX parser with EventID-based schema dispatch (IDs 256–582). Auto-discovery scans server for DNS/DHCP log paths and detects DNS debug logging status. Domain-wide collection via PowerShell script with progress UI. Per-device analysis with query tables, rcode/qtype filtering, and device summary headers.
+- **Filter toggle button** (#168): Toolbar button shows "Filter..." when inactive, "Filter (N)" with active count when filtering. Click clears the active filter. Disabled when no entries to filter.
+- **"Open All" for file-type known log sources** (#168): "Open All" now handles file-type sources (e.g., `CBS.log`, `setupact.log`), not just folder-type sources. Direct file paths are existence-checked via `inspectPathKind` before loading.
+- **`matchesAnyPattern` glob utility** (#168): Extracted glob matching to `src/lib/glob.ts` with 18 unit tests. Handles wildcards, prefix/suffix patterns, and multi-segment matching.
+- **Search/filter result count in status bar** (#160, #172): Status bar shows "42 of 1,234 entries" when a filter or search is active. Entry position shows "Entry 5 of 42 (1,234 total)" when a row is selected during filtering. Numbers use `toLocaleString()` for comma separators and `tabular-nums` for stable column width.
+- **Cross-platform CI** (#163): Restored macOS-arm64, Windows-x64, and Linux-x64 builds in the CI matrix. Linux dependency install gated to `runner.os == 'Linux'`. Updater signing disabled cross-platform via Node.js. Artifact upload restricted to distributable formats (`.msi`, `.exe`, `.dmg`, `.deb`, `.AppImage`).
 
 ### Fixed
 
-- **CBS/DISM parser accepts all components** (#154): Parser no longer rejects log entries from unlisted components, fixing missed entries in CBS and DISM logs.
-- **Event Viewer strips control characters** (#159): Control characters in EVTX event data are now stripped before display, preventing garbled output.
-- **Filter toggle UX and "Open All" for known sources** (#152): Filter toggle behaves correctly across workspace switches; "Open All" properly resolves file paths for known log source families.
+- **CBS/DISM parser accepts all components** (#154, #165): Removed overly restrictive component allowlists from `parse_header()`. CBS previously only accepted `CBS|CSI|TI|SR|SFC|RIBS|OC|POQ|SQM|DWLD`; DISM only accepted components starting with `DISM`. Entries from other components (DPX, WCP, CMIV, etc.) fell through to plain text. Detection logic still uses allowlists for format auto-detection, but once identified, all well-formed lines parse as structured entries. 4 new unit tests, 2 corpus fixtures, 2 regression tests.
+- **Event Viewer strips control characters** (#159, #166): Added `sanitize_control_chars()` utility that strips C0 control characters (U+0000–U+001F) and DEL (U+007F), preserving `\t` and `\n`. Applied at all EVTX parsing paths: file-based, live queries, and Sysmon. 8 new unit tests.
+- **Filter toggle UX** (#152, #168): Re-clicking the filter button now clears the active filter instead of silently doing nothing.
 
 ### Changed
 
-- **Design system polish**: Token drift fixes, emoji icons replaced with Fluent UI icons, ARIA accessibility improvements, `box-shadow` migrated to design tokens, timeline theming aligned with the design system, buttons normalized to sentence case, and border-radius/spacing standardized across all components.
+- **Parser crate extraction** (#155, #157, #158): Extracted parser, models, error_db, intune analyzers, dsregcmd analyzers, and collector types into `crates/cmtraceopen-parser` — a standalone, platform-agnostic Rust crate. Enables sharing the parser with [cmtraceopen-web](https://github.com/adamgell/cmtraceopen-web) via git submodule. Repo is now a Cargo workspace (`[workspace] members = ["src-tauri", "crates/cmtraceopen-parser"]`). `Cargo.lock` moved to workspace root. CI cargo cache keys updated accordingly. `src-tauri` re-exports the crate's public API via shim modules for backward compatibility.
+- **Design system polish** (#171, #173): Full audit and polish pass against `docs/design-system/SKILL.md` rubric (95 files changed):
+  - Fixed 4 token drifts between `tokens.css` and TS themes (classic-cmtrace, hotdog-stand, nord)
+  - Replaced 6 emoji/unicode characters with Fluent UI icons (`FolderRegular`, `ChevronDownRegular`, `DismissRegular`, `CheckmarkRegular`)
+  - Replaced 3 inline SVGs with Fluent icon components
+  - Added ARIA attributes to 8 interactive elements (`aria-pressed`, `aria-label`, `role`, `tabIndex`)
+  - Replaced 8 hardcoded `box-shadow` strings with `tokens.shadow8`/`shadow16`
+  - Migrated 10 card shadows to strokes in macOS workspace (SKILL.md rule 4)
+  - Themed entire timeline directory — 25+ hardcoded hex colors replaced with Fluent tokens, including `resolveToken()` helper for canvas 2D context
+  - Sentence-cased 40+ button labels across 29 files
+  - Normalized 50+ `border-radius` values to the 0/2/4/6/8/12/16 scale; pill badges use `tokens.borderRadiusCircular`
+  - Normalized 50+ spacing values to the 2/4/6/8/10/12/16/20/24/32 scale
+  - Added per-theme semantic tokens for merge tab colors (8-color palette), whatif overlays, and collection status indicators
+  - Replaced hardcoded `#d13438` error color with `tokens.colorPaletteRedForeground1`
+  - Added `@fluentui/react-icons` as a direct dependency (was transitive only)
+- **Clippy cleanup** (#158): Resolved `--all-targets` warnings in test code.
 
 ### Dependencies
 
-- `windows` 0.61 to 0.62, `windows-future` 0.2 to 0.3
-- `winreg` 0.55 to 0.56
-- `@tanstack/react-virtual` 3.13.23 to 3.13.24
-- `actions/setup-node` 6.3.0 to 6.4.0
-- `taiki-e/install-action` 2.75.10 to 2.75.18
-- Dev deps: `typescript` 6.0.2 to 6.0.3, `vite` 8.0.8 to 8.0.9
+- `windows` 0.61 → 0.62, `windows-future` 0.2 → 0.3 (coordinated upgrade; `.get()` → `.join()` API migration in `graph_api.rs`)
+- `winreg` 0.55 → 0.56
+- `@fluentui/react-icons` added as direct dependency (`^2.0.321`)
+- `@tanstack/react-virtual` 3.13.23 → 3.13.24
+- `actions/setup-node` 6.3.0 → 6.4.0
+- `taiki-e/install-action` 2.75.10 → 2.75.18
+- Dev deps: `typescript` 6.0.2 → 6.0.3, `vite` 8.0.8 → 8.0.9
 
 ## [1.2.1] - 2026-04-20
 
