@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.1] - 2026-05-06
+
+### Fixed
+
+- **CCM logs with empty type/thread fields** (#184): CCM entries with `type=""` or `thread=""` now parse as structured CCM records instead of falling through to plain text. Empty values default to `0`, preserving severity classification and thread display for agent-generated logs.
+
 ## [1.3.0] - 2026-05-03
 
 ### Added
